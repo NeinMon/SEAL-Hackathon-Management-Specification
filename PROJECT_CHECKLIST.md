@@ -5,6 +5,7 @@ This file maps the project implementation to the main function specification.
 ## Architecture
 
 - Flutter UI: `lib/views/**`
+- Android runner: `android/**`
 - Model layer: `lib/models/**`
 - Provider/ViewModel layer: `lib/providers/**`
 - Supabase service layer: `lib/services/supabase_services.dart`
@@ -80,6 +81,10 @@ navigation by coordinates. No Google Maps API key is required.
 
 - `flutter analyze`
 - `flutter test`
-- `flutter build web --release`
 - `flutter build apk --debug`
 - `.\scripts\smoke_supabase_flow.ps1`: login participant/judge, load event, create team, add member, submit project, send chat message, insert/update score, create notification, mark notification read.
+
+## Platform Scope
+
+The repository is Android-focused for Android Studio deployment. Unused iOS,
+macOS, Linux, Windows, and web runner folders were removed.

@@ -49,15 +49,15 @@ $env:SUPABASE_SERVICE_ROLE_KEY="YOUR_LOCAL_OR_HOSTED_SERVICE_ROLE_KEY"
 
 ## Run App
 
+For Android Studio emulator, use `10.0.2.2` to reach the local Supabase server
+running on Windows:
+
 ```powershell
-flutter run -d web-server --web-hostname 127.0.0.1 --web-port 8090 --dart-define=SUPABASE_URL=http://127.0.0.1:54321 --dart-define=SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
+flutter run -d emulator-5554 --dart-define=SUPABASE_URL=http://10.0.2.2:54321 --dart-define=SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
 ```
 
-Then open:
-
-```text
-http://127.0.0.1:8090/#/login
-```
+You can also open the project in Android Studio, select the Android emulator,
+choose the `main.dart` run configuration, and press Run.
 
 ## Main Flow
 
@@ -76,7 +76,6 @@ http://127.0.0.1:8090/#/login
 ```powershell
 flutter analyze
 flutter test
-flutter build web --release
 flutter build apk --debug
 ```
 
@@ -88,5 +87,5 @@ With local Supabase running and demo users seeded:
 
 See `PROJECT_CHECKLIST.md` for the implementation-to-specification mapping.
 
-See `MOBILE_DEPLOYMENT.md` for Android, iPhone web testing from Windows, and
-native iOS/TestFlight deployment steps.
+See `MOBILE_DEPLOYMENT.md` for Android Studio, emulator, APK, and Android
+device deployment steps.
