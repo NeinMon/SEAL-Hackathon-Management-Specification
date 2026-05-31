@@ -13,7 +13,7 @@ class NotificationProvider extends ChangeNotifier {
     try {
       notifications = await _service.fetchForUser(userId);
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     isLoading = false;
     notifyListeners();
@@ -38,7 +38,7 @@ class NotificationProvider extends ChangeNotifier {
         await loadForUser(userId);
       }
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     notifyListeners();
   }
@@ -50,7 +50,7 @@ class NotificationProvider extends ChangeNotifier {
       notifications.firstWhere((notification) => notification.id == id).isRead =
           true;
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     notifyListeners();
   }
@@ -61,8 +61,15 @@ class NotificationProvider extends ChangeNotifier {
       await _service.deleteNotification(id);
       notifications.removeWhere((notification) => notification.id == id);
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
+    notifyListeners();
+  }
+
+  void clear() {
+    notifications = [];
+    error = null;
+    isLoading = false;
     notifyListeners();
   }
 }

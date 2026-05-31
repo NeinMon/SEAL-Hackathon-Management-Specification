@@ -126,6 +126,14 @@ using (
     where team_members.team_id = submissions.team_id
       and team_members.user_id = auth.uid()
   )
+)
+with check (
+  exists (
+    select 1
+    from team_members
+    where team_members.team_id = submissions.team_id
+      and team_members.user_id = auth.uid()
+  )
 );
 
 drop policy if exists "Authenticated users can view scores" on scores;

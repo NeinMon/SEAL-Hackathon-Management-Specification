@@ -14,7 +14,7 @@ class ScoreProvider extends ChangeNotifier {
     try {
       scores = await _service.fetchScores();
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     isLoading = false;
     notifyListeners();
@@ -30,7 +30,7 @@ class ScoreProvider extends ChangeNotifier {
       await loadScores();
       message = 'Score saved successfully.';
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     isLoading = false;
     notifyListeners();
@@ -43,5 +43,26 @@ class ScoreProvider extends ChangeNotifier {
     if (related.isEmpty) return 0;
     return related.map((score) => score.average).reduce((a, b) => a + b) /
         related.length;
+  }
+
+  int scoreCountFor(String submissionId) {
+    return scores.where((score) => score.submissionId == submissionId).length;
+  }
+
+  ProjectScore? scoreFor(String submissionId, String judgeId) {
+    for (final score in scores) {
+      if (score.submissionId == submissionId && score.judgeId == judgeId) {
+        return score;
+      }
+    }
+    return null;
+  }
+
+  void clear() {
+    scores = [];
+    error = null;
+    message = null;
+    isLoading = false;
+    notifyListeners();
   }
 }

@@ -8,15 +8,18 @@ class ChatProvider extends ChangeNotifier {
   bool isLoading = false;
   String? error;
 
-  Future<void> loadContacts() async {
+  Future<void> loadContacts(AppUser currentUser) async {
     isLoading = true;
     error = null;
     notifyListeners();
     try {
-      contacts = await _service.fetchContacts();
-      selectedContact ??= contacts.isEmpty ? null : contacts.first;
+      contacts = await _service.fetchContacts(currentUser);
+      if (selectedContact == null ||
+          !contacts.any((contact) => contact.id == selectedContact!.id)) {
+        selectedContact = contacts.isEmpty ? null : contacts.first;
+      }
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     isLoading = false;
     notifyListeners();
@@ -34,7 +37,7 @@ class ChatProvider extends ChangeNotifier {
     try {
       messages = await _service.fetchConversation(userId, receiverId);
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     isLoading = false;
     notifyListeners();
@@ -65,7 +68,7 @@ class ChatProvider extends ChangeNotifier {
       );
       await load(senderId, receiverId);
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
       notifyListeners();
     }
   }
@@ -76,8 +79,17 @@ class ChatProvider extends ChangeNotifier {
       await _service.deleteMessage(message.id);
       messages.removeWhere((item) => item.id == message.id);
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
+    notifyListeners();
+  }
+
+  void clear() {
+    contacts = [];
+    selectedContact = null;
+    messages = [];
+    error = null;
+    isLoading = false;
     notifyListeners();
   }
 }

@@ -91,9 +91,11 @@ create index if not exists teams_event_id_idx on teams(event_id);
 create index if not exists teams_leader_id_idx on teams(leader_id);
 create index if not exists team_members_user_id_idx on team_members(user_id);
 create index if not exists submissions_team_id_idx on submissions(team_id);
+create index if not exists submissions_submitted_at_idx on submissions(submitted_at desc);
 create index if not exists scores_submission_id_idx on scores(submission_id);
 create index if not exists notifications_user_id_idx on notifications(user_id);
 create index if not exists messages_sender_receiver_idx on messages(sender_id, receiver_id);
+create index if not exists messages_receiver_sender_idx on messages(receiver_id, sender_id);
 
 insert into events (
   title,

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:seal_hackathon_app/main.dart';
+import 'package:supabase/supabase.dart';
 
 void main() {
   test('AppUser parses Supabase profile rows', () {
@@ -99,6 +100,76 @@ void main() {
 
     expect(provider.averageFor('submission-id'), 8.5);
     expect(provider.averageFor('missing'), 0);
+    expect(provider.scoreCountFor('submission-id'), 2);
+    expect(provider.scoreFor('submission-id', 'judge-a')?.technicalScore, 8);
+  });
+
+  test('AppValidators accepts only clean emails and web URLs', () {
+    expect(AppValidators.isValidEmail('participant@seal.test'), isTrue);
+    expect(AppValidators.isValidEmail('bad-email'), isFalse);
+    expect(AppValidators.isValidWebUrl('https://github.com/seal/app'), isTrue);
+    expect(AppValidators.isValidWebUrl('ftp://example.com/file'), isFalse);
+    expect(AppValidators.scoreError(0, 5, 10), isNull);
+    expect(AppValidators.scoreError(11, 5, 10), contains('between 0 and 10'));
+  });
+
+  test('FriendlyErrorMapper hides raw PostgrestException details', () {
+    final message = FriendlyErrorMapper.message(
+      const PostgrestException(
+        message: 'new row violates row-level security policy',
+        code: '42501',
+      ),
+    );
+
+    expect(message, contains('Permission denied'));
+    expect(message, isNot(contains('PostgrestException')));
+  });
+
+  test('TeamProvider blocks joining a full team before service call', () async {
+    const user = AppUser(
+      id: 'new-user',
+      fullName: 'New User',
+      email: 'new@example.com',
+      role: AppRoles.participant,
+      university: 'FPT University',
+    );
+    final event = HackathonEvent(
+      id: 'event-id',
+      title: 'SEAL Hackathon',
+      description: 'Build useful products.',
+      startDate: DateTime(2026, 6, 12),
+      endDate: DateTime(2026, 6, 14),
+      location: 'HCMC',
+      bannerUrl: 'https://example.com/banner.jpg',
+      registrationDeadline: DateTime(2026, 6, 5),
+      maxTeamSize: 1,
+      rules: 'Rules',
+      prize: 'Prize',
+      latitude: 10,
+      longitude: 106,
+    );
+    final provider = TeamProvider()
+      ..teams = const [
+        Team(
+          id: 'team-id',
+          name: 'Full Team',
+          leaderId: 'leader-id',
+          eventId: 'event-id',
+          members: [
+            AppUser(
+              id: 'leader-id',
+              fullName: 'Leader',
+              email: 'leader@example.com',
+              role: AppRoles.participant,
+              university: 'FPT University',
+            ),
+          ],
+        ),
+      ];
+
+    await provider.joinTeam('team-id', user, event: event);
+
+    expect(provider.error, contains('already full'));
   });
 
   test('EventProvider filters by phase and search keyword', () {

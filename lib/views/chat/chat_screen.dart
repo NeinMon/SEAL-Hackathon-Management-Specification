@@ -18,7 +18,7 @@ class _ChatScreenState extends State<ChatScreen> {
       final user = context.read<AuthProvider>().user;
       if (user != null) {
         final chat = context.read<ChatProvider>();
-        chat.loadContacts().then((_) {
+        chat.loadContacts(user).then((_) {
           final contact = chat.selectedContact;
           if (contact != null) {
             chat.load(user.id, contact.id);
@@ -45,7 +45,11 @@ class _ChatScreenState extends State<ChatScreen> {
     final chat = context.watch<ChatProvider>();
     final user = context.watch<AuthProvider>().user;
     return RoleGate(
-      allowedRoles: const {'participant', 'mentor', 'organizer'},
+      allowedRoles: const {
+        AppRoles.participant,
+        AppRoles.mentor,
+        AppRoles.organizer,
+      },
       message: 'Chat is available for participants, mentors, and organizers.',
       child: Column(
         children: [
@@ -210,9 +214,8 @@ class _MessageBubble extends StatelessWidget {
                           minWidth: 28,
                           minHeight: 28,
                         ),
-                        onPressed: () => context
-                            .read<ChatProvider>()
-                            .deleteMessage(message, currentUser!.id),
+                        onPressed: () =>
+                            _confirmDelete(context, currentUser!.id),
                         icon: const Icon(Icons.delete_outline, size: 18),
                       ),
                     ],
@@ -224,5 +227,27 @@ class _MessageBubble extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _confirmDelete(BuildContext context, String userId) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete message?'),
+        content: const Text('This removes your message from the conversation.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (shouldDelete != true || !context.mounted) return;
+    await context.read<ChatProvider>().deleteMessage(message, userId);
   }
 }

@@ -92,8 +92,7 @@ class _MapScreenState extends State<MapScreen> {
                         TileLayer(
                           urlTemplate:
                               'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                          userAgentPackageName:
-                              'com.example.seal_hackathon_app',
+                          userAgentPackageName: 'vn.seal.hackathon',
                         ),
                         MarkerLayer(
                           markers: [
@@ -113,10 +112,8 @@ class _MapScreenState extends State<MapScreen> {
                           attributions: [
                             TextSourceAttribution(
                               'OpenStreetMap contributors',
-                              onTap: () => launchUrl(
-                                Uri.parse(
-                                  'https://www.openstreetmap.org/copyright',
-                                ),
+                              onTap: () => ExternalLauncher.openUrl(
+                                'https://www.openstreetmap.org/copyright',
                               ),
                             ),
                           ],
@@ -158,6 +155,20 @@ class _MapScreenState extends State<MapScreen> {
                   icon: const Icon(Icons.directions_outlined),
                   label: const Text('Open in Maps'),
                 ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    await Clipboard.setData(
+                      ClipboardData(text: event.location),
+                    );
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Address copied.')),
+                    );
+                  },
+                  icon: const Icon(Icons.copy_outlined),
+                  label: const Text('Copy address'),
+                ),
               ],
             ),
           ),
@@ -190,9 +201,8 @@ class _MapScreenState extends State<MapScreen> {
       ),
     );
     if (shouldOpen != true) return;
-    final uri = Uri.parse(
-      'https://www.google.com/maps/search/?api=1&query=${event.latitude},${event.longitude}',
-    );
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final url =
+        'https://www.google.com/maps/search/?api=1&query=${event.latitude},${event.longitude}';
+    await ExternalLauncher.openUrl(url);
   }
 }

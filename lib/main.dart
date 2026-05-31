@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:supabase/supabase.dart';
 
 part 'core/supabase_config.dart';
+part 'core/app_helpers.dart';
 part 'models/app_user.dart';
 part 'models/hackathon_event.dart';
 part 'models/team.dart';
@@ -30,6 +31,7 @@ part 'views/events/event_detail_screen.dart';
 part 'views/teams/team_screen.dart';
 part 'views/submissions/submission_screen.dart';
 part 'views/judge/judge_screen.dart';
+part 'views/organizer/organizer_dashboard_screen.dart';
 part 'views/notifications/notification_screen.dart';
 part 'views/chat/chat_screen.dart';
 part 'views/map/map_screen.dart';
@@ -39,10 +41,7 @@ part 'widgets/common_widgets.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (SupabaseConfig.isConfigured) {
-    await Supabase.initialize(
-      url: SupabaseConfig.url,
-      anonKey: SupabaseConfig.anonKey,
-    );
+    SupabaseGateway.initialize();
   }
   runApp(const SealApp());
 }
@@ -65,14 +64,14 @@ class SealApp extends StatelessWidget {
       initialLocation: '/login',
       routes: [
         GoRoute(
-          path: '/login',
+          path: AppRoutes.login,
           builder: (context, state) => const LoginScreen(),
         ),
         ShellRoute(
           builder: (context, state, child) => AppShell(child: child),
           routes: [
             GoRoute(
-              path: '/events',
+              path: AppRoutes.events,
               builder: (context, state) => const EventListScreen(),
             ),
             GoRoute(
@@ -81,31 +80,35 @@ class SealApp extends StatelessWidget {
                   EventDetailScreen(eventId: state.pathParameters['id']!),
             ),
             GoRoute(
-              path: '/teams',
+              path: AppRoutes.teams,
               builder: (context, state) => const TeamScreen(),
             ),
             GoRoute(
-              path: '/submit',
+              path: AppRoutes.submit,
               builder: (context, state) => const SubmissionScreen(),
             ),
             GoRoute(
-              path: '/judge',
+              path: AppRoutes.judge,
               builder: (context, state) => const JudgeScreen(),
             ),
             GoRoute(
-              path: '/notifications',
+              path: AppRoutes.organizer,
+              builder: (context, state) => const OrganizerDashboardScreen(),
+            ),
+            GoRoute(
+              path: AppRoutes.notifications,
               builder: (context, state) => const NotificationScreen(),
             ),
             GoRoute(
-              path: '/chat',
+              path: AppRoutes.chat,
               builder: (context, state) => const ChatScreen(),
             ),
             GoRoute(
-              path: '/map',
+              path: AppRoutes.map,
               builder: (context, state) => const MapScreen(),
             ),
             GoRoute(
-              path: '/profile',
+              path: AppRoutes.profile,
               builder: (context, state) => const ProfileScreen(),
             ),
           ],

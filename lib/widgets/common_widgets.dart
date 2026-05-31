@@ -204,21 +204,34 @@ class DetailTile extends StatelessWidget {
 }
 
 class EmptyState extends StatelessWidget {
-  const EmptyState({super.key, required this.message});
+  const EmptyState({
+    super.key,
+    required this.message,
+    this.icon = Icons.inbox_outlined,
+  });
+
   final String message;
+  final IconData icon;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
-        child: Text(
-          message,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 16,
-            color: SealPalette.onSurfaceVariant,
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 42, color: SealPalette.onSurfaceVariant),
+            const SizedBox(height: 10),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 16,
+                color: SealPalette.onSurfaceVariant,
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -447,7 +460,7 @@ class RoleGate extends StatelessWidget {
           isError: true,
         ),
         OutlinedButton.icon(
-          onPressed: () => context.go('/events'),
+          onPressed: () => context.go(AppRoutes.events),
           icon: const Icon(Icons.event_outlined),
           label: const Text('Back to Events'),
         ),
@@ -485,7 +498,7 @@ class SessionRequired extends StatelessWidget {
                 icon: Icons.lock_outline,
               ),
               FilledButton.icon(
-                onPressed: () => context.go('/login'),
+                onPressed: () => context.go(AppRoutes.login),
                 icon: const Icon(Icons.login),
                 label: const Text('Go to Login'),
               ),

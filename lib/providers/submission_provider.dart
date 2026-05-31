@@ -14,24 +14,40 @@ class SubmissionProvider extends ChangeNotifier {
     try {
       submissions = await _service.fetchSubmissions();
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     isLoading = false;
     notifyListeners();
   }
 
-  Future<void> submit(ProjectSubmission submission) async {
+  Future<void> submit(
+    ProjectSubmission submission, {
+    String? existingSubmissionId,
+  }) async {
     isLoading = true;
     error = null;
     message = null;
     notifyListeners();
     try {
-      await _service.createSubmission(submission);
+      await _service.saveSubmission(
+        submission,
+        existingSubmissionId: existingSubmissionId,
+      );
       await loadSubmissions();
-      message = 'Project submitted successfully.';
+      message = existingSubmissionId == null
+          ? 'Project submitted successfully.'
+          : 'Project submission updated successfully.';
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
+    isLoading = false;
+    notifyListeners();
+  }
+
+  void clear() {
+    submissions = [];
+    error = null;
+    message = null;
     isLoading = false;
     notifyListeners();
   }

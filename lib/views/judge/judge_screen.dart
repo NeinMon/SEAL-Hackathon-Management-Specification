@@ -21,7 +21,7 @@ class _JudgeScreenState extends State<JudgeScreen> {
   @override
   Widget build(BuildContext context) {
     return const RoleGate(
-      allowedRoles: {'judge', 'organizer'},
+      allowedRoles: AppRoles.scorers,
       message: 'Only judges and organizers can access scoring.',
       child: _JudgeContent(),
     );
@@ -107,16 +107,27 @@ class _JudgeSubmissionCard extends StatefulWidget {
 }
 
 class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
-  final technical = TextEditingController(text: '8');
-  final ui = TextEditingController(text: '8');
-  final innovation = TextEditingController(text: '9');
+  double technical = 8;
+  double ui = 8;
+  double innovation = 9;
   final feedback = TextEditingController();
+  String? inlineError;
+  bool _hydratedExistingScore = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _hydrateFromExistingScore();
+  }
+
+  @override
+  void didUpdateWidget(covariant _JudgeSubmissionCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_hydratedExistingScore) _hydrateFromExistingScore();
+  }
 
   @override
   void dispose() {
-    technical.dispose();
-    ui.dispose();
-    innovation.dispose();
     feedback.dispose();
     super.dispose();
   }
@@ -124,6 +135,12 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
   @override
   Widget build(BuildContext context) {
     final submission = widget.submission;
+    final judgeId = widget.judge?.id;
+    final existingScore = judgeId == null
+        ? null
+        : widget.scores.scoreFor(submission.id, judgeId);
+    final scoreCount = widget.scores.scoreCountFor(submission.id);
+    final currentAverage = (technical + ui + innovation) / 3;
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       child: Padding(
@@ -142,10 +159,26 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const StatusPill(
-                    label: 'Submission',
-                    color: SealPalette.secondary,
-                    icon: Icons.assignment_turned_in_outlined,
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      StatusPill(
+                        label: existingScore == null
+                            ? 'Needs review'
+                            : 'Already scored',
+                        color: existingScore == null
+                            ? SealPalette.tertiary
+                            : SealPalette.secondary,
+                        icon: existingScore == null
+                            ? Icons.pending_actions_outlined
+                            : Icons.verified_outlined,
+                      ),
+                      StatusPill(
+                        label: '$scoreCount score${scoreCount == 1 ? '' : 's'}',
+                        icon: Icons.leaderboard_outlined,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 10),
                   Text(
@@ -193,18 +226,45 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 12),
+            _ScoreSlider(
+              label: 'Technical depth',
+              icon: Icons.memory_outlined,
+              value: technical,
+              onChanged: (value) => setState(() => technical = value),
+            ),
+            const SizedBox(height: 10),
+            _ScoreSlider(
+              label: 'UI/UX quality',
+              icon: Icons.design_services_outlined,
+              value: ui,
+              onChanged: (value) => setState(() => ui = value),
+            ),
+            const SizedBox(height: 10),
+            _ScoreSlider(
+              label: 'Innovation',
+              icon: Icons.auto_awesome_outlined,
+              value: innovation,
+              onChanged: (value) => setState(() => innovation = value),
+            ),
+            const SizedBox(height: 12),
             Row(
               children: [
                 Expanded(
-                  child: _ScoreField(label: 'Tech', controller: technical),
+                  child: _ScoreMetric(
+                    label: 'Draft score',
+                    value: currentAverage.toStringAsFixed(1),
+                    accent: SealPalette.tertiary,
+                  ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 Expanded(
-                  child: _ScoreField(label: 'UI/UX', controller: ui),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _ScoreField(label: 'Idea', controller: innovation),
+                  child: _ScoreMetric(
+                    label: 'Published avg',
+                    value: widget.scores
+                        .averageFor(submission.id)
+                        .toStringAsFixed(1),
+                    accent: SealPalette.primary,
+                  ),
                 ),
               ],
             ),
@@ -218,20 +278,23 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
                 prefixIcon: Icon(Icons.rate_review_outlined),
               ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Average score: ${widget.scores.averageFor(submission.id).toStringAsFixed(1)} / 10.0',
-              style: const TextStyle(
-                color: SealPalette.primary,
-                fontSize: 20,
-                fontWeight: FontWeight.w900,
+            if (inlineError != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                inlineError!,
+                style: const TextStyle(
+                  color: SealPalette.error,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
+            ],
             const SizedBox(height: 12),
             FilledButton.icon(
               onPressed: !widget.canSubmit ? null : _submitScore,
               icon: const Icon(Icons.check),
-              label: const Text('Submit score'),
+              label: Text(
+                existingScore == null ? 'Submit score' : 'Update score',
+              ),
             ),
           ],
         ),
@@ -240,43 +303,31 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
   }
 
   Future<void> _openUrl(String value) async {
-    final uri = Uri.tryParse(value);
-    if (uri == null || !uri.hasScheme) return;
-    await launchUrl(uri, mode: LaunchMode.externalApplication);
+    await ExternalLauncher.openUrl(value);
   }
 
   Future<void> _submitScore() async {
     final judge = widget.judge;
     if (judge == null) return;
-    final technicalScore = double.tryParse(technical.text);
-    final uiScore = double.tryParse(ui.text);
-    final innovationScore = double.tryParse(innovation.text);
-    final validScores = [
-      technicalScore,
-      uiScore,
-      innovationScore,
-    ].every((score) => score != null && score >= 0 && score <= 10);
-    if (!validScores) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Scores must be between 0 and 10.')),
-      );
+    final scoreError = AppValidators.scoreError(technical, ui, innovation);
+    if (scoreError != null) {
+      setState(() => inlineError = scoreError);
       return;
     }
     if (feedback.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Feedback is required before publishing a score.'),
-        ),
+      setState(
+        () => inlineError = 'Feedback is required before publishing a score.',
       );
       return;
     }
+    setState(() => inlineError = null);
     await widget.scores.addScore(
       ProjectScore(
         submissionId: widget.submission.id,
         judgeId: judge.id,
-        technicalScore: technicalScore!,
-        uiScore: uiScore!,
-        innovationScore: innovationScore!,
+        technicalScore: technical,
+        uiScore: ui,
+        innovationScore: innovation,
         feedback: feedback.text.trim(),
       ),
     );
@@ -303,20 +354,142 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
       context,
     ).showSnackBar(const SnackBar(content: Text('Score published.')));
   }
+
+  void _hydrateFromExistingScore() {
+    final judgeId = widget.judge?.id;
+    if (judgeId == null) return;
+    final existingScore = widget.scores.scoreFor(widget.submission.id, judgeId);
+    if (existingScore == null) return;
+    technical = existingScore.technicalScore;
+    ui = existingScore.uiScore;
+    innovation = existingScore.innovationScore;
+    if (feedback.text.isEmpty) feedback.text = existingScore.feedback;
+    _hydratedExistingScore = true;
+  }
 }
 
-class _ScoreField extends StatelessWidget {
-  const _ScoreField({required this.label, required this.controller});
+class _ScoreSlider extends StatelessWidget {
+  const _ScoreSlider({
+    required this.label,
+    required this.icon,
+    required this.value,
+    required this.onChanged,
+  });
 
   final String label;
-  final TextEditingController controller;
+  final IconData icon;
+  final double value;
+  final ValueChanged<double> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      decoration: InputDecoration(labelText: label),
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: SealPalette.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: SealPalette.outlineVariant),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: SealPalette.primary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  label,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ),
+              Text(
+                value.toStringAsFixed(1),
+                style: const TextStyle(
+                  color: SealPalette.tertiary,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              IconButton(
+                tooltip: 'Decrease',
+                onPressed: () => _step(-0.5),
+                icon: const Icon(Icons.remove),
+              ),
+              Expanded(
+                child: Slider(
+                  value: value.clamp(0, 10).toDouble(),
+                  min: 0,
+                  max: 10,
+                  divisions: 20,
+                  label: value.toStringAsFixed(1),
+                  onChanged: (next) => onChanged(_rounded(next)),
+                ),
+              ),
+              IconButton(
+                tooltip: 'Increase',
+                onPressed: () => _step(0.5),
+                icon: const Icon(Icons.add),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _step(double delta) {
+    onChanged(_rounded((value + delta).clamp(0, 10).toDouble()));
+  }
+
+  double _rounded(double raw) => double.parse(raw.toStringAsFixed(1));
+}
+
+class _ScoreMetric extends StatelessWidget {
+  const _ScoreMetric({
+    required this.label,
+    required this.value,
+    required this.accent,
+  });
+
+  final String label;
+  final String value;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: SealPalette.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: SealPalette.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              color: SealPalette.onSurfaceVariant,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            value,
+            style: TextStyle(
+              color: accent,
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

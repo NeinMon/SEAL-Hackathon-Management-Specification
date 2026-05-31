@@ -46,7 +46,7 @@ class EventProvider extends ChangeNotifier {
     try {
       events = await _service.fetchEvents();
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     isLoading = false;
     notifyListeners();
@@ -59,6 +59,15 @@ class EventProvider extends ChangeNotifier {
 
   void updateFilter(String value) {
     filter = value;
+    notifyListeners();
+  }
+
+  void clear() {
+    events = [];
+    search = '';
+    filter = 'all';
+    error = null;
+    isLoading = false;
     notifyListeners();
   }
 }

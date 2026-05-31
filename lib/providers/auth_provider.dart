@@ -7,8 +7,12 @@ class AuthProvider extends ChangeNotifier {
   bool hasCheckedSession = false;
   String? error;
 
-  AuthProvider() {
-    _restoreSession();
+  AuthProvider({bool restoreSession = true}) {
+    if (restoreSession) {
+      _restoreSession();
+    } else {
+      hasCheckedSession = true;
+    }
   }
 
   Future<void> _restoreSession() async {
@@ -27,7 +31,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final cleanEmail = email.trim();
-      if (!cleanEmail.contains('@') || password.length < 6) {
+      if (!AppValidators.isValidEmail(cleanEmail) || password.length < 6) {
         throw const AuthException(
           'Enter a valid email and a password with at least 6 characters.',
         );
@@ -36,7 +40,7 @@ class AuthProvider extends ChangeNotifier {
     } on AuthException catch (exception) {
       error = exception.message;
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     isLoading = false;
     notifyListeners();
@@ -56,7 +60,7 @@ class AuthProvider extends ChangeNotifier {
       final cleanEmail = email.trim();
       final cleanName = fullName.trim();
       final cleanUniversity = university.trim();
-      if (!cleanEmail.contains('@') || password.length < 6) {
+      if (!AppValidators.isValidEmail(cleanEmail) || password.length < 6) {
         throw const AuthException(
           'Enter a valid email and a password with at least 6 characters.',
         );
@@ -74,7 +78,7 @@ class AuthProvider extends ChangeNotifier {
     } on AuthException catch (exception) {
       error = exception.message;
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     isLoading = false;
     notifyListeners();
@@ -104,7 +108,7 @@ class AuthProvider extends ChangeNotifier {
     } on AuthException catch (exception) {
       error = exception.message;
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     isLoading = false;
     notifyListeners();

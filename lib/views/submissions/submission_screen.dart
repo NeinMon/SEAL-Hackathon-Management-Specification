@@ -36,7 +36,7 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
   @override
   Widget build(BuildContext context) {
     return RoleGate(
-      allowedRoles: const {'participant'},
+      allowedRoles: const {AppRoles.participant},
       message: 'Only participants can submit hackathon projects.',
       child: _SubmissionContent(
         projectName: projectName,
@@ -100,6 +100,9 @@ class _SubmissionContent extends StatelessWidget {
                 null,
                 (previous, current) => previous ?? current,
               );
+    final submitActionLabel = latestSubmission == null
+        ? 'Finalize Submission'
+        : 'Update Submission';
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -136,6 +139,16 @@ class _SubmissionContent extends StatelessWidget {
                               : SealPalette.secondary,
                         ),
                       ),
+                      if (latestSubmission != null) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          latestSubmission.projectName,
+                          style: const TextStyle(
+                            color: SealPalette.onSurfaceVariant,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -233,10 +246,9 @@ class _SubmissionContent extends StatelessWidget {
           onPressed: submissions.isLoading
               ? null
               : () async {
-                  final githubUri = Uri.tryParse(github.text.trim());
-                  final videoUri = Uri.tryParse(video.text.trim());
                   final valid =
-                      _isValidWebUrl(githubUri) && _isValidWebUrl(videoUri);
+                      AppValidators.isValidWebUrl(github.text) &&
+                      AppValidators.isValidWebUrl(video.text);
                   if (projectName.text.trim().isEmpty ||
                       description.text.trim().isEmpty) {
                     onErrorChanged(
@@ -261,6 +273,7 @@ class _SubmissionContent extends StatelessWidget {
                       videoUrl: video.text.trim(),
                       description: description.text.trim(),
                     ),
+                    existingSubmissionId: latestSubmission?.id,
                   );
                   if (!context.mounted) return;
                   final recipients = targetTeam.members
@@ -286,7 +299,7 @@ class _SubmissionContent extends StatelessWidget {
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
               : const Icon(Icons.upload_file),
-          label: const Text('Finalize Submission'),
+          label: Text(submitActionLabel),
         ),
         const SizedBox(height: 20),
         const Text(
@@ -316,11 +329,5 @@ class _SubmissionContent extends StatelessWidget {
             ),
       ],
     );
-  }
-
-  bool _isValidWebUrl(Uri? uri) {
-    return uri != null &&
-        (uri.scheme == 'http' || uri.scheme == 'https') &&
-        uri.host.contains('.');
   }
 }

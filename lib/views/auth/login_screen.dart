@@ -261,13 +261,14 @@ class _LoginScreenState extends State<LoginScreen> {
   String _homeForRole(String role) {
     switch (role) {
       case 'judge':
-        return '/judge';
+        return AppRoutes.judge;
       case 'mentor':
-        return '/chat';
+        return AppRoutes.chat;
       case 'organizer':
+        return AppRoutes.organizer;
       case 'participant':
       default:
-        return '/events';
+        return AppRoutes.events;
     }
   }
 }

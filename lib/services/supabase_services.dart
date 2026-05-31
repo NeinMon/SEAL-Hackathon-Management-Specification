@@ -190,15 +190,25 @@ class SubmissionService {
         .toList();
   }
 
-  Future<void> createSubmission(ProjectSubmission submission) {
-    return SupabaseGateway.client.from('submissions').insert({
+  Future<void> saveSubmission(
+    ProjectSubmission submission, {
+    String? existingSubmissionId,
+  }) {
+    final payload = {
       'team_id': submission.teamId,
       'github_url': submission.githubUrl,
       'video_url': submission.videoUrl,
       'project_name': submission.projectName,
       'description': submission.description,
       'status': submission.status,
-    });
+    };
+    if (existingSubmissionId != null) {
+      return SupabaseGateway.client
+          .from('submissions')
+          .update(payload)
+          .eq('id', existingSubmissionId);
+    }
+    return SupabaseGateway.client.from('submissions').insert(payload);
   }
 }
 
@@ -270,16 +280,53 @@ class NotificationService {
 class ChatService {
   const ChatService();
 
-  Future<List<AppUser>> fetchContacts() async {
+  Future<List<AppUser>> fetchContacts(AppUser currentUser) async {
     final rows = await SupabaseGateway.client
         .from('users')
         .select()
-        .or('role.eq.mentor,role.eq.organizer')
+        .neq('id', currentUser.id)
         .order('full_name');
-    return rows
+    final users = rows
         .whereType<Map<String, dynamic>>()
         .map(AppUser.fromJson)
         .toList();
+
+    switch (currentUser.role) {
+      case AppRoles.participant:
+        return users
+            .where(
+              (user) =>
+                  user.role == AppRoles.mentor ||
+                  user.role == AppRoles.organizer,
+            )
+            .toList();
+      case AppRoles.mentor:
+        final memberRows = await SupabaseGateway.client
+            .from('team_members')
+            .select('team_id,user_id');
+        final teamsForMentor = memberRows
+            .whereType<Map<String, dynamic>>()
+            .where((row) => row['user_id'] == currentUser.id)
+            .map((row) => row['team_id'] as String)
+            .toSet();
+        final relatedUserIds = memberRows
+            .whereType<Map<String, dynamic>>()
+            .where((row) => teamsForMentor.contains(row['team_id']))
+            .map((row) => row['user_id'] as String)
+            .toSet();
+        return users
+            .where(
+              (user) =>
+                  user.role == AppRoles.organizer ||
+                  (user.role == AppRoles.participant &&
+                      relatedUserIds.contains(user.id)),
+            )
+            .toList();
+      case AppRoles.organizer:
+        return users;
+      default:
+        return const [];
+    }
   }
 
   Future<List<ChatMessage>> fetchConversation(

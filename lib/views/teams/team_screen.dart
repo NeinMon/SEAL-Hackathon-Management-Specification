@@ -45,7 +45,7 @@ class _TeamScreenState extends State<TeamScreen> {
         : teams.teams.where((team) => team.leaderId == user.id).toList();
     final canCreateTeam =
         user != null &&
-        {'participant', 'organizer'}.contains(user.role) &&
+        AppRoles.participantCreators.contains(user.role) &&
         selectedEvent != null &&
         name.text.trim().isNotEmpty;
     return ListView(
@@ -147,7 +147,11 @@ class _TeamScreenState extends State<TeamScreen> {
         OutlinedButton.icon(
           onPressed: manageableTeams.isEmpty
               ? null
-              : () => _showInviteDialog(context, manageableTeams.first),
+              : () => _showInviteDialog(
+                  context,
+                  manageableTeams.first,
+                  _eventFor(manageableTeams.first.eventId, events.events),
+                ),
           icon: const Icon(Icons.person_add_alt_outlined),
           label: const Text('Invite Member'),
         ),
@@ -219,7 +223,7 @@ class _TeamScreenState extends State<TeamScreen> {
                   ),
                 ],
                 if (user != null &&
-                    !{'participant', 'organizer'}.contains(user.role)) ...[
+                    !AppRoles.participantCreators.contains(user.role)) ...[
                   const SizedBox(height: 10),
                   const Text(
                     'This role can view teams but cannot create participant teams.',
@@ -255,7 +259,7 @@ class _TeamScreenState extends State<TeamScreen> {
             TeamCard(
               team: team,
               currentUser: user,
-              eventTitle: _eventTitle(team.eventId, events.events),
+              event: _eventFor(team.eventId, events.events),
             ),
         ],
       ],
@@ -270,48 +274,19 @@ class _TeamScreenState extends State<TeamScreen> {
     return events.first;
   }
 
-  String _eventTitle(String eventId, List<HackathonEvent> events) {
+  HackathonEvent? _eventFor(String eventId, List<HackathonEvent> events) {
     for (final event in events) {
-      if (event.id == eventId) return event.title;
+      if (event.id == eventId) return event;
     }
-    return 'Event not loaded';
+    return null;
   }
 
-  Future<void> _showInviteDialog(BuildContext context, Team team) async {
-    final controller = TextEditingController();
-    final email = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Invite member'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(labelText: 'Member email'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: const Text('Invite'),
-          ),
-        ],
-      ),
-    );
-    if (email == null || email.isEmpty || !context.mounted) return;
-    await context.read<TeamProvider>().inviteMember(team.id, email);
-    if (!context.mounted) return;
-    final invited = await const UserDirectoryService().findByEmail(email);
-    if (!context.mounted) return;
-    if (invited != null) {
-      await context.read<NotificationProvider>().push(
-        'Team invitation',
-        'You were invited to ${team.name}.',
-        'invitation',
-        userId: invited.id,
-      );
-    }
+  Future<void> _showInviteDialog(
+    BuildContext context,
+    Team team,
+    HackathonEvent? event,
+  ) async {
+    await TeamInviteFlow.show(context, team: team, event: event);
   }
 }
 
@@ -320,12 +295,12 @@ class TeamCard extends StatelessWidget {
     super.key,
     required this.team,
     required this.currentUser,
-    required this.eventTitle,
+    required this.event,
   });
 
   final Team team;
   final AppUser? currentUser;
-  final String eventTitle;
+  final HackathonEvent? event;
 
   @override
   Widget build(BuildContext context) {
@@ -334,6 +309,9 @@ class TeamCard extends StatelessWidget {
         user != null && team.members.any((member) => member.id == user.id);
     final isLeader = user != null && team.leaderId == user.id;
     final leaderName = _leaderName(team);
+    final eventTitle = event?.title ?? 'Event not loaded';
+    final memberLimit = event?.maxTeamSize ?? 0;
+    final teamIsFull = memberLimit > 0 && team.members.length >= memberLimit;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: Padding(
@@ -351,7 +329,7 @@ class TeamCard extends StatelessWidget {
               subtitle: Text(
                 team.members.isEmpty
                     ? '$eventTitle\nNo members yet'
-                    : '$eventTitle\nLeader: $leaderName\nMembers: ${team.members.map((member) => member.fullName).join(', ')}',
+                    : '$eventTitle\nLeader: $leaderName\nMembers (${team.members.length}${memberLimit > 0 ? '/$memberLimit' : ''}): ${team.members.map((member) => member.fullName).join(', ')}',
               ),
               isThreeLine: true,
               trailing: isLeader
@@ -359,6 +337,12 @@ class TeamCard extends StatelessWidget {
                       label: 'Leader',
                       color: SealPalette.secondary,
                       icon: Icons.verified_outlined,
+                    )
+                  : teamIsFull
+                  ? const StatusPill(
+                      label: 'Full',
+                      color: SealPalette.tertiary,
+                      icon: Icons.lock_outline,
                     )
                   : null,
             ),
@@ -372,9 +356,10 @@ class TeamCard extends StatelessWidget {
                       : () => context.read<TeamProvider>().joinTeam(
                           team.id,
                           user,
+                          event: event,
                         ),
                   icon: const Icon(Icons.group_add_outlined),
-                  label: const Text('Join'),
+                  label: Text(teamIsFull ? 'Full' : 'Join'),
                 ),
                 OutlinedButton.icon(
                   onPressed: user == null || !isMember
@@ -394,7 +379,9 @@ class TeamCard extends StatelessWidget {
                   ),
                 if (isLeader)
                   OutlinedButton.icon(
-                    onPressed: () => _showInviteDialog(context, team),
+                    onPressed: teamIsFull
+                        ? null
+                        : () => _showInviteDialog(context, team, event),
                     icon: const Icon(Icons.person_add_alt_outlined),
                     label: const Text('Invite'),
                   ),
@@ -439,7 +426,23 @@ class TeamCard extends StatelessWidget {
     await context.read<TeamProvider>().updateTeamName(team.id, newName);
   }
 
-  Future<void> _showInviteDialog(BuildContext context, Team team) async {
+  Future<void> _showInviteDialog(
+    BuildContext context,
+    Team team,
+    HackathonEvent? event,
+  ) async {
+    await TeamInviteFlow.show(context, team: team, event: event);
+  }
+}
+
+class TeamInviteFlow {
+  const TeamInviteFlow._();
+
+  static Future<void> show(
+    BuildContext context, {
+    required Team team,
+    required HackathonEvent? event,
+  }) async {
     final controller = TextEditingController();
     final email = await showDialog<String>(
       context: context,
@@ -462,7 +465,11 @@ class TeamCard extends StatelessWidget {
       ),
     );
     if (email == null || email.isEmpty || !context.mounted) return;
-    await context.read<TeamProvider>().inviteMember(team.id, email);
+    await context.read<TeamProvider>().inviteMember(
+      team.id,
+      email,
+      event: event,
+    );
     if (!context.mounted) return;
     final invited = await const UserDirectoryService().findByEmail(email);
     if (!context.mounted) return;

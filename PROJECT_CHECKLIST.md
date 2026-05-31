@@ -21,6 +21,7 @@ This file maps the project implementation to the main function specification.
 - Team Management: `lib/views/teams/team_screen.dart`
 - Project Submission: `lib/views/submissions/submission_screen.dart`
 - Judge Scoring: `lib/views/judge/judge_screen.dart`
+- Organizer Dashboard: `lib/views/organizer/organizer_dashboard_screen.dart`
 - Notifications: `lib/views/notifications/notification_screen.dart`
 - Chat: `lib/views/chat/chat_screen.dart`
 - Event Map: `lib/views/map/map_screen.dart`
@@ -33,7 +34,7 @@ This file maps the project implementation to the main function specification.
 - Participant can manage teams, submit projects, chat, read notifications, and view maps.
 - Judge can score submissions and publish feedback.
 - Mentor can view teams and chat.
-- Organizer can view operations, manage events/data via Supabase, and access scoring preview.
+- Organizer can view an operations dashboard, inspect teams/submissions, and access scoring.
 
 ## Data Features
 
@@ -57,12 +58,18 @@ This file maps the project implementation to the main function specification.
 
 - Auth validates email/password and registration profile fields.
 - Team validates team name and invite email.
+- Team join/invite checks event max team size before writing membership rows.
 - Team creation now requires an event selection and reacts immediately when the user types.
 - Submission validates project name, description, GitHub URL, and video URL.
-- Judge scoring validates numeric scores from 0 to 10 and requires feedback.
+- Submission updates the team's latest submission instead of creating duplicates during demo.
+- Judge scoring uses mobile-friendly sliders, validates scores from 0 to 10, and requires feedback inline.
 - Chat rejects empty messages.
+- Chat and notification deletes ask for confirmation.
+- Mentor chat contacts are scoped to participants in related teams plus organizers.
 - Providers expose loading/error/success states for UI feedback.
+- Providers map Supabase errors into readable UI messages.
 - Map loads event data directly, so the venue screen works even if Events was not opened first.
+- Map can copy the venue address and confirms before opening external Maps.
 
 ## Database Hardening
 
@@ -70,7 +77,8 @@ This file maps the project implementation to the main function specification.
 - Role helper function: `current_user_role()`.
 - Constraints for submission status, notification type, and score range.
 - Unique score per submission per judge.
-- Indexes for foreign-key-heavy queries.
+- Indexes for foreign-key-heavy queries and chat sender/receiver lookups.
+- Negative smoke test covers participant score denial and cross-judge update denial.
 
 ## Map
 
@@ -83,8 +91,17 @@ navigation by coordinates. No Google Maps API key is required.
 - `flutter test`
 - `flutter build apk --debug`
 - `.\scripts\smoke_supabase_flow.ps1`: login participant/judge, load event, create team, add member, submit project, send chat message, insert/update score, create notification, mark notification read.
+- `.\scripts\smoke_supabase_negative.ps1`: verifies RLS denial cases.
+- `.\scripts\test_all.ps1`: analyze, tests, positive smoke, negative smoke, debug build.
+- Widget tests cover login landscape fit, event filtering, RoleGate, and judge validation.
 
 ## Platform Scope
 
 The repository is Android-focused for Android Studio deployment. Unused iOS,
 macOS, Linux, Windows, and web runner folders were removed.
+
+Android identity is set to app label `SEAL Hackathon`, namespace/application id
+`vn.seal.hackathon`, adaptive icon, and native splash background.
+
+The app uses the pure Dart Supabase client and an Android MethodChannel for
+external URLs, avoiding Android plugin Kotlin Gradle compatibility warnings.

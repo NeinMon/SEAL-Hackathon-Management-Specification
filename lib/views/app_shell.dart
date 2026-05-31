@@ -26,7 +26,7 @@ class AppShell extends StatelessWidget {
             children: [
               IconButton(
                 tooltip: 'Notifications',
-                onPressed: () => context.go('/notifications'),
+                onPressed: () => context.go(AppRoutes.notifications),
                 icon: const Icon(Icons.notifications_outlined),
               ),
               PopupMenuButton<String>(
@@ -34,13 +34,19 @@ class AppShell extends StatelessWidget {
                 icon: const Icon(Icons.more_vert),
                 onSelected: (value) async {
                   if (value == 'profile') {
-                    context.go('/profile');
+                    context.go(AppRoutes.profile);
                     return;
                   }
                   if (value != 'logout') return;
+                  context.read<EventProvider>().clear();
+                  context.read<TeamProvider>().clear();
+                  context.read<SubmissionProvider>().clear();
+                  context.read<ScoreProvider>().clear();
+                  context.read<NotificationProvider>().clear();
+                  context.read<ChatProvider>().clear();
                   await context.read<AuthProvider>().logout();
                   if (!context.mounted) return;
-                  context.go('/login');
+                  context.go(AppRoutes.login);
                 },
                 itemBuilder: (context) => const [
                   PopupMenuItem(
@@ -103,44 +109,60 @@ class AppShell extends StatelessWidget {
     switch (role) {
       case 'judge':
         return const [
-          RoleNavigationItem('Events', Icons.event_outlined, '/events'),
-          RoleNavigationItem('Judge', Icons.rate_review_outlined, '/judge'),
+          RoleNavigationItem('Events', Icons.event_outlined, AppRoutes.events),
+          RoleNavigationItem(
+            'Judge',
+            Icons.rate_review_outlined,
+            AppRoutes.judge,
+          ),
           RoleNavigationItem(
             'Alerts',
             Icons.notifications_outlined,
-            '/notifications',
+            AppRoutes.notifications,
           ),
         ];
       case 'mentor':
         return const [
-          RoleNavigationItem('Events', Icons.event_outlined, '/events'),
-          RoleNavigationItem('Teams', Icons.groups_outlined, '/teams'),
-          RoleNavigationItem('Chat', Icons.chat_outlined, '/chat'),
+          RoleNavigationItem('Events', Icons.event_outlined, AppRoutes.events),
+          RoleNavigationItem('Teams', Icons.groups_outlined, AppRoutes.teams),
+          RoleNavigationItem('Chat', Icons.chat_outlined, AppRoutes.chat),
           RoleNavigationItem(
             'Alerts',
             Icons.notifications_outlined,
-            '/notifications',
+            AppRoutes.notifications,
           ),
         ];
       case 'organizer':
         return const [
-          RoleNavigationItem('Events', Icons.event_outlined, '/events'),
-          RoleNavigationItem('Teams', Icons.groups_outlined, '/teams'),
-          RoleNavigationItem('Judge', Icons.rate_review_outlined, '/judge'),
+          RoleNavigationItem(
+            'Dashboard',
+            Icons.dashboard_customize_outlined,
+            AppRoutes.organizer,
+          ),
+          RoleNavigationItem('Teams', Icons.groups_outlined, AppRoutes.teams),
+          RoleNavigationItem(
+            'Judge',
+            Icons.rate_review_outlined,
+            AppRoutes.judge,
+          ),
           RoleNavigationItem(
             'Alerts',
             Icons.notifications_outlined,
-            '/notifications',
+            AppRoutes.notifications,
           ),
         ];
       case 'participant':
       default:
         return const [
-          RoleNavigationItem('Events', Icons.event_outlined, '/events'),
-          RoleNavigationItem('Teams', Icons.groups_outlined, '/teams'),
-          RoleNavigationItem('Submit', Icons.upload_file_outlined, '/submit'),
-          RoleNavigationItem('Chat', Icons.chat_outlined, '/chat'),
-          RoleNavigationItem('Map', Icons.map_outlined, '/map'),
+          RoleNavigationItem('Events', Icons.event_outlined, AppRoutes.events),
+          RoleNavigationItem('Teams', Icons.groups_outlined, AppRoutes.teams),
+          RoleNavigationItem(
+            'Submit',
+            Icons.upload_file_outlined,
+            AppRoutes.submit,
+          ),
+          RoleNavigationItem('Chat', Icons.chat_outlined, AppRoutes.chat),
+          RoleNavigationItem('Map', Icons.map_outlined, AppRoutes.map),
         ];
     }
   }

@@ -14,7 +14,7 @@ class TeamProvider extends ChangeNotifier {
     try {
       teams = await _service.fetchTeams();
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     isLoading = false;
     notifyListeners();
@@ -42,30 +42,61 @@ class TeamProvider extends ChangeNotifier {
       await loadTeams();
       message = 'Team created successfully.';
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     notifyListeners();
   }
 
-  Future<void> joinTeam(String teamId, AppUser user) async {
+  Future<void> joinTeam(
+    String teamId,
+    AppUser user, {
+    HackathonEvent? event,
+  }) async {
     error = null;
     message = null;
+    final team = _teamById(teamId);
+    if (team != null && team.members.any((member) => member.id == user.id)) {
+      error = 'You are already a member of this team.';
+      notifyListeners();
+      return;
+    }
+    if (team != null &&
+        event != null &&
+        event.maxTeamSize > 0 &&
+        team.members.length >= event.maxTeamSize) {
+      error = '${team.name} is already full for this event.';
+      notifyListeners();
+      return;
+    }
     try {
       await _service.joinTeam(teamId, user.id);
       await loadTeams();
       message = 'Joined team successfully.';
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     notifyListeners();
   }
 
-  Future<void> inviteMember(String teamId, String email) async {
+  Future<void> inviteMember(
+    String teamId,
+    String email, {
+    HackathonEvent? event,
+  }) async {
     error = null;
     message = null;
     final cleanEmail = email.trim();
-    if (!cleanEmail.contains('@')) {
+    if (!AppValidators.isValidEmail(cleanEmail)) {
       error = 'Enter a valid member email address.';
+      notifyListeners();
+      return;
+    }
+    final team = _teamById(teamId);
+    if (team != null &&
+        event != null &&
+        event.maxTeamSize > 0 &&
+        team.members.length >= event.maxTeamSize) {
+      error = '${team.name} is already full for this event.';
       notifyListeners();
       return;
     }
@@ -74,7 +105,7 @@ class TeamProvider extends ChangeNotifier {
       await loadTeams();
       message = 'Invitation sent.';
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     notifyListeners();
   }
@@ -93,7 +124,7 @@ class TeamProvider extends ChangeNotifier {
       await loadTeams();
       message = 'Team updated successfully.';
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
     notifyListeners();
   }
@@ -106,8 +137,23 @@ class TeamProvider extends ChangeNotifier {
       await loadTeams();
       message = 'Left team successfully.';
     } catch (exception) {
-      error = exception.toString();
+      error = FriendlyErrorMapper.message(exception);
     }
+    notifyListeners();
+  }
+
+  Team? _teamById(String teamId) {
+    for (final team in teams) {
+      if (team.id == teamId) return team;
+    }
+    return null;
+  }
+
+  void clear() {
+    teams = [];
+    error = null;
+    message = null;
+    isLoading = false;
     notifyListeners();
   }
 }

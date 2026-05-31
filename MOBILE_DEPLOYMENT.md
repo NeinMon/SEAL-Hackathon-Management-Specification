@@ -12,6 +12,7 @@ For the Android emulator, keep local Supabase running on Windows:
 npx supabase start
 npx supabase migration up
 $env:SUPABASE_SERVICE_ROLE_KEY="YOUR_LOCAL_OR_HOSTED_SERVICE_ROLE_KEY"
+.\scripts\reset_demo_database.ps1
 .\scripts\seed_demo_users.ps1
 ```
 
@@ -77,8 +78,25 @@ build/app/outputs/flutter-apk/app-release.apk
 flutter analyze
 flutter test
 .\scripts\smoke_supabase_flow.ps1
+.\scripts\smoke_supabase_negative.ps1
 flutter build apk --debug
 ```
 
-The Android debug build may print a Flutter warning about plugins using Kotlin
-Gradle Plugin compatibility mode. The current APK still builds successfully.
+The Android build avoids Flutter plugins that currently emit Kotlin Gradle
+Plugin compatibility warnings for URL opening and Supabase access.
+
+One-command local verification:
+
+```powershell
+.\scripts\test_all.ps1
+```
+
+The installed app should appear as `SEAL Hackathon` with package id
+`vn.seal.hackathon`.
+
+## 5. Release Signing
+
+Release signing is configured through `android/key.properties`, which is ignored
+by git. Use `android/key.properties.example` as the template and keep the `.jks`
+file private. If `key.properties` is not present, the release build falls back
+to the debug key for local demo builds only.
