@@ -3,30 +3,32 @@ part of '../main.dart';
 class SealPalette {
   const SealPalette._();
 
-  static const background = Color(0xFF0B1326);
-  static const surface = Color(0xFF0B1326);
-  static const surfaceContainerLowest = Color(0xFF060E20);
-  static const surfaceContainerLow = Color(0xFF131B2E);
-  static const surfaceContainer = Color(0xFF171F33);
-  static const surfaceContainerHigh = Color(0xFF222A3D);
-  static const surfaceContainerHighest = Color(0xFF2D3449);
-  static const glassPanel = Color(0xB31E293B);
-  static const onSurface = Color(0xFFDAE2FD);
-  static const onSurfaceVariant = Color(0xFFC2C6D6);
-  static const outline = Color(0xFF8C909F);
-  static const outlineVariant = Color(0xFF424754);
-  static const primary = Color(0xFFADC6FF);
-  static const primaryContainer = Color(0xFF4D8EFF);
-  static const indigo = Color(0xFF6366F1);
-  static const onPrimary = Color(0xFF002E6A);
-  static const onPrimaryContainer = Color(0xFF00285D);
-  static const secondary = Color(0xFF4EDEA3);
-  static const secondaryContainer = Color(0xFF00A572);
-  static const onSecondary = Color(0xFF003824);
-  static const tertiary = Color(0xFFFFB786);
-  static const error = Color(0xFFFFB4AB);
-  static const errorContainer = Color(0xFF93000A);
-  static const onErrorContainer = Color(0xFFFFDAD6);
+  static const background = Color(0xFF10131D);
+  static const surface = Color(0xFF151922);
+  static const surfaceContainerLowest = Color(0xFF0C0F17);
+  static const surfaceContainerLow = Color(0xFF171C27);
+  static const surfaceContainer = Color(0xFF1D2430);
+  static const surfaceContainerHigh = Color(0xFF26303C);
+  static const surfaceContainerHighest = Color(0xFF323D4A);
+  static const glassPanel = Color(0xD91B222E);
+  static const onSurface = Color(0xFFF0F4FA);
+  static const onSurfaceVariant = Color(0xFFB7C0CE);
+  static const outline = Color(0xFF8994A5);
+  static const outlineVariant = Color(0xFF3A4452);
+  static const primary = Color(0xFF8FC7FF);
+  static const primaryContainer = Color(0xFF2477D4);
+  static const indigo = Color(0xFF8B7CF6);
+  static const onPrimary = Color(0xFF071D35);
+  static const onPrimaryContainer = Color(0xFFEAF4FF);
+  static const secondary = Color(0xFF57D68D);
+  static const secondaryContainer = Color(0xFF1F8F5B);
+  static const onSecondary = Color(0xFF041E12);
+  static const tertiary = Color(0xFFFFC36A);
+  static const warningContainer = Color(0xFF875E16);
+  static const rose = Color(0xFFFF8CA3);
+  static const error = Color(0xFFFFA69E);
+  static const errorContainer = Color(0xFF8D2521);
+  static const onErrorContainer = Color(0xFFFFE2DF);
 }
 
 class InfoChip extends StatelessWidget {
@@ -37,9 +39,52 @@ class InfoChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Chip(
-      avatar: Icon(icon, size: 18, color: SealPalette.primary),
+      avatar: Icon(icon, size: 17, color: SealPalette.primary),
       label: Text(text),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      visualDensity: VisualDensity.compact,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
+    );
+  }
+}
+
+class StatusPill extends StatelessWidget {
+  const StatusPill({
+    super.key,
+    required this.label,
+    this.icon,
+    this.color = SealPalette.primary,
+  });
+
+  final String label;
+  final IconData? icon;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.13),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 14, color: color),
+            const SizedBox(width: 5),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -79,7 +124,7 @@ class CommandChip extends StatelessWidget {
             : SealPalette.outlineVariant,
       ),
       labelStyle: TextStyle(
-        color: selected ? SealPalette.onSecondary : SealPalette.onSurface,
+        color: selected ? Colors.white : SealPalette.onSurface,
         fontWeight: FontWeight.w800,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -112,6 +157,7 @@ class MetricCard extends StatelessWidget {
               label,
               style: const TextStyle(
                 color: SealPalette.onSurfaceVariant,
+                fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -144,7 +190,7 @@ class DetailTile extends StatelessWidget {
         title: Text(
           title,
           style: const TextStyle(
-            color: SealPalette.primary,
+            color: SealPalette.onSurface,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -188,9 +234,9 @@ class EventImageFallback extends StatelessWidget {
       color: SealPalette.surfaceContainerHigh,
       child: const Center(
         child: Icon(
-          Icons.event_available_outlined,
+          Icons.image_outlined,
           size: 56,
-          color: SealPalette.primary,
+          color: SealPalette.onSurfaceVariant,
         ),
       ),
     );
@@ -271,8 +317,8 @@ class SealSectionHeader extends StatelessWidget {
                 Text(
                   title,
                   style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 23,
+                    fontWeight: FontWeight.w800,
                     color: SealPalette.onSurface,
                   ),
                 ),
@@ -306,9 +352,13 @@ class HackCommandTopBar extends StatelessWidget {
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: SealPalette.surfaceContainerLow,
-        border: Border(bottom: BorderSide(color: SealPalette.outlineVariant)),
+        border: Border(
+          bottom: BorderSide(
+            color: SealPalette.outlineVariant.withValues(alpha: 0.8),
+          ),
+        ),
       ),
       child: Row(
         children: [
@@ -316,14 +366,14 @@ class HackCommandTopBar extends StatelessWidget {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: SealPalette.primaryContainer.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(9),
+              color: SealPalette.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: SealPalette.primary.withValues(alpha: 0.25),
+                color: SealPalette.primary.withValues(alpha: 0.28),
               ),
             ),
             child: const Icon(
-              Icons.terminal,
+              Icons.shield_outlined,
               color: SealPalette.primary,
               size: 20,
             ),
@@ -337,9 +387,9 @@ class HackCommandTopBar extends StatelessWidget {
                 const Text(
                   'SEAL Hackathon',
                   style: TextStyle(
-                    color: SealPalette.primary,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
+                    color: SealPalette.onSurface,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
                     letterSpacing: 0,
                   ),
                 ),
@@ -349,8 +399,8 @@ class HackCommandTopBar extends StatelessWidget {
                     style: const TextStyle(
                       color: SealPalette.onSurfaceVariant,
                       fontSize: 10,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.1,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.8,
                     ),
                   ),
               ],
@@ -360,7 +410,7 @@ class HackCommandTopBar extends StatelessWidget {
               IconButton(
                 tooltip: 'Support',
                 onPressed: () {},
-                icon: const Icon(Icons.help_outline),
+                icon: const Icon(Icons.help_outline_rounded),
               ),
         ],
       ),

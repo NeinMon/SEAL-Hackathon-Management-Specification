@@ -42,15 +42,17 @@ class _LoginScreenState extends State<LoginScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+        decoration: BoxDecoration(
+          color: SealPalette.background,
+          gradient: RadialGradient(
+            center: const Alignment(-0.65, -0.85),
+            radius: 1.1,
             colors: [
+              SealPalette.primary.withValues(alpha: 0.16),
               SealPalette.background,
               SealPalette.surfaceContainerLowest,
-              SealPalette.surfaceContainerLow,
             ],
           ),
         ),
@@ -79,16 +81,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                       ? 'Create your account'
                                       : 'Sign in',
                                   style: const TextStyle(
-                                    color: SealPalette.primary,
                                     fontSize: 12,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 1.2,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.6,
+                                    color: SealPalette.onSurfaceVariant,
                                   ),
                                 ),
                                 const SizedBox(height: 16),
                                 if (registerMode) ...[
                                   TextField(
                                     controller: name,
+                                    textInputAction: TextInputAction.next,
+                                    autofillHints: const [AutofillHints.name],
                                     decoration: const InputDecoration(
                                       labelText: 'Full name',
                                       prefixIcon: Icon(Icons.badge_outlined),
@@ -97,6 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   const SizedBox(height: 12),
                                   TextField(
                                     controller: university,
+                                    textInputAction: TextInputAction.next,
                                     decoration: const InputDecoration(
                                       labelText: 'University',
                                       prefixIcon: Icon(Icons.school_outlined),
@@ -106,6 +111,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ],
                                 TextField(
                                   controller: email,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  autofillHints: const [AutofillHints.email],
                                   decoration: const InputDecoration(
                                     labelText: 'Email address',
                                     prefixIcon: Icon(Icons.alternate_email),
@@ -115,6 +123,8 @@ class _LoginScreenState extends State<LoginScreen> {
                                 TextField(
                                   controller: password,
                                   obscureText: true,
+                                  textInputAction: TextInputAction.done,
+                                  autofillHints: const [AutofillHints.password],
                                   decoration: const InputDecoration(
                                     labelText: 'Password',
                                     prefixIcon: Icon(Icons.lock_outline),
@@ -268,19 +278,19 @@ class _LoginHero extends StatelessWidget {
     return Column(
       children: [
         Container(
-          width: 80,
-          height: 80,
+          width: 76,
+          height: 76,
           decoration: BoxDecoration(
-            color: SealPalette.primaryContainer.withValues(alpha: 0.20),
-            borderRadius: BorderRadius.circular(12),
+            color: SealPalette.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: SealPalette.primary.withValues(alpha: 0.25),
+              color: SealPalette.primary.withValues(alpha: 0.30),
             ),
           ),
           child: const Icon(
-            Icons.security,
+            Icons.workspace_premium_outlined,
             color: SealPalette.primary,
-            size: 42,
+            size: 38,
           ),
         ),
         const SizedBox(height: 16),
@@ -291,7 +301,7 @@ class _LoginHero extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         const Text(
-          'Manage events, teams, submissions, scoring, notifications, and mentor chat.',
+          'Events, teams, submissions, scoring, messages, and venue support in one mobile workspace.',
           textAlign: TextAlign.center,
           style: TextStyle(color: SealPalette.onSurfaceVariant, height: 1.35),
         ),

@@ -13,6 +13,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+    controller.addListener(_refreshComposer);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = context.read<AuthProvider>().user;
       if (user != null) {
@@ -25,6 +26,18 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    controller
+      ..removeListener(_refreshComposer)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _refreshComposer() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -48,6 +61,9 @@ class _ChatScreenState extends State<ChatScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
             child: DropdownButtonFormField<String>(
+              key: ValueKey(
+                'chat-contact-${chat.selectedContact?.id}-${chat.contacts.length}',
+              ),
               initialValue: chat.selectedContact?.id,
               decoration: const InputDecoration(
                 labelText: 'Chat with mentor / organizer',
@@ -85,76 +101,21 @@ class _ChatScreenState extends State<ChatScreen> {
                 : ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      Center(
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 14),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 7,
-                          ),
-                          decoration: BoxDecoration(
-                            color: SealPalette.surfaceContainerHigh,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            'TODAY, ${DateFormat('HH:mm').format(DateTime.now())}',
-                            style: const TextStyle(
-                              color: SealPalette.onSurfaceVariant,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 12,
-                            ),
+                      if (chat.messages.isEmpty)
+                        const EmptyState(message: 'No messages yet')
+                      else ...[
+                        Center(
+                          child: StatusPill(
+                            label:
+                                'Today, ${DateFormat('HH:mm').format(DateTime.now())}',
+                            color: SealPalette.onSurfaceVariant,
+                            icon: Icons.schedule_outlined,
                           ),
                         ),
-                      ),
-                      for (final message in chat.messages)
-                        Align(
-                          alignment: message.sender == user?.fullName
-                              ? Alignment.centerRight
-                              : Alignment.centerLeft,
-                          child: Card(
-                            color: message.sender == user?.fullName
-                                ? SealPalette.primaryContainer
-                                : SealPalette.surfaceContainerHigh,
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    message.sender,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                  Text(message.message),
-                                  Text(
-                                    DateFormat(
-                                      'HH:mm',
-                                    ).format(message.createdAt),
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: SealPalette.onSurfaceVariant,
-                                    ),
-                                  ),
-                                  if (message.senderId == user?.id &&
-                                      user != null)
-                                    Align(
-                                      alignment: Alignment.centerRight,
-                                      child: IconButton(
-                                        tooltip: 'Delete message',
-                                        visualDensity: VisualDensity.compact,
-                                        onPressed: () => chat.deleteMessage(
-                                          message,
-                                          user.id,
-                                        ),
-                                        icon: const Icon(Icons.delete_outline),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+                        const SizedBox(height: 14),
+                        for (final message in chat.messages)
+                          _MessageBubble(message: message, currentUser: user),
+                      ],
                     ],
                   ),
           ),
@@ -166,15 +127,18 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: TextField(
                     controller: controller,
                     decoration: const InputDecoration(
-                      hintText: 'Ask a technical question...',
-                      prefixIcon: Icon(Icons.add_circle_outline),
+                      hintText: 'Ask a mentor...',
+                      prefixIcon: Icon(Icons.chat_bubble_outline),
                     ),
                   ),
                 ),
                 const SizedBox(width: 8),
                 IconButton.filled(
                   tooltip: 'Send',
-                  onPressed: user == null || chat.selectedContact == null
+                  onPressed:
+                      user == null ||
+                          chat.selectedContact == null ||
+                          controller.text.trim().isEmpty
                       ? null
                       : () async {
                           await chat.send(
@@ -191,6 +155,73 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _MessageBubble extends StatelessWidget {
+  const _MessageBubble({required this.message, required this.currentUser});
+
+  final ChatMessage message;
+  final AppUser? currentUser;
+
+  @override
+  Widget build(BuildContext context) {
+    final mine = message.senderId == currentUser?.id;
+    return Align(
+      alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.sizeOf(context).width * 0.78,
+        ),
+        child: Card(
+          color: mine
+              ? SealPalette.primaryContainer.withValues(alpha: 0.95)
+              : SealPalette.surfaceContainerHigh,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  mine ? 'Me' : message.sender,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 4),
+                Text(message.message),
+                const SizedBox(height: 6),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      DateFormat('HH:mm').format(message.createdAt),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: SealPalette.onSurfaceVariant,
+                      ),
+                    ),
+                    if (mine && currentUser != null) ...[
+                      const SizedBox(width: 4),
+                      IconButton(
+                        tooltip: 'Delete message',
+                        visualDensity: VisualDensity.compact,
+                        constraints: const BoxConstraints(
+                          minWidth: 28,
+                          minHeight: 28,
+                        ),
+                        onPressed: () => context
+                            .read<ChatProvider>()
+                            .deleteMessage(message, currentUser!.id),
+                        icon: const Icon(Icons.delete_outline, size: 18),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

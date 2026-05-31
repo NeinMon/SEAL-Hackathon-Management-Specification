@@ -24,14 +24,24 @@ class _NotificationScreenState extends State<NotificationScreen> {
     final notifications = context.watch<NotificationProvider>().notifications;
     final provider = context.watch<NotificationProvider>();
     if (provider.error != null) {
-      return StatusBanner(message: provider.error!, isError: true);
+      return ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          const SealSectionHeader(
+            title: 'Inbox',
+            subtitle: 'System alerts, scoring updates, and team invitations.',
+            icon: Icons.notifications_outlined,
+          ),
+          StatusBanner(message: provider.error!, isError: true),
+        ],
+      );
     }
     if (provider.isLoading) {
       return ListView(
         padding: const EdgeInsets.all(16),
         children: const [
           SealSectionHeader(
-            title: 'Notifications',
+            title: 'Inbox',
             subtitle: 'System alerts, scoring updates, and team invitations.',
             icon: Icons.notifications_outlined,
           ),
@@ -49,7 +59,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         padding: const EdgeInsets.all(16),
         children: const [
           SealSectionHeader(
-            title: 'Notifications',
+            title: 'Inbox',
             subtitle: 'System alerts, scoring updates, and team invitations.',
             icon: Icons.notifications_outlined,
           ),
@@ -61,7 +71,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         const SealSectionHeader(
-          title: 'Notifications',
+          title: 'Inbox',
           subtitle: 'System alerts, scoring updates, and team invitations.',
           icon: Icons.notifications_outlined,
         ),
@@ -93,10 +103,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 notification.isRead
                     ? Icons.mark_email_read_outlined
                     : Icons.mark_email_unread_outlined,
+                color: notification.isRead
+                    ? SealPalette.onSurfaceVariant
+                    : SealPalette.primary,
               ),
-              title: Text(notification.title),
+              title: Text(
+                notification.title,
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
               subtitle: Text(
-                '${notification.content}\nType: ${notification.type}',
+                '${notification.content}\n${DateFormat('dd/MM HH:mm').format(notification.createdAt)}',
               ),
               isThreeLine: true,
               trailing: notification.isRead
@@ -110,11 +126,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   : Wrap(
                       spacing: 4,
                       children: [
-                        TextButton(
+                        IconButton(
+                          tooltip: 'Mark as read',
                           onPressed: () => context
                               .read<NotificationProvider>()
                               .markRead(notification.id),
-                          child: const Text('Read'),
+                          icon: const Icon(Icons.done),
                         ),
                         IconButton(
                           tooltip: 'Delete',

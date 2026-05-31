@@ -23,14 +23,17 @@ class _EventListScreenState extends State<EventListScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         const SealSectionHeader(
-          title: 'Event Control',
-          subtitle: 'Track active hackathons, deadlines, and locations.',
-          icon: Icons.dashboard_outlined,
+          title: 'Events',
+          subtitle:
+              'Find hackathons, follow deadlines, and open event details.',
+          icon: Icons.event_outlined,
         ),
+        if (provider.error != null)
+          StatusBanner(message: provider.error!, isError: true),
         TextField(
           decoration: const InputDecoration(
             prefixIcon: Icon(Icons.search),
-            hintText: 'Search hackathon events...',
+            hintText: 'Search by title, location, or topic',
           ),
           onChanged: provider.updateSearch,
         ),
@@ -52,7 +55,7 @@ class _EventListScreenState extends State<EventListScreen> {
               ),
               const SizedBox(width: 8),
               CommandChip(
-                label: 'Joined',
+                label: 'All',
                 selected: provider.filter == 'all',
                 onTap: () => provider.updateFilter('all'),
               ),
@@ -90,6 +93,7 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = DateFormat('dd/MM/yyyy');
+    final phase = _phaseFor(event);
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       clipBehavior: Clip.antiAlias,
@@ -121,23 +125,10 @@ class EventCard extends StatelessWidget {
                   Positioned(
                     right: 14,
                     top: 14,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: SealPalette.secondaryContainer,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: const Text(
-                        'ACTIVE NOW',
-                        style: TextStyle(
-                          color: SealPalette.onSecondary,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
+                    child: StatusPill(
+                      label: phase.label,
+                      color: phase.color,
+                      icon: phase.icon,
                     ),
                   ),
                 ],
@@ -174,6 +165,11 @@ class EventCard extends StatelessWidget {
                             '${formatter.format(event.startDate)} - ${formatter.format(event.endDate)}',
                       ),
                       InfoChip(
+                        icon: Icons.schedule_outlined,
+                        text:
+                            'Register by ${formatter.format(event.registrationDeadline)}',
+                      ),
+                      InfoChip(
                         icon: Icons.place_outlined,
                         text: event.location,
                       ),
@@ -190,7 +186,7 @@ class EventCard extends StatelessWidget {
                       const SizedBox(width: 6),
                       const Expanded(
                         child: Text(
-                          '450 Registered',
+                          'Open for team registration',
                           style: TextStyle(
                             color: SealPalette.onSurfaceVariant,
                             fontWeight: FontWeight.w800,
@@ -214,4 +210,35 @@ class EventCard extends StatelessWidget {
       ),
     );
   }
+
+  _EventPhase _phaseFor(HackathonEvent event) {
+    final now = DateTime.now();
+    if (event.endDate.isBefore(now)) {
+      return const _EventPhase(
+        'Closed',
+        SealPalette.onSurfaceVariant,
+        Icons.lock_clock_outlined,
+      );
+    }
+    if (event.startDate.isAfter(now)) {
+      return const _EventPhase(
+        'Upcoming',
+        SealPalette.tertiary,
+        Icons.upcoming_outlined,
+      );
+    }
+    return const _EventPhase(
+      'Active',
+      SealPalette.secondary,
+      Icons.bolt_outlined,
+    );
+  }
+}
+
+class _EventPhase {
+  const _EventPhase(this.label, this.color, this.icon);
+
+  final String label;
+  final Color color;
+  final IconData icon;
 }

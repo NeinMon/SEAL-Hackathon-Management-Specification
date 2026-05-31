@@ -34,7 +34,9 @@ class NotificationProvider extends ChangeNotifier {
         content: content,
         type: type,
       );
-      await loadForUser(userId);
+      if (SupabaseGateway.client.auth.currentUser?.id == userId) {
+        await loadForUser(userId);
+      }
     } catch (exception) {
       error = exception.toString();
     }

@@ -27,14 +27,15 @@ class TeamProvider extends ChangeNotifier {
   ) async {
     error = null;
     message = null;
-    if (name.trim().length < 2) {
+    final cleanName = name.trim();
+    if (cleanName.length < 2) {
       error = 'Team name must be at least 2 characters.';
       notifyListeners();
       return;
     }
     try {
       await _service.createTeam(
-        name: name,
+        name: cleanName,
         eventId: event.id,
         leaderId: leader.id,
       );
@@ -62,13 +63,14 @@ class TeamProvider extends ChangeNotifier {
   Future<void> inviteMember(String teamId, String email) async {
     error = null;
     message = null;
-    if (!email.contains('@')) {
+    final cleanEmail = email.trim();
+    if (!cleanEmail.contains('@')) {
       error = 'Enter a valid member email address.';
       notifyListeners();
       return;
     }
     try {
-      await _service.inviteMemberByEmail(teamId, email);
+      await _service.inviteMemberByEmail(teamId, cleanEmail);
       await loadTeams();
       message = 'Invitation sent.';
     } catch (exception) {
@@ -80,13 +82,14 @@ class TeamProvider extends ChangeNotifier {
   Future<void> updateTeamName(String teamId, String name) async {
     error = null;
     message = null;
-    if (name.trim().length < 2) {
+    final cleanName = name.trim();
+    if (cleanName.length < 2) {
       error = 'Team name must be at least 2 characters.';
       notifyListeners();
       return;
     }
     try {
-      await _service.updateTeamName(teamId, name);
+      await _service.updateTeamName(teamId, cleanName);
       await loadTeams();
       message = 'Team updated successfully.';
     } catch (exception) {

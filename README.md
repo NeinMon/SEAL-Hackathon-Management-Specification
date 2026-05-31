@@ -76,8 +76,17 @@ http://127.0.0.1:8090/#/login
 ```powershell
 flutter analyze
 flutter test
+flutter build web --release
+flutter build apk --debug
+```
+
+With local Supabase running and demo users seeded:
+
+```powershell
+.\scripts\smoke_supabase_flow.ps1
 ```
 
 See `PROJECT_CHECKLIST.md` for the implementation-to-specification mapping.
 
-See `MOBILE_DEPLOYMENT.md` for Android and iOS deployment steps.
+See `MOBILE_DEPLOYMENT.md` for Android, iPhone web testing from Windows, and
+native iOS/TestFlight deployment steps.

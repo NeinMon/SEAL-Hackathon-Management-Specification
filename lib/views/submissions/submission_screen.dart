@@ -25,6 +25,15 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
   }
 
   @override
+  void dispose() {
+    projectName.dispose();
+    github.dispose();
+    video.dispose();
+    description.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return RoleGate(
       allowedRoles: const {'participant'},
@@ -95,7 +104,7 @@ class _SubmissionContent extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         const SealSectionHeader(
-          title: 'Project Submit',
+          title: 'Submission',
           subtitle: 'Send repository, demo video, and project brief to judges.',
           icon: Icons.upload_file_outlined,
         ),
@@ -148,6 +157,7 @@ class _SubmissionContent extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         DropdownButtonFormField<String>(
+          key: ValueKey('submission-team-${targetTeam?.id}-${myTeams.length}'),
           initialValue: targetTeam?.id,
           decoration: const InputDecoration(
             labelText: 'Team',
@@ -159,20 +169,41 @@ class _SubmissionContent extends StatelessWidget {
           ],
           onChanged: myTeams.isEmpty ? null : onTeamChanged,
         ),
+        if (myTeams.isEmpty) ...[
+          const SizedBox(height: 10),
+          const StatusBanner(
+            message: 'Create or join a team before submitting a project.',
+            isError: true,
+          ),
+        ],
         const SizedBox(height: 12),
         TextField(
           controller: projectName,
-          decoration: const InputDecoration(labelText: 'Project name'),
+          textInputAction: TextInputAction.next,
+          decoration: const InputDecoration(
+            labelText: 'Project name',
+            prefixIcon: Icon(Icons.lightbulb_outline),
+          ),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: github,
-          decoration: const InputDecoration(labelText: 'GitHub URL'),
+          keyboardType: TextInputType.url,
+          textInputAction: TextInputAction.next,
+          decoration: const InputDecoration(
+            labelText: 'GitHub URL',
+            prefixIcon: Icon(Icons.code_outlined),
+          ),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: video,
-          decoration: const InputDecoration(labelText: 'Demo video URL'),
+          keyboardType: TextInputType.url,
+          textInputAction: TextInputAction.next,
+          decoration: const InputDecoration(
+            labelText: 'Demo video URL',
+            prefixIcon: Icon(Icons.play_circle_outline),
+          ),
         ),
         const SizedBox(height: 12),
         TextField(
@@ -243,6 +274,10 @@ class _SubmissionContent extends StatelessWidget {
                       userId: recipientId,
                     );
                   }
+                  projectName.clear();
+                  github.clear();
+                  video.clear();
+                  description.clear();
                   onErrorChanged(null);
                 },
           icon: submissions.isLoading

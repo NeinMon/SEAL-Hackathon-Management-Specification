@@ -56,10 +56,12 @@ This file maps the project implementation to the main function specification.
 
 - Auth validates email/password and registration profile fields.
 - Team validates team name and invite email.
+- Team creation now requires an event selection and reacts immediately when the user types.
 - Submission validates project name, description, GitHub URL, and video URL.
 - Judge scoring validates numeric scores from 0 to 10 and requires feedback.
 - Chat rejects empty messages.
 - Providers expose loading/error/success states for UI feedback.
+- Map loads event data directly, so the venue screen works even if Events was not opened first.
 
 ## Database Hardening
 
@@ -73,3 +75,11 @@ This file maps the project implementation to the main function specification.
 
 The app uses `flutter_map` with OpenStreetMap tiles and opens external map
 navigation by coordinates. No Google Maps API key is required.
+
+## Verification Run
+
+- `flutter analyze`
+- `flutter test`
+- `flutter build web --release`
+- `flutter build apk --debug`
+- `.\scripts\smoke_supabase_flow.ps1`: login participant/judge, load event, create team, add member, submit project, send chat message, insert/update score, create notification, mark notification read.
