@@ -1,4 +1,4 @@
-﻿part of '../main.dart';
+part of '../main.dart';
 
 class AppNotification {
   AppNotification({
@@ -6,6 +6,7 @@ class AppNotification {
     required this.title,
     required this.content,
     required this.type,
+    required this.createdAt,
     this.isRead = false,
   });
 
@@ -13,6 +14,7 @@ class AppNotification {
   final String title;
   final String content;
   final String type;
+  final DateTime createdAt;
   bool isRead;
 
   factory AppNotification.fromJson(Map<String, dynamic> json) {
@@ -21,6 +23,9 @@ class AppNotification {
       title: (json['title'] ?? '') as String,
       content: (json['content'] ?? '') as String,
       type: (json['notification_type'] ?? 'system') as String,
+      createdAt:
+          DateTime.tryParse((json['created_at'] ?? '').toString()) ??
+          DateTime.now(),
       isRead: (json['is_read'] ?? false) as bool,
     );
   }

@@ -15,9 +15,11 @@ class AppShell extends StatelessWidget {
     final path = GoRouterState.of(context).uri.path;
     final selectedIndex = _selectedIndex(path, items);
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(64),
-        child: HackCommandTopBar(
+      appBar: AppBar(
+        toolbarHeight: 64,
+        titleSpacing: 0,
+        automaticallyImplyLeading: false,
+        title: HackCommandTopBar(
           subtitle: auth.user?.role.toUpperCase(),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
@@ -74,16 +76,19 @@ class AppShell extends StatelessWidget {
         ),
         child: SafeArea(top: false, child: child),
       ),
-      bottomNavigationBar: NavigationBar(
-        height: 72,
-        selectedIndex: selectedIndex,
-        onDestinationSelected: (index) {
-          context.go(items[index].path);
-        },
-        destinations: [
-          for (final item in items)
-            NavigationDestination(icon: Icon(item.icon), label: item.label),
-        ],
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: NavigationBar(
+          height: 72,
+          selectedIndex: selectedIndex,
+          onDestinationSelected: (index) {
+            context.go(items[index].path);
+          },
+          destinations: [
+            for (final item in items)
+              NavigationDestination(icon: Icon(item.icon), label: item.label),
+          ],
+        ),
       ),
     );
   }

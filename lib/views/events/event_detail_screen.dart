@@ -33,6 +33,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             subtitle: 'Loading hackathon information from the event catalog.',
             icon: Icons.event_outlined,
           ),
+          if (eventProvider.error != null)
+            StatusBanner(message: eventProvider.error!, isError: true),
           if (eventProvider.isLoading)
             const Center(
               child: Padding(
@@ -63,42 +65,73 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: AspectRatio(
-            aspectRatio: 16 / 8,
-            child: Image.network(
-              event.bannerUrl,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) =>
-                  const EventImageFallback(),
-            ),
+        Card(
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AspectRatio(
+                aspectRatio: 16 / 8,
+                child: Image.network(
+                  event.bannerUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const EventImageFallback(),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    StatusPill(
+                      label:
+                          'Registration closes ${DateFormat('dd/MM').format(event.registrationDeadline)}',
+                      color: SealPalette.tertiary,
+                      icon: Icons.schedule_outlined,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      event.title,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      event.description,
+                      style: const TextStyle(
+                        color: SealPalette.onSurfaceVariant,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 16),
-        Text(
-          event.title,
-          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          event.description,
-          style: const TextStyle(
-            color: SealPalette.onSurfaceVariant,
-            height: 1.4,
-          ),
+        Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            InfoChip(
+              icon: Icons.calendar_month_outlined,
+              text:
+                  '${DateFormat('dd/MM/yyyy').format(event.startDate)} - ${DateFormat('dd/MM/yyyy').format(event.endDate)}',
+            ),
+            InfoChip(icon: Icons.place_outlined, text: event.location),
+            InfoChip(
+              icon: Icons.groups_outlined,
+              text: 'Max ${event.maxTeamSize} members',
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         DetailTile(title: 'Rules', value: event.rules),
         DetailTile(title: 'Prize', value: event.prize),
-        DetailTile(
-          title: 'Registration deadline',
-          value: DateFormat('dd/MM/yyyy').format(event.registrationDeadline),
-        ),
-        DetailTile(
-          title: 'Max team size',
-          value: '${event.maxTeamSize} members',
-        ),
         const SizedBox(height: 12),
         FilledButton.icon(
           onPressed: () => context.go('/teams'),

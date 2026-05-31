@@ -166,8 +166,9 @@ class SealApp extends StatelessWidget {
         ),
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: SealPalette.surfaceContainer,
-        indicatorColor: SealPalette.primaryContainer,
+        backgroundColor: SealPalette.surfaceContainerLow,
+        indicatorColor: SealPalette.primary.withValues(alpha: 0.16),
+        surfaceTintColor: Colors.transparent,
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
             color: states.contains(WidgetState.selected)
@@ -187,12 +188,16 @@ class SealApp extends StatelessWidget {
       ),
       inputDecorationTheme:
           OutlineInputBorder(
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(8),
             borderSide: const BorderSide(color: SealPalette.outlineVariant),
           ).let(
             (border) => InputDecorationTheme(
               filled: true,
-              fillColor: SealPalette.surfaceContainerLowest,
+              fillColor: SealPalette.surfaceContainerLow,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 14,
+              ),
               labelStyle: const TextStyle(color: SealPalette.onSurfaceVariant),
               hintStyle: const TextStyle(color: SealPalette.onSurfaceVariant),
               prefixIconColor: SealPalette.onSurfaceVariant,
@@ -235,7 +240,7 @@ class SealApp extends StatelessWidget {
           backgroundColor: SealPalette.primaryContainer,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(48),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           textStyle: const TextStyle(fontWeight: FontWeight.w800),
         ),
       ),
@@ -243,9 +248,16 @@ class SealApp extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           foregroundColor: SealPalette.primary,
           side: const BorderSide(color: SealPalette.outlineVariant),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          minimumSize: const Size.fromHeight(44),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           textStyle: const TextStyle(fontWeight: FontWeight.w700),
         ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: SealPalette.surfaceContainerHighest,
+        contentTextStyle: const TextStyle(color: SealPalette.onSurface),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(

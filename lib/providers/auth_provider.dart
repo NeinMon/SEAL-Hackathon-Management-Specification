@@ -26,12 +26,13 @@ class AuthProvider extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      if (!email.contains('@') || password.length < 6) {
+      final cleanEmail = email.trim();
+      if (!cleanEmail.contains('@') || password.length < 6) {
         throw const AuthException(
           'Enter a valid email and a password with at least 6 characters.',
         );
       }
-      user = await _service.login(email, password);
+      user = await _service.login(cleanEmail, password);
     } on AuthException catch (exception) {
       error = exception.message;
     } catch (exception) {
@@ -52,20 +53,23 @@ class AuthProvider extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      if (!email.contains('@') || password.length < 6) {
+      final cleanEmail = email.trim();
+      final cleanName = fullName.trim();
+      final cleanUniversity = university.trim();
+      if (!cleanEmail.contains('@') || password.length < 6) {
         throw const AuthException(
           'Enter a valid email and a password with at least 6 characters.',
         );
       }
-      if (fullName.trim().length < 2 || university.trim().length < 2) {
+      if (cleanName.length < 2 || cleanUniversity.length < 2) {
         throw const AuthException('Full name and university are required.');
       }
       user = await _service.register(
-        fullName: fullName,
-        email: email,
+        fullName: cleanName,
+        email: cleanEmail,
         password: password,
         role: role,
-        university: university,
+        university: cleanUniversity,
       );
     } on AuthException catch (exception) {
       error = exception.message;
