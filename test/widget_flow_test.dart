@@ -126,6 +126,151 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('Submission screen exposes draft lifecycle and history', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final auth = AuthProvider(restoreSession: false)
+      ..user = const AppUser(
+        id: 'participant-id',
+        fullName: 'Participant',
+        email: 'participant@seal.test',
+        role: AppRoles.participant,
+        university: 'FPT University',
+      );
+    final teams = TestTeamProvider()
+      ..teams = const [
+        Team(
+          id: 'team-id',
+          name: 'Seal Builders',
+          leaderId: 'participant-id',
+          eventId: 'event-id',
+          members: [
+            AppUser(
+              id: 'participant-id',
+              fullName: 'Participant',
+              email: 'participant@seal.test',
+              role: AppRoles.participant,
+              university: 'FPT University',
+            ),
+          ],
+        ),
+      ];
+    final submissions = TestSubmissionProvider()
+      ..submissions = [
+        ProjectSubmission(
+          id: 'submission-id',
+          teamId: 'team-id',
+          projectName: 'Campus Copilot',
+          githubUrl: 'https://github.com/seal-demo/campus',
+          videoUrl: 'https://example.com/demo',
+          description: 'Demo project',
+          status: 'submitted',
+          submittedAt: DateTime(2026, 6, 1, 8),
+        ),
+      ]
+      ..history = [
+        SubmissionHistory(
+          id: 'history-id',
+          submissionId: 'submission-id',
+          status: 'submitted',
+          projectName: 'Campus Copilot',
+          changedAt: DateTime(2026, 6, 1, 8),
+        ),
+      ];
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthProvider>.value(value: auth),
+          ChangeNotifierProvider<TeamProvider>.value(value: teams),
+          ChangeNotifierProvider<SubmissionProvider>.value(value: submissions),
+          ChangeNotifierProvider<ScoreProvider>.value(
+            value: TestScoreProvider(),
+          ),
+          ChangeNotifierProvider<NotificationProvider>.value(
+            value: NotificationProvider(),
+          ),
+        ],
+        child: const MaterialApp(home: Scaffold(body: SubmissionScreen())),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Draft'), findsOneWidget);
+    expect(find.text('Submitted'), findsWidgets);
+    await tester.scrollUntilVisible(
+      find.text('Update history'),
+      260,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Update history'), findsOneWidget);
+  });
+
+  testWidgets('Chat screen renders empty conversation without overflow', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final auth = AuthProvider(restoreSession: false)
+      ..user = const AppUser(
+        id: 'participant-id',
+        fullName: 'Participant',
+        email: 'participant@seal.test',
+        role: AppRoles.participant,
+        university: 'FPT University',
+      );
+    final chat = TestChatProvider()
+      ..contacts = const [
+        AppUser(
+          id: 'mentor-id',
+          fullName: 'SEAL Mentor',
+          email: 'mentor@seal.test',
+          role: AppRoles.mentor,
+          university: 'SEAL Lab',
+        ),
+      ];
+    chat.selectedContact = chat.contacts.first;
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthProvider>.value(value: auth),
+          ChangeNotifierProvider<ChatProvider>.value(value: chat),
+        ],
+        child: const MaterialApp(home: Scaffold(body: ChatScreen())),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Mentor Chat'), findsOneWidget);
+    expect(find.text('No messages yet'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Map screen gives recoverable empty state', (tester) async {
+    final provider = TestEventProvider();
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<EventProvider>.value(
+        value: provider,
+        child: const MaterialApp(home: Scaffold(body: MapScreen())),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('Venue'), findsOneWidget);
+    expect(find.text('No event location available.'), findsOneWidget);
+    expect(find.text('Reload venue'), findsOneWidget);
+  });
 }
 
 class TestEventProvider extends EventProvider {
@@ -146,6 +291,14 @@ class TestScoreProvider extends ScoreProvider {
 class TestTeamProvider extends TeamProvider {
   @override
   Future<void> loadTeams() async {}
+}
+
+class TestChatProvider extends ChatProvider {
+  @override
+  Future<void> loadContacts(AppUser currentUser) async {}
+
+  @override
+  Future<void> load(String userId, String receiverId) async {}
 }
 
 HackathonEvent _event({

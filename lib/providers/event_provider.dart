@@ -7,6 +7,7 @@ class EventProvider extends ChangeNotifier {
   bool isLoading = false;
   String search = '';
   String filter = 'all';
+  String? message;
   String? error;
 
   List<HackathonEvent> get filteredEvents {
@@ -52,6 +53,27 @@ class EventProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> saveEvent(
+    HackathonEvent event, {
+    String? existingEventId,
+  }) async {
+    isLoading = true;
+    error = null;
+    message = null;
+    notifyListeners();
+    try {
+      await _service.saveEvent(event, existingEventId: existingEventId);
+      await loadEvents();
+      message = existingEventId == null
+          ? 'Event created successfully.'
+          : 'Event updated successfully.';
+    } catch (exception) {
+      error = FriendlyErrorMapper.message(exception);
+    }
+    isLoading = false;
+    notifyListeners();
+  }
+
   void updateSearch(String value) {
     search = value;
     notifyListeners();
@@ -66,6 +88,7 @@ class EventProvider extends ChangeNotifier {
     events = [];
     search = '';
     filter = 'all';
+    message = null;
     error = null;
     isLoading = false;
     notifyListeners();

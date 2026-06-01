@@ -25,6 +25,9 @@ if (-not $SkipSupabase) {
 Write-Output "== Android debug build =="
 flutter build apk --debug
 
+Write-Output "== Android release build =="
+flutter build apk --release
+
 if (-not $SkipSupabase -and $env:SUPABASE_SERVICE_ROLE_KEY) {
   Write-Output "== Restore clean demo data =="
   .\scripts\reset_demo_database.ps1 -ProjectUrl $ProjectUrl

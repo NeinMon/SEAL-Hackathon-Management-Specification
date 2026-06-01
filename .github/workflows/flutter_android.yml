@@ -37,3 +37,6 @@ jobs:
 
       - name: Build Android debug APK
         run: flutter build apk --debug
+
+      - name: Build Android release APK
+        run: flutter build apk --release

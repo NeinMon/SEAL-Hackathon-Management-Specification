@@ -4,6 +4,7 @@ param(
   [string]$ServiceRoleKey = $env:SUPABASE_SERVICE_ROLE_KEY,
   [string]$ParticipantEmail = "participant@seal.test",
   [string]$JudgeEmail = "judge@seal.test",
+  [string]$MentorEmail = "mentor@seal.test",
   [string]$Password = "123456"
 )
 
@@ -61,9 +62,11 @@ function Assert-Blocked([scriptblock]$Action, [string]$Name) {
 
 $participant = Login-User $ParticipantEmail
 $judge = Login-User $JudgeEmail
+$mentor = Login-User $MentorEmail
 $participantHeaders = New-AuthHeaders $participant.access_token
 $participantReturnHeaders = New-AuthHeaders $participant.access_token "return=representation"
 $judgeReturnHeaders = New-AuthHeaders $judge.access_token "return=representation"
+$mentorReturnHeaders = New-AuthHeaders $mentor.access_token "return=representation"
 
 $event = First-Item `
   (Invoke-RestMethod -Method Get -Uri "$ProjectUrl/rest/v1/events?select=*&limit=1" -Headers $participantHeaders) `
@@ -157,6 +160,114 @@ if ($ServiceRoleKey) {
       -Uri "$ProjectUrl/rest/v1/scores?id=eq.$scoreId&select=*" `
       -Headers $judgeReturnHeaders `
       -Body $judgePatchBody
+  }
+
+  $judgeNotificationBody = @{
+    user_id = $judge.user.id
+    title = "Private judge notification $runId"
+    content = "Participant must not read this notification."
+    notification_type = "system"
+  } | ConvertTo-Json
+  $judgeNotification = First-Item `
+    (Invoke-RestMethod -Method Post -Uri "$ProjectUrl/rest/v1/notifications?select=*" -Headers $serviceHeaders -Body $judgeNotificationBody) `
+    "judge notification"
+
+  Assert-Blocked -Name "participant cannot read another user's notification" -Action {
+    Invoke-RestMethod `
+      -Method Get `
+      -Uri "$ProjectUrl/rest/v1/notifications?id=eq.$($judgeNotification.id)&select=*" `
+      -Headers $participantHeaders
+  }
+
+  $privateMessageBody = @{
+    sender_id = $judge.user.id
+    receiver_id = $mentor.user.id
+    message = "Private judge mentor message $runId"
+  } | ConvertTo-Json
+  $privateMessage = First-Item `
+    (Invoke-RestMethod -Method Post -Uri "$ProjectUrl/rest/v1/messages?select=*" -Headers $serviceHeaders -Body $privateMessageBody) `
+    "private message"
+
+  Assert-Blocked -Name "participant cannot read another user's message" -Action {
+    Invoke-RestMethod `
+      -Method Get `
+      -Uri "$ProjectUrl/rest/v1/messages?id=eq.$($privateMessage.id)&select=*" `
+      -Headers $participantHeaders
+  }
+
+  $otherTeamBody = @{
+    name = "Other Team $runId"
+    leader_id = $judge.user.id
+    event_id = $event.id
+  } | ConvertTo-Json
+  $otherTeam = First-Item `
+    (Invoke-RestMethod -Method Post -Uri "$ProjectUrl/rest/v1/teams?select=*" -Headers $serviceHeaders -Body $otherTeamBody) `
+    "other team"
+
+  Assert-Blocked -Name "participant cannot update another team" -Action {
+    Invoke-RestMethod `
+      -Method Patch `
+      -Uri "$ProjectUrl/rest/v1/teams?id=eq.$($otherTeam.id)&select=*" `
+      -Headers $participantReturnHeaders `
+      -Body (@{ name = "Hijacked Team $runId" } | ConvertTo-Json)
+  }
+
+  $otherSubmissionBody = @{
+    team_id = $otherTeam.id
+    project_name = "Other Project $runId"
+    github_url = "https://github.com/seal-demo/other-project"
+    video_url = "https://example.com/other-demo"
+    description = "Submission owned by another team."
+    status = "submitted"
+  } | ConvertTo-Json
+  $otherSubmission = First-Item `
+    (Invoke-RestMethod -Method Post -Uri "$ProjectUrl/rest/v1/submissions?select=*" -Headers $serviceHeaders -Body $otherSubmissionBody) `
+    "other submission"
+
+  Assert-Blocked -Name "participant cannot update another team's submission" -Action {
+    Invoke-RestMethod `
+      -Method Patch `
+      -Uri "$ProjectUrl/rest/v1/submissions?id=eq.$($otherSubmission.id)&select=*" `
+      -Headers $participantReturnHeaders `
+      -Body (@{ project_name = "Hijacked Project $runId" } | ConvertTo-Json)
+  }
+
+  $outsiderEmail = "outsider-$runId@seal.test"
+  $outsiderAuthBody = @{
+    email = $outsiderEmail
+    password = $Password
+    email_confirm = $true
+  } | ConvertTo-Json
+  $outsiderAuth = Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ProjectUrl/auth/v1/admin/users" `
+    -Headers $serviceHeaders `
+    -Body $outsiderAuthBody
+  $outsiderProfileBody = @{
+    id = $outsiderAuth.id
+    full_name = "Outside Participant $runId"
+    email = $outsiderEmail
+    role = "participant"
+    university = "Negative Test"
+  } | ConvertTo-Json
+  Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ProjectUrl/rest/v1/users" `
+    -Headers $serviceHeaders `
+    -Body $outsiderProfileBody | Out-Null
+
+  $blockedMentorMessageBody = @{
+    sender_id = $mentor.user.id
+    receiver_id = $outsiderAuth.id
+    message = "Mentor should not message unrelated participant $runId"
+  } | ConvertTo-Json
+
+  Assert-Blocked -Name "mentor cannot chat with unrelated participant" -Action {
+    Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/messages?select=*" `
+      -Headers $mentorReturnHeaders `
+      -Body $blockedMentorMessageBody
   }
 } else {
   Write-Output "SKIP: judge update negative case requires SUPABASE_SERVICE_ROLE_KEY."

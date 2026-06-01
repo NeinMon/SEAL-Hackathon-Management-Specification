@@ -3,6 +3,7 @@ alter table events enable row level security;
 alter table teams enable row level security;
 alter table team_members enable row level security;
 alter table submissions enable row level security;
+alter table submission_history enable row level security;
 alter table scores enable row level security;
 alter table notifications enable row level security;
 alter table messages enable row level security;
@@ -14,6 +15,40 @@ security definer
 set search_path = public
 as $$
   select role from public.users where id = auth.uid()
+$$;
+
+create or replace function public.can_message_receiver(receiver uuid)
+returns boolean
+language sql
+security definer
+set search_path = public
+as $$
+  select case public.current_user_role()
+    when 'organizer' then true
+    when 'participant' then exists (
+      select 1
+      from public.users receiver_user
+      where receiver_user.id = receiver
+        and receiver_user.role in ('mentor', 'organizer')
+    )
+    when 'mentor' then exists (
+      select 1
+      from public.users receiver_user
+      where receiver_user.id = receiver
+        and receiver_user.role = 'organizer'
+    ) or exists (
+      select 1
+      from public.users receiver_user
+      join public.team_members mentor_member
+        on mentor_member.user_id = auth.uid()
+      join public.team_members receiver_member
+        on receiver_member.team_id = mentor_member.team_id
+       and receiver_member.user_id = receiver
+      where receiver_user.id = receiver
+        and receiver_user.role = 'participant'
+    )
+    else false
+  end
 $$;
 
 drop policy if exists "Users can create own profile" on users;
@@ -136,6 +171,12 @@ with check (
   )
 );
 
+drop policy if exists "Authenticated users can view submission history" on submission_history;
+create policy "Authenticated users can view submission history"
+on submission_history for select
+to authenticated
+using (true);
+
 drop policy if exists "Authenticated users can view scores" on scores;
 create policy "Authenticated users can view scores"
 on scores for select
@@ -200,7 +241,10 @@ drop policy if exists "Users can send own messages" on messages;
 create policy "Users can send own messages"
 on messages for insert
 to authenticated
-with check (sender_id = auth.uid());
+with check (
+  sender_id = auth.uid()
+  and public.can_message_receiver(receiver_id)
+);
 
 drop policy if exists "Users can delete sent messages" on messages;
 create policy "Users can delete sent messages"

@@ -1,6 +1,10 @@
 part of '../main.dart';
 
 class SupabaseConfig {
+  static const environment = String.fromEnvironment(
+    'APP_ENV',
+    defaultValue: 'local',
+  );
   static const url = String.fromEnvironment('SUPABASE_URL');
   static const anonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
   static bool get isConfigured => url.isNotEmpty && anonKey.isNotEmpty;

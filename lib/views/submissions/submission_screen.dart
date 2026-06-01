@@ -14,6 +14,7 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
   final description = TextEditingController();
   String? error;
   String? selectedTeamId;
+  String submissionStatus = 'submitted';
 
   @override
   void initState() {
@@ -21,6 +22,7 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TeamProvider>().loadTeams();
       context.read<SubmissionProvider>().loadSubmissions();
+      context.read<ScoreProvider>().loadScores();
     });
   }
 
@@ -45,8 +47,10 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
         description: description,
         error: error,
         selectedTeamId: selectedTeamId,
+        submissionStatus: submissionStatus,
         onErrorChanged: (value) => setState(() => error = value),
         onTeamChanged: (value) => setState(() => selectedTeamId = value),
+        onStatusChanged: (value) => setState(() => submissionStatus = value),
       ),
     );
   }
@@ -60,8 +64,10 @@ class _SubmissionContent extends StatelessWidget {
     required this.description,
     required this.error,
     required this.selectedTeamId,
+    required this.submissionStatus,
     required this.onErrorChanged,
     required this.onTeamChanged,
+    required this.onStatusChanged,
   });
 
   final TextEditingController projectName;
@@ -70,14 +76,21 @@ class _SubmissionContent extends StatelessWidget {
   final TextEditingController description;
   final String? error;
   final String? selectedTeamId;
+  final String submissionStatus;
   final ValueChanged<String?> onErrorChanged;
   final ValueChanged<String?> onTeamChanged;
+  final ValueChanged<String> onStatusChanged;
 
   @override
   Widget build(BuildContext context) {
     final teams = context.watch<TeamProvider>().teams;
     final submissions = context.watch<SubmissionProvider>();
+    final scores = context.watch<ScoreProvider>();
     final user = context.watch<AuthProvider>().user;
+    final loading =
+        context.watch<TeamProvider>().isLoading ||
+        submissions.isLoading ||
+        scores.isLoading;
     final myTeams = user == null
         ? <Team>[]
         : teams
@@ -142,7 +155,7 @@ class _SubmissionContent extends StatelessWidget {
                       if (latestSubmission != null) ...[
                         const SizedBox(height: 6),
                         Text(
-                          latestSubmission.projectName,
+                          '${latestSubmission.projectName} - ${DateFormat('dd/MM HH:mm').format(latestSubmission.submittedAt)}',
                           style: const TextStyle(
                             color: SealPalette.onSurfaceVariant,
                             fontWeight: FontWeight.w700,
@@ -189,6 +202,23 @@ class _SubmissionContent extends StatelessWidget {
             isError: true,
           ),
         ],
+        const SizedBox(height: 12),
+        SegmentedButton<String>(
+          segments: const [
+            ButtonSegment(
+              value: 'draft',
+              icon: Icon(Icons.edit_note_outlined),
+              label: Text('Draft'),
+            ),
+            ButtonSegment(
+              value: 'submitted',
+              icon: Icon(Icons.task_alt_outlined),
+              label: Text('Submitted'),
+            ),
+          ],
+          selected: {submissionStatus},
+          onSelectionChanged: (values) => onStatusChanged(values.first),
+        ),
         const SizedBox(height: 12),
         TextField(
           controller: projectName,
@@ -242,8 +272,20 @@ class _SubmissionContent extends StatelessWidget {
         if (submissions.message != null)
           StatusBanner(message: submissions.message!),
         const SizedBox(height: 16),
+        OutlinedButton.icon(
+          onPressed: loading
+              ? null
+              : () => Future.wait([
+                  context.read<TeamProvider>().loadTeams(),
+                  context.read<SubmissionProvider>().loadSubmissions(),
+                  context.read<ScoreProvider>().loadScores(),
+                ]),
+          icon: const Icon(Icons.refresh),
+          label: const Text('Refresh submission data'),
+        ),
+        const SizedBox(height: 10),
         FilledButton.icon(
-          onPressed: submissions.isLoading
+          onPressed: loading
               ? null
               : () async {
                   final valid =
@@ -272,6 +314,7 @@ class _SubmissionContent extends StatelessWidget {
                       githubUrl: github.text.trim(),
                       videoUrl: video.text.trim(),
                       description: description.text.trim(),
+                      status: submissionStatus,
                     ),
                     existingSubmissionId: latestSubmission?.id,
                   );
@@ -293,7 +336,7 @@ class _SubmissionContent extends StatelessWidget {
                   description.clear();
                   onErrorChanged(null);
                 },
-          icon: submissions.isLoading
+          icon: loading
               ? const SizedBox.square(
                   dimension: 18,
                   child: CircularProgressIndicator(strokeWidth: 2),
@@ -307,27 +350,105 @@ class _SubmissionContent extends StatelessWidget {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
-        if (submissions.isLoading)
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: CircularProgressIndicator(),
-            ),
-          )
+        if (loading)
+          const LoadingCardList(itemCount: 2)
         else if (submissions.submissions.isEmpty)
-          const EmptyState(message: 'No submissions yet')
+          EmptyState(
+            message: 'No submissions yet',
+            actionLabel: 'Choose team',
+            onAction: () => context.go(AppRoutes.teams),
+          )
         else
           for (final submission in submissions.submissions)
-            Card(
-              margin: const EdgeInsets.only(bottom: 10),
-              child: ListTile(
-                leading: const Icon(Icons.code_outlined),
-                title: Text(submission.projectName),
-                subtitle: Text('${submission.status}\n${submission.githubUrl}'),
-                isThreeLine: true,
-              ),
+            _SubmissionHistoryCard(
+              submission: submission,
+              history: submissions.historyFor(submission.id),
+              scores: scores.scoresFor(submission.id),
             ),
       ],
+    );
+  }
+}
+
+class _SubmissionHistoryCard extends StatelessWidget {
+  const _SubmissionHistoryCard({
+    required this.submission,
+    required this.history,
+    required this.scores,
+  });
+
+  final ProjectSubmission submission;
+  final List<SubmissionHistory> history;
+  final List<ProjectScore> scores;
+
+  @override
+  Widget build(BuildContext context) {
+    final formatter = DateFormat('dd/MM/yyyy HH:mm');
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.code_outlined, color: SealPalette.primary),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    submission.projectName,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 17,
+                    ),
+                  ),
+                ),
+                StatusPill(
+                  label: submission.status,
+                  icon: submission.status == 'reviewed'
+                      ? Icons.verified_outlined
+                      : Icons.task_alt_outlined,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${formatter.format(submission.submittedAt)}\n${submission.githubUrl}',
+              style: const TextStyle(color: SealPalette.onSurfaceVariant),
+            ),
+            if (history.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              const Text(
+                'Update history',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 6),
+              for (final item in history.take(3))
+                Text(
+                  '${formatter.format(item.changedAt)} - ${item.status} - ${item.projectName}',
+                  style: const TextStyle(color: SealPalette.onSurfaceVariant),
+                ),
+            ],
+            if (scores.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              const Text(
+                'Judge feedback',
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+              const SizedBox(height: 6),
+              for (final score in scores)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Text(
+                    '${score.average.toStringAsFixed(1)} - ${score.feedback}',
+                    style: const TextStyle(color: SealPalette.onSurfaceVariant),
+                  ),
+                ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 }

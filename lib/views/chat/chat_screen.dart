@@ -53,18 +53,29 @@ class _ChatScreenState extends State<ChatScreen> {
       message: 'Chat is available for participants, mentors, and organizers.',
       child: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(12, 16, 12, 0),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
             child: SealSectionHeader(
               title: 'Mentor Chat',
               subtitle:
                   'Coordinate with mentors and organizers during the contest.',
               icon: Icons.chat_outlined,
+              trailing: IconButton.filledTonal(
+                tooltip: 'Refresh chat',
+                onPressed: user == null || chat.isLoading
+                    ? null
+                    : () => chat.loadContacts(user).then((_) {
+                        final contact = chat.selectedContact;
+                        if (contact != null) chat.load(user.id, contact.id);
+                      }),
+                icon: const Icon(Icons.refresh),
+              ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
             child: DropdownButtonFormField<String>(
+              isExpanded: true,
               key: ValueKey(
                 'chat-contact-${chat.selectedContact?.id}-${chat.contacts.length}',
               ),
@@ -77,10 +88,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 for (final contact in chat.contacts)
                   DropdownMenuItem(
                     value: contact.id,
-                    child: Text('${contact.fullName} (${contact.role})'),
+                    child: Text(
+                      '${contact.fullName} (${contact.role})',
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
               ],
-              onChanged: user == null
+              onChanged: user == null || chat.isLoading
                   ? null
                   : (contactId) {
                       final contact = chat.contacts.firstWhere(
@@ -101,12 +115,26 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           Expanded(
             child: chat.isLoading
-                ? const Center(child: CircularProgressIndicator())
+                ? const Padding(
+                    padding: EdgeInsets.all(16),
+                    child: LoadingCardList(itemCount: 3),
+                  )
                 : ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
                       if (chat.messages.isEmpty)
-                        const EmptyState(message: 'No messages yet')
+                        EmptyState(
+                          message: 'No messages yet',
+                          actionLabel: 'Reload chat',
+                          onAction: user == null
+                              ? null
+                              : () {
+                                  final contact = chat.selectedContact;
+                                  if (contact != null) {
+                                    chat.load(user.id, contact.id);
+                                  }
+                                },
+                        )
                       else ...[
                         Center(
                           child: StatusPill(
@@ -142,6 +170,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   onPressed:
                       user == null ||
                           chat.selectedContact == null ||
+                          chat.isLoading ||
                           controller.text.trim().isEmpty
                       ? null
                       : () async {

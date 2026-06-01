@@ -22,11 +22,16 @@ class _EventListScreenState extends State<EventListScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const SealSectionHeader(
+        SealSectionHeader(
           title: 'Events',
           subtitle:
               'Find hackathons, follow deadlines, and open event details.',
           icon: Icons.event_outlined,
+          trailing: IconButton.filledTonal(
+            tooltip: 'Refresh events',
+            onPressed: provider.isLoading ? null : provider.loadEvents,
+            icon: const Icon(Icons.refresh),
+          ),
         ),
         if (provider.error != null)
           StatusBanner(message: provider.error!, isError: true),
@@ -71,14 +76,13 @@ class _EventListScreenState extends State<EventListScreen> {
         ),
         const SizedBox(height: 16),
         if (provider.isLoading)
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(32),
-              child: CircularProgressIndicator(),
-            ),
-          )
+          const LoadingCardList(itemCount: 3)
         else if (provider.filteredEvents.isEmpty)
-          const EmptyState(message: 'No events available')
+          EmptyState(
+            message: 'No events available',
+            actionLabel: 'Reload events',
+            onAction: provider.loadEvents,
+          )
         else
           for (final event in provider.filteredEvents) EventCard(event: event),
       ],

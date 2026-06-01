@@ -22,18 +22,18 @@ class _MapScreenState extends State<MapScreen> {
     if (eventProvider.isLoading) {
       return ListView(
         padding: const EdgeInsets.all(16),
-        children: const [
-          SealSectionHeader(
+        children: [
+          const SealSectionHeader(
             title: 'Venue',
             subtitle: 'Map marker and external navigation support.',
             icon: Icons.map_outlined,
-          ),
-          Center(
-            child: Padding(
-              padding: EdgeInsets.all(32),
-              child: CircularProgressIndicator(),
+            trailing: IconButton.filledTonal(
+              tooltip: 'Refresh venue',
+              onPressed: null,
+              icon: Icon(Icons.refresh),
             ),
           ),
+          const LoadingCardList(itemCount: 2),
         ],
       );
     }
@@ -41,10 +41,15 @@ class _MapScreenState extends State<MapScreen> {
       return ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const SealSectionHeader(
+          SealSectionHeader(
             title: 'Venue',
             subtitle: 'Map marker and external navigation support.',
             icon: Icons.map_outlined,
+            trailing: IconButton.filledTonal(
+              tooltip: 'Refresh venue',
+              onPressed: eventProvider.loadEvents,
+              icon: const Icon(Icons.refresh),
+            ),
           ),
           StatusBanner(message: eventProvider.error!, isError: true),
         ],
@@ -53,13 +58,22 @@ class _MapScreenState extends State<MapScreen> {
     if (eventProvider.events.isEmpty) {
       return ListView(
         padding: const EdgeInsets.all(16),
-        children: const [
+        children: [
           SealSectionHeader(
             title: 'Venue',
             subtitle: 'Map marker and external navigation support.',
             icon: Icons.map_outlined,
+            trailing: IconButton.filledTonal(
+              tooltip: 'Refresh venue',
+              onPressed: eventProvider.loadEvents,
+              icon: const Icon(Icons.refresh),
+            ),
           ),
-          EmptyState(message: 'No event location available.'),
+          EmptyState(
+            message: 'No event location available.',
+            actionLabel: 'Reload venue',
+            onAction: eventProvider.loadEvents,
+          ),
         ],
       );
     }
@@ -68,10 +82,17 @@ class _MapScreenState extends State<MapScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const SealSectionHeader(
+        SealSectionHeader(
           title: 'Venue',
           subtitle: 'Map marker and external navigation support.',
           icon: Icons.map_outlined,
+          trailing: IconButton.filledTonal(
+            tooltip: 'Refresh venue',
+            onPressed: eventProvider.isLoading
+                ? null
+                : eventProvider.loadEvents,
+            icon: const Icon(Icons.refresh),
+          ),
         ),
         Card(
           child: Padding(

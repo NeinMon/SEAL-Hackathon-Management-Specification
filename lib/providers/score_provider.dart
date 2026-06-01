@@ -58,6 +58,10 @@ class ScoreProvider extends ChangeNotifier {
     return null;
   }
 
+  List<ProjectScore> scoresFor(String submissionId) {
+    return scores.where((score) => score.submissionId == submissionId).toList();
+  }
+
   void clear() {
     scores = [];
     error = null;

@@ -36,21 +36,38 @@ class _JudgeContent extends StatefulWidget {
 }
 
 class _JudgeContentState extends State<_JudgeContent> {
+  String filter = 'all';
+  String sort = 'queue';
+
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final submissions = context.watch<SubmissionProvider>().submissions;
+    final submissionProvider = context.watch<SubmissionProvider>();
+    final submissions = _visibleSubmissions(
+      submissionProvider.submissions,
+      context.watch<ScoreProvider>(),
+    );
     final scores = context.watch<ScoreProvider>();
-    final teams = context.watch<TeamProvider>().teams;
+    final teamsProvider = context.watch<TeamProvider>();
+    final teams = teamsProvider.teams;
     final isJudge = auth.user?.role == 'judge';
+    final loading =
+        submissionProvider.isLoading ||
+        scores.isLoading ||
+        teamsProvider.isLoading;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const SealSectionHeader(
+        SealSectionHeader(
           title: 'Judging',
           subtitle:
               'Score submissions with technical, UI/UX, and innovation criteria.',
           icon: Icons.rate_review_outlined,
+          trailing: IconButton.filledTonal(
+            tooltip: 'Refresh judging queue',
+            onPressed: loading ? null : () => _refresh(context),
+            icon: const Icon(Icons.refresh),
+          ),
         ),
         if (!isJudge)
           const Card(
@@ -63,16 +80,56 @@ class _JudgeContentState extends State<_JudgeContent> {
           ),
         if (scores.error != null)
           StatusBanner(message: scores.error!, isError: true),
+        if (submissionProvider.error != null)
+          StatusBanner(message: submissionProvider.error!, isError: true),
         if (scores.message != null) StatusBanner(message: scores.message!),
-        if (scores.isLoading)
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: CircularProgressIndicator(),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            CommandChip(
+              label: 'All',
+              selected: filter == 'all',
+              onTap: () => setState(() => filter = 'all'),
             ),
-          )
+            CommandChip(
+              label: 'Unscored',
+              selected: filter == 'unscored',
+              onTap: () => setState(() => filter = 'unscored'),
+              icon: Icons.pending_actions_outlined,
+            ),
+            CommandChip(
+              label: 'Scored',
+              selected: filter == 'scored',
+              onTap: () => setState(() => filter = 'scored'),
+              icon: Icons.verified_outlined,
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        DropdownButtonFormField<String>(
+          initialValue: sort,
+          decoration: const InputDecoration(
+            labelText: 'Sort queue',
+            prefixIcon: Icon(Icons.sort_outlined),
+          ),
+          items: const [
+            DropdownMenuItem(value: 'queue', child: Text('Newest first')),
+            DropdownMenuItem(value: 'project', child: Text('Project name')),
+            DropdownMenuItem(value: 'team', child: Text('Team')),
+            DropdownMenuItem(value: 'score', child: Text('Average score')),
+          ],
+          onChanged: (value) => setState(() => sort = value ?? 'queue'),
+        ),
+        const SizedBox(height: 14),
+        if (loading)
+          const LoadingCardList(itemCount: 3)
         else if (submissions.isEmpty)
-          const EmptyState(message: 'No submissions to score')
+          EmptyState(
+            message: 'No submissions match this queue',
+            actionLabel: 'Show all',
+            onAction: () => setState(() => filter = 'all'),
+          )
         else
           for (final submission in submissions)
             _JudgeSubmissionCard(
@@ -80,10 +137,43 @@ class _JudgeContentState extends State<_JudgeContent> {
               scores: scores,
               teams: teams,
               judge: auth.user,
-              canSubmit: isJudge,
+              canSubmit: isJudge && !scores.isLoading,
             ),
       ],
     );
+  }
+
+  Future<void> _refresh(BuildContext context) {
+    return Future.wait([
+      context.read<SubmissionProvider>().loadSubmissions(),
+      context.read<ScoreProvider>().loadScores(),
+      context.read<TeamProvider>().loadTeams(),
+    ]);
+  }
+
+  List<ProjectSubmission> _visibleSubmissions(
+    List<ProjectSubmission> all,
+    ScoreProvider scores,
+  ) {
+    final filtered = all.where((submission) {
+      final scored = scores.scoreCountFor(submission.id) > 0;
+      return filter == 'all' ||
+          (filter == 'scored' && scored) ||
+          (filter == 'unscored' && !scored);
+    }).toList();
+    switch (sort) {
+      case 'project':
+        filtered.sort((a, b) => a.projectName.compareTo(b.projectName));
+      case 'team':
+        filtered.sort((a, b) => a.teamId.compareTo(b.teamId));
+      case 'score':
+        filtered.sort(
+          (a, b) => scores.averageFor(b.id).compareTo(scores.averageFor(a.id)),
+        );
+      default:
+        filtered.sort((a, b) => b.submittedAt.compareTo(a.submittedAt));
+    }
+    return filtered;
   }
 }
 
@@ -113,6 +203,7 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
   final feedback = TextEditingController();
   String? inlineError;
   bool _hydratedExistingScore = false;
+  bool isSubmitting = false;
 
   @override
   void initState() {
@@ -228,6 +319,8 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
             const SizedBox(height: 12),
             _ScoreSlider(
               label: 'Technical depth',
+              description:
+                  'Architecture, correctness, reliability, and implementation depth.',
               icon: Icons.memory_outlined,
               value: technical,
               onChanged: (value) => setState(() => technical = value),
@@ -235,6 +328,8 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
             const SizedBox(height: 10),
             _ScoreSlider(
               label: 'UI/UX quality',
+              description:
+                  'Mobile flow, clarity, accessibility, and demo polish.',
               icon: Icons.design_services_outlined,
               value: ui,
               onChanged: (value) => setState(() => ui = value),
@@ -242,6 +337,8 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
             const SizedBox(height: 10),
             _ScoreSlider(
               label: 'Innovation',
+              description:
+                  'Originality, impact, useful AI/automation, and product fit.',
               icon: Icons.auto_awesome_outlined,
               value: innovation,
               onChanged: (value) => setState(() => innovation = value),
@@ -290,8 +387,15 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
             ],
             const SizedBox(height: 12),
             FilledButton.icon(
-              onPressed: !widget.canSubmit ? null : _submitScore,
-              icon: const Icon(Icons.check),
+              onPressed: !widget.canSubmit || isSubmitting
+                  ? null
+                  : _submitScore,
+              icon: isSubmitting
+                  ? const SizedBox.square(
+                      dimension: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.check),
               label: Text(
                 existingScore == null ? 'Submit score' : 'Update score',
               ),
@@ -320,7 +424,34 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
       );
       return;
     }
+    final existingScore = widget.scores.scoreFor(
+      widget.submission.id,
+      judge.id,
+    );
+    if (existingScore != null) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Update existing score?'),
+          content: Text(
+            'This will replace your previous score for ${widget.submission.projectName}.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Update'),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
     setState(() => inlineError = null);
+    setState(() => isSubmitting = true);
     await widget.scores.addScore(
       ProjectScore(
         submissionId: widget.submission.id,
@@ -331,6 +462,8 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
         feedback: feedback.text.trim(),
       ),
     );
+    if (!mounted) return;
+    setState(() => isSubmitting = false);
     if (!mounted) return;
     Team? team;
     for (final item in widget.teams) {
@@ -371,12 +504,14 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
 class _ScoreSlider extends StatelessWidget {
   const _ScoreSlider({
     required this.label,
+    required this.description,
     required this.icon,
     required this.value,
     required this.onChanged,
   });
 
   final String label;
+  final String description;
   final IconData icon;
   final double value;
   final ValueChanged<double> onChanged;
@@ -411,6 +546,18 @@ class _ScoreSlider extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 6),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              description,
+              style: const TextStyle(
+                color: SealPalette.onSurfaceVariant,
+                fontSize: 12,
+                height: 1.25,
+              ),
+            ),
           ),
           Row(
             children: [

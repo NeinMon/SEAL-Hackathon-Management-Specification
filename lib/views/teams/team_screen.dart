@@ -43,18 +43,30 @@ class _TeamScreenState extends State<TeamScreen> {
     final manageableTeams = user == null
         ? <Team>[]
         : teams.teams.where((team) => team.leaderId == user.id).toList();
+    final loading = events.isLoading || teams.isLoading;
     final canCreateTeam =
         user != null &&
         AppRoles.participantCreators.contains(user.role) &&
         selectedEvent != null &&
-        name.text.trim().isNotEmpty;
+        name.text.trim().isNotEmpty &&
+        !loading;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const SealSectionHeader(
+        SealSectionHeader(
           title: 'Teams',
           subtitle: 'Create a team, invite members, and manage participation.',
           icon: Icons.groups_outlined,
+          trailing: IconButton.filledTonal(
+            tooltip: 'Refresh teams',
+            onPressed: loading
+                ? null
+                : () => Future.wait([
+                    context.read<EventProvider>().loadEvents(),
+                    context.read<TeamProvider>().loadTeams(),
+                  ]),
+            icon: const Icon(Icons.refresh),
+          ),
         ),
         if (events.error != null)
           StatusBanner(message: events.error!, isError: true),
@@ -212,7 +224,12 @@ class _TeamScreenState extends State<TeamScreen> {
                             userId: user.id,
                           );
                         },
-                  icon: const Icon(Icons.add),
+                  icon: loading
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.add),
                   label: const Text('Create team'),
                 ),
                 if (events.events.isEmpty) ...[
@@ -238,15 +255,17 @@ class _TeamScreenState extends State<TeamScreen> {
         if (teams.error != null)
           StatusBanner(message: teams.error!, isError: true),
         if (teams.message != null) StatusBanner(message: teams.message!),
-        if (teams.isLoading)
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: CircularProgressIndicator(),
-            ),
-          )
+        if (loading)
+          const LoadingCardList(itemCount: 2)
         else if (teams.teams.isEmpty)
-          const EmptyState(message: 'No team yet. Create one to continue.')
+          EmptyState(
+            message: 'No team yet. Create one to continue.',
+            actionLabel: 'Reload teams',
+            onAction: () => Future.wait([
+              context.read<EventProvider>().loadEvents(),
+              context.read<TeamProvider>().loadTeams(),
+            ]),
+          )
         else ...[
           const Padding(
             padding: EdgeInsets.only(bottom: 8),

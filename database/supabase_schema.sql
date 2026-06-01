@@ -46,8 +46,16 @@ create table if not exists submissions (
   video_url text,
   project_name text,
   description text,
-  status text default 'submitted' check (status in ('submitted', 'approved', 'rejected')),
+  status text default 'submitted' check (status in ('draft', 'submitted', 'reviewed')),
   submitted_at timestamp default now()
+);
+
+create table if not exists submission_history (
+  id uuid primary key default gen_random_uuid(),
+  submission_id uuid references submissions(id) on delete cascade,
+  status text not null,
+  project_name text,
+  changed_at timestamp default now()
 );
 
 create table if not exists scores (
@@ -92,6 +100,7 @@ create index if not exists teams_leader_id_idx on teams(leader_id);
 create index if not exists team_members_user_id_idx on team_members(user_id);
 create index if not exists submissions_team_id_idx on submissions(team_id);
 create index if not exists submissions_submitted_at_idx on submissions(submitted_at desc);
+create index if not exists submission_history_submission_id_idx on submission_history(submission_id, changed_at desc);
 create index if not exists scores_submission_id_idx on scores(submission_id);
 create index if not exists notifications_user_id_idx on notifications(user_id);
 create index if not exists messages_sender_receiver_idx on messages(sender_id, receiver_id);

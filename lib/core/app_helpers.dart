@@ -49,11 +49,62 @@ class AppValidators {
   }
 }
 
+class AppOperation {
+  const AppOperation._();
+
+  static const timeout = Duration(seconds: 12);
+
+  static Future<T> run<T>(
+    String name,
+    Future<T> Function() action, {
+    int retries = 1,
+  }) async {
+    var attempt = 0;
+    while (true) {
+      attempt++;
+      try {
+        final result = await action().timeout(timeout);
+        AppLogger.info(name, {'attempt': attempt, 'status': 'success'});
+        return result;
+      } catch (exception) {
+        AppLogger.error(name, exception, {'attempt': attempt});
+        final retryable =
+            exception is TimeoutException ||
+            exception.toString().toLowerCase().contains('socket') ||
+            exception.toString().toLowerCase().contains('connection');
+        if (!retryable || attempt > retries) rethrow;
+        await Future<void>.delayed(Duration(milliseconds: 350 * attempt));
+      }
+    }
+  }
+}
+
+class AppLogger {
+  const AppLogger._();
+
+  static void info(String event, [Map<String, Object?>? fields]) {
+    debugPrint('[seal][info] $event ${fields ?? const {}}');
+  }
+
+  static void error(
+    String event,
+    Object exception, [
+    Map<String, Object?>? fields,
+  ]) {
+    debugPrint(
+      '[seal][error] $event ${fields ?? const {}} message=${FriendlyErrorMapper.message(exception)}',
+    );
+  }
+}
+
 class FriendlyErrorMapper {
   const FriendlyErrorMapper._();
 
   static String message(Object exception) {
     if (exception is AuthException) return exception.message;
+    if (exception is TimeoutException) {
+      return 'Connection timed out. Check your network and try again.';
+    }
     if (exception is PostgrestException) {
       final text = exception.message.toLowerCase();
       if (exception.code == '42501' || text.contains('row-level security')) {

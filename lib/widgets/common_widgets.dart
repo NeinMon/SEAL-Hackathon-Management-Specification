@@ -208,10 +208,14 @@ class EmptyState extends StatelessWidget {
     super.key,
     required this.message,
     this.icon = Icons.inbox_outlined,
+    this.actionLabel,
+    this.onAction,
   });
 
   final String message;
   final IconData icon;
+  final String? actionLabel;
+  final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
@@ -231,7 +235,68 @@ class EmptyState extends StatelessWidget {
                 color: SealPalette.onSurfaceVariant,
               ),
             ),
+            if (actionLabel != null && onAction != null) ...[
+              const SizedBox(height: 14),
+              OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
+            ],
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class LoadingCardList extends StatelessWidget {
+  const LoadingCardList({super.key, int? count, int? itemCount})
+    : count = itemCount ?? count ?? 3;
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        for (var index = 0; index < count; index++) ...[
+          Container(
+            height: 112,
+            margin: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: SealPalette.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: SealPalette.outlineVariant),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _LoadingBar(widthFactor: index.isEven ? 0.52 : 0.72),
+                const SizedBox(height: 14),
+                const _LoadingBar(widthFactor: 0.92),
+                const SizedBox(height: 10),
+                const _LoadingBar(widthFactor: 0.64),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _LoadingBar extends StatelessWidget {
+  const _LoadingBar({required this.widthFactor});
+
+  final double widthFactor;
+
+  @override
+  Widget build(BuildContext context) {
+    return FractionallySizedBox(
+      widthFactor: widthFactor,
+      child: Container(
+        height: 12,
+        decoration: BoxDecoration(
+          color: SealPalette.surfaceContainerHighest.withValues(alpha: 0.65),
+          borderRadius: BorderRadius.circular(999),
         ),
       ),
     );
@@ -297,11 +362,13 @@ class SealSectionHeader extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.icon,
+    this.trailing,
   });
 
   final String title;
   final String? subtitle;
   final IconData? icon;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -348,6 +415,7 @@ class SealSectionHeader extends StatelessWidget {
               ],
             ),
           ),
+          if (trailing != null) ...[const SizedBox(width: 10), trailing!],
         ],
       ),
     );

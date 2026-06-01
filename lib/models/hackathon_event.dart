@@ -1,4 +1,4 @@
-﻿part of '../main.dart';
+part of '../main.dart';
 
 class HackathonEvent {
   const HackathonEvent({
@@ -53,5 +53,22 @@ class HackathonEvent {
       latitude: ((json['latitude'] ?? 0) as num).toDouble(),
       longitude: ((json['longitude'] ?? 0) as num).toDouble(),
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'description': description,
+      'start_date': startDate.toIso8601String(),
+      'end_date': endDate.toIso8601String(),
+      'location': location,
+      'banner_url': bannerUrl,
+      'registration_deadline': registrationDeadline.toIso8601String(),
+      'max_team_size': maxTeamSize,
+      'rules': rules,
+      'prize': prize,
+      'latitude': latitude,
+      'longitude': longitude,
+    };
   }
 }

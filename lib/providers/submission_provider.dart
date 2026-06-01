@@ -3,6 +3,7 @@ part of '../main.dart';
 class SubmissionProvider extends ChangeNotifier {
   final SubmissionService _service = const SubmissionService();
   List<ProjectSubmission> submissions = [];
+  List<SubmissionHistory> history = [];
   bool isLoading = false;
   String? message;
   String? error;
@@ -13,6 +14,7 @@ class SubmissionProvider extends ChangeNotifier {
     notifyListeners();
     try {
       submissions = await _service.fetchSubmissions();
+      history = await _service.fetchHistory();
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }
@@ -46,9 +48,14 @@ class SubmissionProvider extends ChangeNotifier {
 
   void clear() {
     submissions = [];
+    history = [];
     error = null;
     message = null;
     isLoading = false;
     notifyListeners();
+  }
+
+  List<SubmissionHistory> historyFor(String submissionId) {
+    return history.where((item) => item.submissionId == submissionId).toList();
   }
 }
