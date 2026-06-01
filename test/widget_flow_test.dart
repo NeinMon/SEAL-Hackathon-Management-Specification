@@ -118,6 +118,13 @@ void main() {
     );
     await tester.pump();
 
+    await tester.scrollUntilVisible(
+      find.text('Submit score'),
+      500,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.drag(find.byType(ListView), const Offset(0, -180));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Submit score'));
     await tester.pump();
 
@@ -127,7 +134,7 @@ void main() {
     );
   });
 
-  testWidgets('Submission screen exposes draft lifecycle and history', (
+  testWidgets('Submission screen shows submitted lifecycle and history', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(390, 844);
@@ -202,8 +209,8 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Draft'), findsOneWidget);
-    expect(find.text('Submitted'), findsWidgets);
+    expect(find.text('Draft'), findsNothing);
+    expect(find.text('Save mode'), findsNothing);
     await tester.scrollUntilVisible(
       find.text('Update history'),
       260,
@@ -269,7 +276,7 @@ void main() {
 
     expect(find.text('Venue'), findsOneWidget);
     expect(find.text('No event location available.'), findsOneWidget);
-    expect(find.text('Reload venue'), findsOneWidget);
+    expect(find.text('Reload venue'), findsNothing);
   });
 }
 

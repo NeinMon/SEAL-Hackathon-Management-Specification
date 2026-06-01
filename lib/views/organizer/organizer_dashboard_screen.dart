@@ -136,34 +136,49 @@ class _OrganizerDashboardContent extends StatelessWidget {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                 ),
                 const SizedBox(height: 12),
-                _OrganizerAction(
-                  icon: Icons.add_circle_outline,
-                  title: 'Create event',
-                  value: 'Open the event editor',
-                  onTap: () => _showEventDialog(context),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    FilledButton.icon(
+                      onPressed: () => _showEventDialog(context),
+                      icon: const Icon(Icons.add_circle_outline),
+                      label: const Text('Create event'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: () => _showAnnouncementDialog(context),
+                      icon: const Icon(Icons.notifications_outlined),
+                      label: const Text('Send announcement'),
+                    ),
+                  ],
                 ),
-                _OrganizerAction(
-                  icon: Icons.notifications_outlined,
-                  title: 'Send announcement',
-                  value: 'Notify participants, mentors, judges, or everyone',
-                  onTap: () => _showAnnouncementDialog(context),
-                ),
-                _OrganizerAction(
-                  icon: Icons.download_outlined,
-                  title: 'Export leaderboard CSV',
-                  value: 'Copy ranking data to clipboard',
-                  onTap: () => _copyLeaderboardCsv(
-                    context,
-                    submissions.submissions,
-                    scores,
-                    teams.teams,
+                const SizedBox(height: 8),
+                ExpansionTile(
+                  tilePadding: EdgeInsets.zero,
+                  childrenPadding: EdgeInsets.zero,
+                  title: const Text(
+                    'More actions',
+                    style: TextStyle(fontWeight: FontWeight.w800),
                   ),
-                ),
-                _OrganizerAction(
-                  icon: Icons.rate_review_outlined,
-                  title: 'Judging queue',
-                  value: '$unscored submissions waiting for scores',
-                  onTap: () => context.go(AppRoutes.judge),
+                  children: [
+                    _OrganizerAction(
+                      icon: Icons.download_outlined,
+                      title: 'Export leaderboard CSV',
+                      value: 'Copy ranking data to clipboard',
+                      onTap: () => _copyLeaderboardCsv(
+                        context,
+                        submissions.submissions,
+                        scores,
+                        teams.teams,
+                      ),
+                    ),
+                    _OrganizerAction(
+                      icon: Icons.rate_review_outlined,
+                      title: 'Judging queue',
+                      value: '$unscored submissions waiting for scores',
+                      onTap: () => context.go(AppRoutes.judge),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -9,6 +9,7 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final controller = TextEditingController();
+  final scrollController = ScrollController();
 
   @override
   void initState() {
@@ -33,6 +34,7 @@ class _ChatScreenState extends State<ChatScreen> {
     controller
       ..removeListener(_refreshComposer)
       ..dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -44,6 +46,11 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     final chat = context.watch<ChatProvider>();
     final user = context.watch<AuthProvider>().user;
+    final messages = [...chat.messages]
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    if (messages.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToLatest());
+    }
     return RoleGate(
       allowedRoles: const {
         AppRoles.participant,
@@ -60,16 +67,6 @@ class _ChatScreenState extends State<ChatScreen> {
               subtitle:
                   'Coordinate with mentors and organizers during the contest.',
               icon: Icons.chat_outlined,
-              trailing: IconButton.filledTonal(
-                tooltip: 'Refresh chat',
-                onPressed: user == null || chat.isLoading
-                    ? null
-                    : () => chat.loadContacts(user).then((_) {
-                        final contact = chat.selectedContact;
-                        if (contact != null) chat.load(user.id, contact.id);
-                      }),
-                icon: const Icon(Icons.refresh),
-              ),
             ),
           ),
           Padding(
@@ -120,21 +117,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: LoadingCardList(itemCount: 3),
                   )
                 : ListView(
+                    controller: scrollController,
                     padding: const EdgeInsets.all(16),
                     children: [
-                      if (chat.messages.isEmpty)
-                        EmptyState(
-                          message: 'No messages yet',
-                          actionLabel: 'Reload chat',
-                          onAction: user == null
-                              ? null
-                              : () {
-                                  final contact = chat.selectedContact;
-                                  if (contact != null) {
-                                    chat.load(user.id, contact.id);
-                                  }
-                                },
-                        )
+                      if (messages.isEmpty)
+                        const EmptyState(message: 'No messages yet')
                       else ...[
                         Center(
                           child: StatusPill(
@@ -145,7 +132,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
                         ),
                         const SizedBox(height: 14),
-                        for (final message in chat.messages)
+                        for (final message in messages)
                           _MessageBubble(message: message, currentUser: user),
                       ],
                     ],
@@ -171,6 +158,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       user == null ||
                           chat.selectedContact == null ||
                           chat.isLoading ||
+                          chat.isSending ||
                           controller.text.trim().isEmpty
                       ? null
                       : () async {
@@ -181,14 +169,29 @@ class _ChatScreenState extends State<ChatScreen> {
                             receiverId: chat.selectedContact!.id,
                           );
                           controller.clear();
+                          _scrollToLatest();
                         },
-                  icon: const Icon(Icons.send),
+                  icon: chat.isSending
+                      ? const SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.send),
                 ),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _scrollToLatest() {
+    if (!scrollController.hasClients) return;
+    scrollController.animateTo(
+      scrollController.position.maxScrollExtent,
+      duration: const Duration(milliseconds: 220),
+      curve: Curves.easeOut,
     );
   }
 }
@@ -208,49 +211,35 @@ class _MessageBubble extends StatelessWidget {
         constraints: BoxConstraints(
           maxWidth: MediaQuery.sizeOf(context).width * 0.78,
         ),
-        child: Card(
-          color: mine
-              ? SealPalette.primaryContainer.withValues(alpha: 0.95)
-              : SealPalette.surfaceContainerHigh,
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  mine ? 'Me' : message.sender,
-                  style: const TextStyle(fontWeight: FontWeight.w800),
-                ),
-                const SizedBox(height: 4),
-                Text(message.message),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      DateFormat('HH:mm').format(message.createdAt),
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: SealPalette.onSurfaceVariant,
-                      ),
+        child: GestureDetector(
+          onLongPress: mine && currentUser != null
+              ? () => _confirmDelete(context, currentUser!.id)
+              : null,
+          child: Card(
+            color: mine
+                ? SealPalette.primaryContainer.withValues(alpha: 0.95)
+                : SealPalette.surfaceContainerHigh,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    mine ? 'Me' : message.sender,
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(message.message),
+                  const SizedBox(height: 6),
+                  Text(
+                    DateFormat('HH:mm').format(message.createdAt),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: SealPalette.onSurfaceVariant,
                     ),
-                    if (mine && currentUser != null) ...[
-                      const SizedBox(width: 4),
-                      IconButton(
-                        tooltip: 'Delete message',
-                        visualDensity: VisualDensity.compact,
-                        constraints: const BoxConstraints(
-                          minWidth: 28,
-                          minHeight: 28,
-                        ),
-                        onPressed: () =>
-                            _confirmDelete(context, currentUser!.id),
-                        icon: const Icon(Icons.delete_outline, size: 18),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

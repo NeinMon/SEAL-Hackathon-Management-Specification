@@ -1,11 +1,9 @@
 # Kich Ban Demo SEAL Hackathon
 
-Tai lieu nay dung de demo day du UI tren Android Studio/emulator.
-Thoi luong goi y: 7-10 phut. Ban day du: 12-15 phut.
+Kich ban nay dung de demo nhanh UI va nghiep vu chinh tren Android Studio/emulator.
+Thoi luong goi y: 5-7 phut.
 
-## Chuan Bi Truoc Khi Demo
-
-Chay cac lenh nay trong PowerShell tai thu muc project:
+## Chuan Bi
 
 ```powershell
 npx supabase start
@@ -15,7 +13,7 @@ $env:SUPABASE_SERVICE_ROLE_KEY="<local-service-role-key>"
 .\scripts\seed_demo_users.ps1
 ```
 
-Chay app tren Android emulator:
+Chay app:
 
 ```powershell
 flutter run -d emulator-5554 `
@@ -24,19 +22,7 @@ flutter run -d emulator-5554 `
   --dart-define=SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
 ```
 
-Neu `flutter run` bi cham, build va cai APK truc tiep:
-
-```powershell
-flutter build apk --debug `
-  --dart-define=APP_ENV=local `
-  --dart-define=SUPABASE_URL=http://10.0.2.2:54321 `
-  --dart-define=SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
-
-& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s emulator-5554 install -r build\app\outputs\flutter-apk\app-debug.apk
-& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" -s emulator-5554 shell am start -n vn.seal.hackathon/.MainActivity
-```
-
-## Tai Khoan Demo
+Tai khoan demo:
 
 ```text
 participant@seal.test / 123456
@@ -47,239 +33,145 @@ organizer@seal.test / 123456
 
 ## Mo Dau
 
-Noi ngan gon:
+"SEAL Hackathon la app mobile quan ly hackathon tu dau den cuoi: xem su kien,
+quan ly team, nop bai, mentor chat, cham diem, thong bao, ban do dia diem va
+dashboard organizer. Demo nay dung Supabase local that, co RLS va du lieu mau."
 
-"SEAL Hackathon la ung dung mobile-first cho hackathon. App gom day du luong
-su kien, doi thi, nop bai, cham diem, thong bao, chat voi mentor, ban do dia
-diem va dashboard organizer. Demo nay dung du lieu Supabase that o local, co
-RLS va test bao mat."
+## 1. Participant Flow
 
-## Luong 1: Login Va Dieu Huong
-
-1. Mo app tren Android emulator.
-2. Dang nhap `participant@seal.test / 123456`.
-3. Gioi thieu bottom navigation:
-   - Events
-   - Teams
-   - Submit
-   - Alerts
-   - Chat
-   - Map
-   - Profile
-4. Noi ro app dieu huong theo role: participant, judge, mentor, organizer.
-
-Noi diem chinh:
-
-"Day khong phai mock UI. App ket noi Supabase, doc session dang nhap va hien
-thi cac man hinh phu hop voi tung vai tro."
-
-## Luong 2: Events
-
-1. Vao tab `Events`.
-2. Bam nut refresh.
-3. Tim kiem voi tu khoa `seal` hoac `campus`.
-4. Doi filter: Upcoming, Active, All, Closed.
-5. Mo chi tiet event.
-6. Gioi thieu cac phan:
-   - Banner su kien
-   - Ngay bat dau/ket thuc
-   - Han dang ky
-   - Dia diem
-   - Rules
-   - Prize
-   - Team stats
-   - Leaderboard
-
-Noi diem chinh:
-
-"Man Events tap trung vao kha nang scan nhanh tren mobile: co phase chip,
-search, filter, deadline va leaderboard trong chi tiet su kien."
-
-## Luong 3: Teams
-
-1. Vao tab `Teams`.
-2. Gioi thieu team mau `Seal Builders`.
-3. Show metric va roster thanh vien.
-4. Bam refresh.
-5. Show form tao team.
-6. Thu de trong team name de noi ve validation.
-7. Bam Invite Member neu co quyen leader va show dialog invite bang email.
-8. Noi ve gioi han so thanh vien toi da.
-
-Noi diem chinh:
-
-"Teams ho tro tao doi, join, leave, rename va invite. App chan spam request
-bang cach disable nut khi dang xu ly."
-
-## Luong 4: Submission Lifecycle
-
-1. Vao tab `Submit`.
-2. Show card trang thai submission hien tai.
-3. Doi qua lai giua `Draft` va `Submitted`.
-4. Show cac truong:
-   - Project name
-   - GitHub URL
-   - Demo video URL
-   - Description
-5. Bam refresh.
-6. Cap nhat bai `Campus Copilot` voi noi dung:
+Dang nhap:
 
 ```text
-Project name: Campus Copilot
-GitHub URL: https://github.com/seal-demo/campus-copilot
-Demo video URL: https://youtube.com/watch?v=seal-demo
-Description: Mobile assistant for hackathon participants, mentors, and organizers.
+participant@seal.test / 123456
 ```
 
-7. Cuon xuong `Submitted projects`.
-8. Show:
-   - Submitted timestamp
-   - Update history
-   - Judge feedback/scores neu da co diem
+Show nhanh cac tab participant:
+
+1. `Events`
+   - Show danh sach event, banner, deadline, location.
+   - Mo event detail de show rules, prize, team stats va leaderboard.
+
+2. `Teams`
+   - Show team mau `Seal Builders`.
+   - Show roster thanh vien, leader badge, nut `Create Team` dang thu gon.
+   - Mo nut `Invite to this team` trong card team de thay invite dung team nao.
+   - Nut `Submit Project` chi hien khi user da co team.
+   - Noi ngan gon: team validate max size va chi leader moi invite/rename.
+
+3. `Submit`
+   - Show submission status card.
+   - Show form GitHub URL, demo URL, description da auto-fill tu submission hien tai.
+   - Show `Latest submission`, timestamp, update history va feedback/score neu co.
+
+4. `Alerts`
+   - Show thong bao he thong, score notification, read/unread state.
+
+5. `Chat`
+   - Show contact mentor/organizer.
+   - Gui mot tin nhan ngan: `Can you review our demo flow?`
+   - Noi ngan gon: mentor chat duoc scope theo team lien quan.
+
+6. `Map`
+   - Show map venue, marker, address, copy address.
+   - Uu tien `Copy address`; `Open in Maps` la tuy chon phu va co confirm.
+
+7. `Profile`
+   - Show thong tin user va form update profile.
 
 Noi diem chinh:
 
-"Submission co lifecycle ro rang: draft, submitted, reviewed. Moi lan update
-duoc ghi lai trong history de team va organizer theo doi."
+"Participant co mot workspace day du tren mobile: xem su kien, lam viec voi
+team, nop bai, nhan thong bao, hoi mentor va xem dia diem."
 
-## Luong 5: Alerts, Chat, Map, Profile
+## 2. Judge Flow
 
-1. Vao `Alerts`.
-2. Show thong bao duoc group, trang thai read/unread, delete neu co.
-3. Vao `Chat`.
-4. Chon mentor hoac organizer.
-5. Gui tin nhan: `Can you review our demo flow?`
-6. Xoa tin nhan va show confirmation.
-7. Vao `Map`.
-8. Show card dia diem, marker tren ban do, phone/time/location chips.
-9. Bam `Copy address`.
-10. Chi bam `Open in Maps` neu muon show external navigation.
-11. Neu bi mo Google Maps, bam Android Back hoac Recent Apps de quay lai app.
-12. Vao `Profile`.
-13. Show cap nhat profile va logout.
+Dang nhap:
 
-Noi diem chinh:
+```text
+judge@seal.test / 123456
+```
 
-"Chat contact duoc scope theo role. Mentor chi chat voi participant lien quan.
-RLS o database cung chan conversation khong hop le."
+Show man `Judging`:
 
-## Luong 6: Judge
-
-1. Logout.
-2. Dang nhap `judge@seal.test / 123456`.
-3. Vao `Judging`.
-4. Bam refresh.
-5. Show filters:
-   - All
-   - Unscored
-   - Scored
-6. Doi sort:
-   - Newest first
-   - Project name
-   - Team
-   - Average score
-7. Mo card `Campus Copilot`.
-8. Show nut Repository va Demo.
-9. Dieu chinh 3 rubric sliders:
+1. Show queue va dropdown `Submission to score`.
+2. Chon card `Campus Copilot`.
+3. Show repository/demo buttons.
+4. Show rubric:
    - Technical depth
    - UI/UX quality
    - Innovation
-10. Nhap feedback:
+5. Keo slider diem va nhap feedback:
 
 ```text
 Strong mobile workflow, clear UX, and useful mentor flow.
 ```
 
-11. Submit score.
-12. Update score lan nua de show confirmation truoc khi ghi de diem cu.
+6. Show `Current score`, roi submit score.
+7. Neu update diem cu, show confirmation truoc khi ghi de.
 
 Noi diem chinh:
 
-"Judge co hang doi cham diem, filter, sort, mo ta rubric va confirmation khi
-update score cu de tranh bam nham trong demo."
+"Judge co man cham diem tap trung, co rubric ro rang, feedback bat buoc va
+confirmation khi update diem cu."
 
-## Luong 7: Organizer Dashboard
+## 3. Organizer Flow
 
-1. Logout.
-2. Dang nhap `organizer@seal.test / 123456`.
-3. Vao `Organizer`.
-4. Bam refresh.
-5. Show metrics:
-   - Events
-   - Active
-   - Teams
-   - Unscored
-6. Show dashboard bars:
-   - Teams
-   - Submissions
-   - Scored
-   - Unscored
-7. Bam `Create event` va show event editor.
-8. Dong dialog hoac save mot thay doi nho.
-9. Bam `Send announcement`.
-10. Chon audience va nhap:
+Dang nhap:
+
+```text
+organizer@seal.test / 123456
+```
+
+Show man `Organizer`:
+
+1. Show metrics: Events, Active, Teams, Unscored.
+2. Show dashboard bars: Teams, Submissions, Scored, Unscored.
+3. Show `Create event` de mo event editor.
+4. Show `Send announcement`:
 
 ```text
 Title: Demo announcement
 Message: Final judging starts soon. Please keep repositories and demos ready.
 ```
 
-11. Gui announcement.
-12. Bam `Export leaderboard CSV` va show snackbar copied.
-13. Show recent submissions va score average.
+5. Mo `More actions` de show `Export leaderboard CSV` va `Judging queue`.
+6. Show recent submissions va average score.
 
 Noi diem chinh:
 
 "Organizer co the van hanh su kien ngay tren mobile: tao/sua event, gui thong
-bao, xem dashboard, export leaderboard va theo doi judging queue."
+bao, xem tinh trang judging va export leaderboard."
 
-## Luong 8: Role Gate Va Bao Mat
+## 4. Security Va Readiness
 
-1. Khi dang la organizer, vao `Judge` de show organizer co the preview scoring.
-2. Logout va dang nhap participant lai.
-3. Neu gap man hinh role-limited, show `Access Restricted`.
-4. Giai thich UI gate chi la lop dau; RLS moi la lop bao mat chinh.
+Noi ngan gon, khong can chay live neu thoi gian ngan:
 
-Neu muon chung minh bang script:
+"UI role gate chi la lop dau. Database RLS da duoc test bang positive va
+negative smoke scripts."
+
+Cac case da test:
+
+- Participant khong tao duoc score.
+- Judge khong sua duoc score cua judge khac.
+- Participant khong doc duoc notification/message cua user khac.
+- Participant khong sua duoc team/submission ngoai team.
+- Mentor khong chat duoc voi participant khong lien quan.
+
+Neu can chung minh:
 
 ```powershell
 .\scripts\smoke_supabase_flow.ps1
 .\scripts\smoke_supabase_negative.ps1
 ```
 
-Ket qua negative smoke can noi:
+## Ket Demo
 
-- Participant khong tao duoc score.
-- Judge khong update duoc score cua judge khac.
-- Participant khong doc duoc notification cua user khac.
-- Participant khong doc duoc message cua user khac.
-- Participant khong sua duoc team/submission ngoai team.
-- Mentor khong chat duoc voi participant khong lien quan.
+"App da san sang demo tren Android Studio: UI mobile gon, dung du lieu Supabase
+that, co role-based flows, co RLS tests, co debug/release APK build trong CI."
 
-## Phan Mo Rong: Hosted Supabase Va CI
+## Xu Ly Nhanh
 
-Neu duoc hoi ve production readiness, mo nhanh cac file:
-
-- `docs/HOSTED_SUPABASE.md`
-- `scripts/hosted_supabase_check.ps1`
-- `.github/workflows/flutter_android.yml`
-- `docs/ARCHITECTURE.md`
-
-Noi diem chinh:
-
-"Project da tach local, staging va production bang Dart defines. Khi co key
-Supabase hosted that, co the chay hosted smoke test bang mot script. CI dang
-chay analyze, test, debug APK va release APK."
-
-## Cau Ket Demo
-
-"Ung dung Android-first, chay duoc tu Android Studio, dung du lieu Supabase
-that, co RLS positive/negative tests, co loading/error state, va cover du
-luong participant, judge, mentor, organizer."
-
-## Xu Ly Nhanh Khi Demo
-
-Neu du lieu demo bi roi:
+Reset du lieu demo:
 
 ```powershell
 $env:SUPABASE_SERVICE_ROLE_KEY="<local-service-role-key>"
@@ -287,17 +179,5 @@ $env:SUPABASE_SERVICE_ROLE_KEY="<local-service-role-key>"
 .\scripts\seed_demo_users.ps1
 ```
 
-Neu mo external Maps va khong quay lai duoc:
-
-1. Bam Android Back.
-2. Hoac bam Recent Apps tren thanh cong cu emulator.
-3. Chon lai `SEAL Hackathon`.
-
-Neu app hien `Supabase connection required`, chay lai app voi defines:
-
-```powershell
-flutter run -d emulator-5554 `
-  --dart-define=APP_ENV=local `
-  --dart-define=SUPABASE_URL=http://10.0.2.2:54321 `
-  --dart-define=SUPABASE_ANON_KEY=sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH
-```
+Neu app bao `Supabase connection required`, chay lai app voi day du
+`--dart-define`.

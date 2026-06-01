@@ -14,6 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final university = TextEditingController();
   String role = 'participant';
   bool registerMode = false;
+  bool showPassword = false;
 
   @override
   void initState() {
@@ -122,12 +123,25 @@ class _LoginScreenState extends State<LoginScreen> {
                                 const SizedBox(height: 12),
                                 TextField(
                                   controller: password,
-                                  obscureText: true,
+                                  obscureText: !showPassword,
                                   textInputAction: TextInputAction.done,
                                   autofillHints: const [AutofillHints.password],
-                                  decoration: const InputDecoration(
+                                  decoration: InputDecoration(
                                     labelText: 'Password',
-                                    prefixIcon: Icon(Icons.lock_outline),
+                                    prefixIcon: const Icon(Icons.lock_outline),
+                                    suffixIcon: IconButton(
+                                      tooltip: showPassword
+                                          ? 'Hide password'
+                                          : 'Show password',
+                                      onPressed: () => setState(
+                                        () => showPassword = !showPassword,
+                                      ),
+                                      icon: Icon(
+                                        showPassword
+                                            ? Icons.visibility_off_outlined
+                                            : Icons.visibility_outlined,
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 if (registerMode) ...[

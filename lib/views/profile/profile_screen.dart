@@ -100,6 +100,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         : const Icon(Icons.save_outlined),
                     label: const Text('Save Profile'),
                   ),
+                  const SizedBox(height: 10),
+                  OutlinedButton.icon(
+                    onPressed: auth.isLoading ? null : () => _logout(context),
+                    icon: const Icon(Icons.logout),
+                    label: const Text('Logout'),
+                  ),
                 ],
               ),
             ),
@@ -107,5 +113,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ],
     );
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    context.read<EventProvider>().clear();
+    context.read<TeamProvider>().clear();
+    context.read<SubmissionProvider>().clear();
+    context.read<ScoreProvider>().clear();
+    context.read<NotificationProvider>().clear();
+    context.read<ChatProvider>().clear();
+    await context.read<AuthProvider>().logout();
+    if (!context.mounted) return;
+    context.go(AppRoutes.login);
   }
 }

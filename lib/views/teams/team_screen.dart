@@ -10,6 +10,7 @@ class TeamScreen extends StatefulWidget {
 class _TeamScreenState extends State<TeamScreen> {
   final name = TextEditingController();
   String? selectedEventId;
+  bool showCreateTeam = false;
 
   @override
   void initState() {
@@ -40,13 +41,18 @@ class _TeamScreenState extends State<TeamScreen> {
     final teams = context.watch<TeamProvider>();
     final user = auth.user;
     final selectedEvent = _selectedEvent(events.events);
-    final manageableTeams = user == null
-        ? <Team>[]
-        : teams.teams.where((team) => team.leaderId == user.id).toList();
     final loading = events.isLoading || teams.isLoading;
+    final myTeams = user == null
+        ? <Team>[]
+        : teams.teams
+              .where(
+                (team) => team.members.any((member) => member.id == user.id),
+              )
+              .toList();
+    final canCreateTeamRole =
+        user != null && AppRoles.participantCreators.contains(user.role);
     final canCreateTeam =
-        user != null &&
-        AppRoles.participantCreators.contains(user.role) &&
+        canCreateTeamRole &&
         selectedEvent != null &&
         name.text.trim().isNotEmpty &&
         !loading;
@@ -150,107 +156,149 @@ class _TeamScreenState extends State<TeamScreen> {
           ],
         ),
         const SizedBox(height: 12),
-        FilledButton.icon(
-          onPressed: () => context.go('/submit'),
-          icon: const Icon(Icons.upload_file_outlined),
-          label: const Text('Submit Project'),
-        ),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: manageableTeams.isEmpty
-              ? null
-              : () => _showInviteDialog(
-                  context,
-                  manageableTeams.first,
-                  _eventFor(manageableTeams.first.eventId, events.events),
-                ),
-          icon: const Icon(Icons.person_add_alt_outlined),
-          label: const Text('Invite Member'),
-        ),
-        const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Create Team',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
-                ),
-                const SizedBox(height: 12),
-                DropdownButtonFormField<String>(
-                  key: ValueKey(
-                    'team-event-${selectedEvent?.id}-${events.events.length}',
-                  ),
-                  initialValue: selectedEvent?.id,
-                  decoration: const InputDecoration(
-                    labelText: 'Event',
-                    prefixIcon: Icon(Icons.event_outlined),
-                  ),
-                  items: [
-                    for (final event in events.events)
-                      DropdownMenuItem(
-                        value: event.id,
-                        child: Text(event.title),
-                      ),
-                  ],
-                  onChanged: events.events.isEmpty
-                      ? null
-                      : (value) => setState(() => selectedEventId = value),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: name,
-                  textInputAction: TextInputAction.done,
-                  decoration: const InputDecoration(
-                    labelText: 'Team name',
-                    prefixIcon: Icon(Icons.groups_outlined),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                FilledButton.icon(
-                  onPressed: !canCreateTeam
-                      ? null
-                      : () async {
-                          final teamName = name.text.trim();
-                          await teams.createTeam(teamName, selectedEvent, user);
-                          if (!context.mounted) return;
-                          if (teams.error == null) name.clear();
-                          await context.read<NotificationProvider>().push(
-                            'Team created',
-                            '$teamName joined ${selectedEvent.title}.',
-                            'invitation',
-                            userId: user.id,
-                          );
-                        },
-                  icon: loading
-                      ? const SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.add),
-                  label: const Text('Create team'),
-                ),
-                if (events.events.isEmpty) ...[
-                  const SizedBox(height: 10),
-                  const Text(
-                    'No event is available. Load events before creating a team.',
-                    style: TextStyle(color: SealPalette.error),
-                  ),
-                ],
-                if (user != null &&
-                    !AppRoles.participantCreators.contains(user.role)) ...[
-                  const SizedBox(height: 10),
-                  const Text(
-                    'This role can view teams but cannot create participant teams.',
-                    style: TextStyle(color: SealPalette.onSurfaceVariant),
-                  ),
-                ],
-              ],
-            ),
+        if (myTeams.isNotEmpty) ...[
+          FilledButton.icon(
+            onPressed: loading ? null : () => context.go(AppRoutes.submit),
+            icon: const Icon(Icons.upload_file_outlined),
+            label: const Text('Submit Project'),
           ),
-        ),
+          const SizedBox(height: 16),
+        ] else if (canCreateTeamRole &&
+            teams.teams.isNotEmpty &&
+            !showCreateTeam) ...[
+          FilledButton.icon(
+            onPressed: loading
+                ? null
+                : () => setState(() => showCreateTeam = true),
+            icon: const Icon(Icons.add),
+            label: const Text('Create Team'),
+          ),
+          const SizedBox(height: 16),
+        ],
+        if (showCreateTeam || teams.teams.isEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Create Team',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    key: ValueKey(
+                      'team-event-${selectedEvent?.id}-${events.events.length}',
+                    ),
+                    initialValue: selectedEvent?.id,
+                    decoration: const InputDecoration(
+                      labelText: 'Event',
+                      prefixIcon: Icon(Icons.event_outlined),
+                    ),
+                    items: [
+                      for (final event in events.events)
+                        DropdownMenuItem(
+                          value: event.id,
+                          child: Text(event.title),
+                        ),
+                    ],
+                    onChanged: events.events.isEmpty
+                        ? null
+                        : (value) => setState(() => selectedEventId = value),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: name,
+                    textInputAction: TextInputAction.done,
+                    decoration: const InputDecoration(
+                      labelText: 'Team name',
+                      prefixIcon: Icon(Icons.groups_outlined),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      if (teams.teams.isNotEmpty) ...[
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: loading
+                                ? null
+                                : () => setState(() {
+                                    showCreateTeam = false;
+                                    name.clear();
+                                  }),
+                            icon: const Icon(Icons.close),
+                            label: const Text('Cancel'),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: !canCreateTeam
+                              ? null
+                              : () async {
+                                  final teamName = name.text.trim();
+                                  await teams.createTeam(
+                                    teamName,
+                                    selectedEvent,
+                                    user,
+                                  );
+                                  if (!context.mounted) return;
+                                  if (teams.error == null) {
+                                    setState(() {
+                                      showCreateTeam = false;
+                                      name.clear();
+                                    });
+                                    await context.read<NotificationProvider>().push(
+                                      'Team created',
+                                      '$teamName joined ${selectedEvent.title}.',
+                                      'invitation',
+                                      userId: user.id,
+                                    );
+                                  }
+                                },
+                          icon: loading
+                              ? const SizedBox.square(
+                                  dimension: 18,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : const Icon(Icons.add),
+                          label: const Text('Create team'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (events.events.isEmpty) ...[
+                    const SizedBox(height: 10),
+                    const Text(
+                      'No event is available. Load events before creating a team.',
+                      style: TextStyle(color: SealPalette.error),
+                    ),
+                  ],
+                  if (user != null &&
+                      !AppRoles.participantCreators.contains(user.role)) ...[
+                    const SizedBox(height: 10),
+                    const Text(
+                      'This role can view teams but cannot create participant teams.',
+                      style: TextStyle(color: SealPalette.onSurfaceVariant),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          )
+        else if (canCreateTeamRole)
+          OutlinedButton.icon(
+            onPressed: loading
+                ? null
+                : () => setState(() => showCreateTeam = true),
+            icon: const Icon(Icons.add),
+            label: const Text('Create Team'),
+          ),
         const SizedBox(height: 16),
         if (teams.error != null)
           StatusBanner(message: teams.error!, isError: true),
@@ -258,14 +306,7 @@ class _TeamScreenState extends State<TeamScreen> {
         if (loading)
           const LoadingCardList(itemCount: 2)
         else if (teams.teams.isEmpty)
-          EmptyState(
-            message: 'No team yet. Create one to continue.',
-            actionLabel: 'Reload teams',
-            onAction: () => Future.wait([
-              context.read<EventProvider>().loadEvents(),
-              context.read<TeamProvider>().loadTeams(),
-            ]),
-          )
+          const EmptyState(message: 'No team yet. Create one to continue.')
         else ...[
           const Padding(
             padding: EdgeInsets.only(bottom: 8),
@@ -298,14 +339,6 @@ class _TeamScreenState extends State<TeamScreen> {
       if (event.id == eventId) return event;
     }
     return null;
-  }
-
-  Future<void> _showInviteDialog(
-    BuildContext context,
-    Team team,
-    HackathonEvent? event,
-  ) async {
-    await TeamInviteFlow.show(context, team: team, event: event);
   }
 }
 
@@ -369,40 +402,39 @@ class TeamCard extends StatelessWidget {
               spacing: 8,
               runSpacing: 8,
               children: [
-                OutlinedButton.icon(
-                  onPressed: user == null || isMember
-                      ? null
-                      : () => context.read<TeamProvider>().joinTeam(
-                          team.id,
-                          user,
-                          event: event,
-                        ),
-                  icon: const Icon(Icons.group_add_outlined),
-                  label: Text(teamIsFull ? 'Full' : 'Join'),
-                ),
-                OutlinedButton.icon(
-                  onPressed: user == null || !isMember
-                      ? null
-                      : () => context.read<TeamProvider>().leaveTeam(
-                          team.id,
-                          user,
-                        ),
-                  icon: const Icon(Icons.exit_to_app_outlined),
-                  label: const Text('Leave'),
-                ),
+                if (user != null && !isMember && !teamIsFull)
+                  OutlinedButton.icon(
+                    onPressed: () => context.read<TeamProvider>().joinTeam(
+                      team.id,
+                      user,
+                      event: event,
+                    ),
+                    icon: const Icon(Icons.group_add_outlined),
+                    label: const Text('Join'),
+                  ),
+                if (user != null && !isMember && teamIsFull)
+                  const StatusPill(
+                    label: 'Team is full',
+                    color: SealPalette.tertiary,
+                    icon: Icons.lock_outline,
+                  ),
+                if (user != null && isMember)
+                  OutlinedButton.icon(
+                    onPressed: () => _confirmLeaveTeam(context, team, user),
+                    icon: const Icon(Icons.exit_to_app_outlined),
+                    label: const Text('Leave'),
+                  ),
                 if (isLeader)
                   OutlinedButton.icon(
                     onPressed: () => _showEditTeamDialog(context, team),
                     icon: const Icon(Icons.edit_outlined),
                     label: const Text('Edit'),
                   ),
-                if (isLeader)
+                if (isLeader && !teamIsFull)
                   OutlinedButton.icon(
-                    onPressed: teamIsFull
-                        ? null
-                        : () => _showInviteDialog(context, team, event),
+                    onPressed: () => _showInviteDialog(context, team, event),
                     icon: const Icon(Icons.person_add_alt_outlined),
-                    label: const Text('Invite'),
+                    label: const Text('Invite to this team'),
                   ),
               ],
             ),
@@ -445,6 +477,32 @@ class TeamCard extends StatelessWidget {
     await context.read<TeamProvider>().updateTeamName(team.id, newName);
   }
 
+  Future<void> _confirmLeaveTeam(
+    BuildContext context,
+    Team team,
+    AppUser user,
+  ) async {
+    final shouldLeave = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Leave team?'),
+        content: Text('You will leave ${team.name}.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Leave'),
+          ),
+        ],
+      ),
+    );
+    if (shouldLeave != true || !context.mounted) return;
+    await context.read<TeamProvider>().leaveTeam(team.id, user);
+  }
+
   Future<void> _showInviteDialog(
     BuildContext context,
     Team team,
@@ -467,9 +525,28 @@ class TeamInviteFlow {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Invite member'),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(labelText: 'Member email'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Team: ${team.name}',
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+            if (event != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                event.title,
+                style: const TextStyle(color: SealPalette.onSurfaceVariant),
+              ),
+            ],
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(labelText: 'Member email'),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -484,12 +561,10 @@ class TeamInviteFlow {
       ),
     );
     if (email == null || email.isEmpty || !context.mounted) return;
-    await context.read<TeamProvider>().inviteMember(
-      team.id,
-      email,
-      event: event,
-    );
+    final teamProvider = context.read<TeamProvider>();
+    await teamProvider.inviteMember(team.id, email, event: event);
     if (!context.mounted) return;
+    if (teamProvider.error != null) return;
     final invited = await const UserDirectoryService().findByEmail(email);
     if (!context.mounted) return;
     if (invited != null) {

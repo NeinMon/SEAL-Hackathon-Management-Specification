@@ -14,7 +14,7 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
   final description = TextEditingController();
   String? error;
   String? selectedTeamId;
-  String submissionStatus = 'submitted';
+  String? hydratedSubmissionId;
 
   @override
   void initState() {
@@ -47,12 +47,38 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
         description: description,
         error: error,
         selectedTeamId: selectedTeamId,
-        submissionStatus: submissionStatus,
         onErrorChanged: (value) => setState(() => error = value),
-        onTeamChanged: (value) => setState(() => selectedTeamId = value),
-        onStatusChanged: (value) => setState(() => submissionStatus = value),
+        hydratedSubmissionId: hydratedSubmissionId,
+        onTeamChanged: _selectTeam,
+        onHydrateSubmission: _hydrateSubmission,
+        onSubmissionSaved: () => setState(() => hydratedSubmissionId = null),
       ),
     );
+  }
+
+  void _selectTeam(String? value) {
+    if (value == selectedTeamId) return;
+    setState(() {
+      selectedTeamId = value;
+      hydratedSubmissionId = null;
+      error = null;
+      projectName.clear();
+      github.clear();
+      video.clear();
+      description.clear();
+    });
+  }
+
+  void _hydrateSubmission(ProjectSubmission submission) {
+    if (!mounted || hydratedSubmissionId == submission.id) return;
+    setState(() {
+      hydratedSubmissionId = submission.id;
+      error = null;
+      projectName.text = submission.projectName;
+      github.text = submission.githubUrl;
+      video.text = submission.videoUrl;
+      description.text = submission.description;
+    });
   }
 }
 
@@ -64,10 +90,11 @@ class _SubmissionContent extends StatelessWidget {
     required this.description,
     required this.error,
     required this.selectedTeamId,
-    required this.submissionStatus,
     required this.onErrorChanged,
+    required this.hydratedSubmissionId,
     required this.onTeamChanged,
-    required this.onStatusChanged,
+    required this.onHydrateSubmission,
+    required this.onSubmissionSaved,
   });
 
   final TextEditingController projectName;
@@ -76,10 +103,11 @@ class _SubmissionContent extends StatelessWidget {
   final TextEditingController description;
   final String? error;
   final String? selectedTeamId;
-  final String submissionStatus;
   final ValueChanged<String?> onErrorChanged;
+  final String? hydratedSubmissionId;
   final ValueChanged<String?> onTeamChanged;
-  final ValueChanged<String> onStatusChanged;
+  final ValueChanged<ProjectSubmission> onHydrateSubmission;
+  final VoidCallback onSubmissionSaved;
 
   @override
   Widget build(BuildContext context) {
@@ -111,10 +139,21 @@ class _SubmissionContent extends StatelessWidget {
               .cast<ProjectSubmission?>()
               .fold<ProjectSubmission?>(
                 null,
-                (previous, current) => previous ?? current,
+                (previous, current) =>
+                    previous == null ||
+                        current!.submittedAt.isAfter(previous.submittedAt)
+                    ? current
+                    : previous,
               );
+    if (latestSubmission != null &&
+        latestSubmission.id != hydratedSubmissionId &&
+        _formIsEmpty()) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => onHydrateSubmission(latestSubmission),
+      );
+    }
     final submitActionLabel = latestSubmission == null
-        ? 'Finalize Submission'
+        ? 'Submit Project'
         : 'Update Submission';
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -202,24 +241,6 @@ class _SubmissionContent extends StatelessWidget {
             isError: true,
           ),
         ],
-        const SizedBox(height: 12),
-        SegmentedButton<String>(
-          segments: const [
-            ButtonSegment(
-              value: 'draft',
-              icon: Icon(Icons.edit_note_outlined),
-              label: Text('Draft'),
-            ),
-            ButtonSegment(
-              value: 'submitted',
-              icon: Icon(Icons.task_alt_outlined),
-              label: Text('Submitted'),
-            ),
-          ],
-          selected: {submissionStatus},
-          onSelectionChanged: (values) => onStatusChanged(values.first),
-        ),
-        const SizedBox(height: 12),
         TextField(
           controller: projectName,
           textInputAction: TextInputAction.next,
@@ -272,18 +293,6 @@ class _SubmissionContent extends StatelessWidget {
         if (submissions.message != null)
           StatusBanner(message: submissions.message!),
         const SizedBox(height: 16),
-        OutlinedButton.icon(
-          onPressed: loading
-              ? null
-              : () => Future.wait([
-                  context.read<TeamProvider>().loadTeams(),
-                  context.read<SubmissionProvider>().loadSubmissions(),
-                  context.read<ScoreProvider>().loadScores(),
-                ]),
-          icon: const Icon(Icons.refresh),
-          label: const Text('Refresh submission data'),
-        ),
-        const SizedBox(height: 10),
         FilledButton.icon(
           onPressed: loading
               ? null
@@ -306,7 +315,8 @@ class _SubmissionContent extends StatelessWidget {
                     onErrorChanged('Create or join a team before submitting.');
                     return;
                   }
-                  await context.read<SubmissionProvider>().submit(
+                  final submissionProvider = context.read<SubmissionProvider>();
+                  await submissionProvider.submit(
                     ProjectSubmission(
                       id: 'submission-${DateTime.now().millisecondsSinceEpoch}',
                       teamId: targetTeam.id,
@@ -314,11 +324,12 @@ class _SubmissionContent extends StatelessWidget {
                       githubUrl: github.text.trim(),
                       videoUrl: video.text.trim(),
                       description: description.text.trim(),
-                      status: submissionStatus,
+                      status: 'submitted',
                     ),
                     existingSubmissionId: latestSubmission?.id,
                   );
                   if (!context.mounted) return;
+                  if (submissionProvider.error != null) return;
                   final recipients = targetTeam.members
                       .map((member) => member.id)
                       .toSet();
@@ -330,11 +341,8 @@ class _SubmissionContent extends StatelessWidget {
                       userId: recipientId,
                     );
                   }
-                  projectName.clear();
-                  github.clear();
-                  video.clear();
-                  description.clear();
                   onErrorChanged(null);
+                  onSubmissionSaved();
                 },
           icon: loading
               ? const SizedBox.square(
@@ -346,27 +354,35 @@ class _SubmissionContent extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         const Text(
-          'Submitted projects',
+          'Latest submission',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 8),
         if (loading)
-          const LoadingCardList(itemCount: 2)
-        else if (submissions.submissions.isEmpty)
+          const LoadingCardList(itemCount: 1)
+        else if (targetTeam == null)
           EmptyState(
-            message: 'No submissions yet',
-            actionLabel: 'Choose team',
+            message: 'Choose or create a team to submit a project.',
+            actionLabel: 'Go to Teams',
             onAction: () => context.go(AppRoutes.teams),
           )
+        else if (latestSubmission == null)
+          const EmptyState(message: 'This team has not submitted yet.')
         else
-          for (final submission in submissions.submissions)
-            _SubmissionHistoryCard(
-              submission: submission,
-              history: submissions.historyFor(submission.id),
-              scores: scores.scoresFor(submission.id),
-            ),
+          _SubmissionHistoryCard(
+            submission: latestSubmission,
+            history: submissions.historyFor(latestSubmission.id),
+            scores: scores.scoresFor(latestSubmission.id),
+          ),
       ],
     );
+  }
+
+  bool _formIsEmpty() {
+    return projectName.text.trim().isEmpty &&
+        github.text.trim().isEmpty &&
+        video.text.trim().isEmpty &&
+        description.text.trim().isEmpty;
   }
 }
 

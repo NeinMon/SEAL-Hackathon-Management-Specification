@@ -27,11 +27,6 @@ class _MapScreenState extends State<MapScreen> {
             title: 'Venue',
             subtitle: 'Map marker and external navigation support.',
             icon: Icons.map_outlined,
-            trailing: IconButton.filledTonal(
-              tooltip: 'Refresh venue',
-              onPressed: null,
-              icon: Icon(Icons.refresh),
-            ),
           ),
           const LoadingCardList(itemCount: 2),
         ],
@@ -45,11 +40,6 @@ class _MapScreenState extends State<MapScreen> {
             title: 'Venue',
             subtitle: 'Map marker and external navigation support.',
             icon: Icons.map_outlined,
-            trailing: IconButton.filledTonal(
-              tooltip: 'Refresh venue',
-              onPressed: eventProvider.loadEvents,
-              icon: const Icon(Icons.refresh),
-            ),
           ),
           StatusBanner(message: eventProvider.error!, isError: true),
         ],
@@ -63,17 +53,8 @@ class _MapScreenState extends State<MapScreen> {
             title: 'Venue',
             subtitle: 'Map marker and external navigation support.',
             icon: Icons.map_outlined,
-            trailing: IconButton.filledTonal(
-              tooltip: 'Refresh venue',
-              onPressed: eventProvider.loadEvents,
-              icon: const Icon(Icons.refresh),
-            ),
           ),
-          EmptyState(
-            message: 'No event location available.',
-            actionLabel: 'Reload venue',
-            onAction: eventProvider.loadEvents,
-          ),
+          EmptyState(message: 'No event location available.'),
         ],
       );
     }
@@ -86,13 +67,6 @@ class _MapScreenState extends State<MapScreen> {
           title: 'Venue',
           subtitle: 'Map marker and external navigation support.',
           icon: Icons.map_outlined,
-          trailing: IconButton.filledTonal(
-            tooltip: 'Refresh venue',
-            onPressed: eventProvider.isLoading
-                ? null
-                : eventProvider.loadEvents,
-            icon: const Icon(Icons.refresh),
-          ),
         ),
         Card(
           child: Padding(
@@ -172,23 +146,15 @@ class _MapScreenState extends State<MapScreen> {
                 ),
                 const SizedBox(height: 16),
                 FilledButton.icon(
-                  onPressed: () => _confirmExternalMap(context, event),
-                  icon: const Icon(Icons.directions_outlined),
-                  label: const Text('Open in Maps'),
+                  onPressed: () => _copyAddress(context, event.location),
+                  icon: const Icon(Icons.copy_outlined),
+                  label: const Text('Copy address'),
                 ),
                 const SizedBox(height: 8),
                 OutlinedButton.icon(
-                  onPressed: () async {
-                    await Clipboard.setData(
-                      ClipboardData(text: event.location),
-                    );
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Address copied.')),
-                    );
-                  },
-                  icon: const Icon(Icons.copy_outlined),
-                  label: const Text('Copy address'),
+                  onPressed: () => _confirmExternalMap(context, event),
+                  icon: const Icon(Icons.directions_outlined),
+                  label: const Text('Open in Maps'),
                 ),
               ],
             ),
@@ -225,5 +191,13 @@ class _MapScreenState extends State<MapScreen> {
     final url =
         'https://www.google.com/maps/search/?api=1&query=${event.latitude},${event.longitude}';
     await ExternalLauncher.openUrl(url);
+  }
+
+  Future<void> _copyAddress(BuildContext context, String location) async {
+    await Clipboard.setData(ClipboardData(text: location));
+    if (!context.mounted) return;
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Address copied.')));
   }
 }

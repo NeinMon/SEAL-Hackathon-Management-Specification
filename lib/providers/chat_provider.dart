@@ -6,6 +6,7 @@ class ChatProvider extends ChangeNotifier {
   AppUser? selectedContact;
   List<ChatMessage> messages = [];
   bool isLoading = false;
+  bool isSending = false;
   String? error;
 
   Future<void> loadContacts(AppUser currentUser) async {
@@ -49,6 +50,7 @@ class ChatProvider extends ChangeNotifier {
     String? senderId,
     String? receiverId,
   }) async {
+    if (isSending) return;
     if (message.trim().isEmpty) {
       error = 'Message cannot be empty.';
       notifyListeners();
@@ -60,6 +62,8 @@ class ChatProvider extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    isSending = true;
+    notifyListeners();
     try {
       await _service.send(
         senderId: senderId,
@@ -69,8 +73,9 @@ class ChatProvider extends ChangeNotifier {
       await load(senderId, receiverId);
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
-      notifyListeners();
     }
+    isSending = false;
+    notifyListeners();
   }
 
   Future<void> deleteMessage(ChatMessage message, String userId) async {
@@ -90,6 +95,7 @@ class ChatProvider extends ChangeNotifier {
     messages = [];
     error = null;
     isLoading = false;
+    isSending = false;
     notifyListeners();
   }
 }

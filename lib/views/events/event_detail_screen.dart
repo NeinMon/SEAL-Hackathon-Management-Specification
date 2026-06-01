@@ -50,6 +50,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     final teams = context.watch<TeamProvider>().teams;
     final submissions = context.watch<SubmissionProvider>().submissions;
     final scores = context.watch<ScoreProvider>();
+    final role = context.watch<AuthProvider>().user?.role;
     final eventTeams = teams.where((team) => team.eventId == event.id).toList();
     final eventTeamIds = eventTeams.map((team) => team.id).toSet();
     final eventSubmissions =
@@ -133,16 +134,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         DetailTile(title: 'Rules', value: event.rules),
         DetailTile(title: 'Prize', value: event.prize),
         const SizedBox(height: 12),
-        FilledButton.icon(
-          onPressed: () => context.go('/teams'),
-          icon: const Icon(Icons.group_add_outlined),
-          label: const Text('Create or manage team'),
-        ),
-        OutlinedButton.icon(
-          onPressed: () => context.go('/map'),
-          icon: const Icon(Icons.map_outlined),
-          label: const Text('View event location'),
-        ),
+        _EventRoleActions(role: role),
         const SizedBox(height: 16),
         const Text(
           'Leaderboard',
@@ -202,6 +194,54 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       if (team.id == teamId) return team.name;
     }
     return 'Team not loaded';
+  }
+}
+
+class _EventRoleActions extends StatelessWidget {
+  const _EventRoleActions({required this.role});
+
+  final String? role;
+
+  @override
+  Widget build(BuildContext context) {
+    final primary = switch (role) {
+      AppRoles.judge => (
+        path: AppRoutes.judge,
+        icon: Icons.rate_review_outlined,
+        label: 'Open judging queue',
+      ),
+      AppRoles.organizer => (
+        path: AppRoutes.organizer,
+        icon: Icons.dashboard_customize_outlined,
+        label: 'Open organizer dashboard',
+      ),
+      AppRoles.mentor => (
+        path: AppRoutes.chat,
+        icon: Icons.chat_outlined,
+        label: 'Open mentor chat',
+      ),
+      _ => (
+        path: AppRoutes.teams,
+        icon: Icons.group_add_outlined,
+        label: 'Create or manage team',
+      ),
+    };
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        FilledButton.icon(
+          onPressed: () => context.go(primary.path),
+          icon: Icon(primary.icon),
+          label: Text(primary.label),
+        ),
+        const SizedBox(height: 8),
+        OutlinedButton.icon(
+          onPressed: () => context.go(AppRoutes.map),
+          icon: const Icon(Icons.map_outlined),
+          label: const Text('View event location'),
+        ),
+      ],
+    );
   }
 }
 

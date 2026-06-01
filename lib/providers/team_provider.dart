@@ -25,6 +25,7 @@ class TeamProvider extends ChangeNotifier {
     HackathonEvent event,
     AppUser leader,
   ) async {
+    if (isLoading) return;
     error = null;
     message = null;
     final cleanName = name.trim();
@@ -33,6 +34,8 @@ class TeamProvider extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    isLoading = true;
+    notifyListeners();
     try {
       await _service.createTeam(
         name: cleanName,
@@ -43,6 +46,7 @@ class TeamProvider extends ChangeNotifier {
       message = 'Team created successfully.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
+      isLoading = false;
     }
     notifyListeners();
   }
@@ -52,6 +56,7 @@ class TeamProvider extends ChangeNotifier {
     AppUser user, {
     HackathonEvent? event,
   }) async {
+    if (isLoading) return;
     error = null;
     message = null;
     final team = _teamById(teamId);
@@ -68,12 +73,15 @@ class TeamProvider extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    isLoading = true;
+    notifyListeners();
     try {
       await _service.joinTeam(teamId, user.id);
       await loadTeams();
       message = 'Joined team successfully.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
+      isLoading = false;
     }
     notifyListeners();
   }
@@ -83,6 +91,7 @@ class TeamProvider extends ChangeNotifier {
     String email, {
     HackathonEvent? event,
   }) async {
+    if (isLoading) return;
     error = null;
     message = null;
     final cleanEmail = email.trim();
@@ -100,17 +109,21 @@ class TeamProvider extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    isLoading = true;
+    notifyListeners();
     try {
       await _service.inviteMemberByEmail(teamId, cleanEmail);
       await loadTeams();
       message = 'Invitation sent.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
+      isLoading = false;
     }
     notifyListeners();
   }
 
   Future<void> updateTeamName(String teamId, String name) async {
+    if (isLoading) return;
     error = null;
     message = null;
     final cleanName = name.trim();
@@ -119,25 +132,32 @@ class TeamProvider extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    isLoading = true;
+    notifyListeners();
     try {
       await _service.updateTeamName(teamId, cleanName);
       await loadTeams();
       message = 'Team updated successfully.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
+      isLoading = false;
     }
     notifyListeners();
   }
 
   Future<void> leaveTeam(String teamId, AppUser user) async {
+    if (isLoading) return;
     error = null;
     message = null;
+    isLoading = true;
+    notifyListeners();
     try {
       await _service.leaveTeam(teamId, user.id);
       await loadTeams();
       message = 'Left team successfully.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
+      isLoading = false;
     }
     notifyListeners();
   }

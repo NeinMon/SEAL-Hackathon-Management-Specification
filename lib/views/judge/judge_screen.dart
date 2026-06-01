@@ -38,6 +38,7 @@ class _JudgeContent extends StatefulWidget {
 class _JudgeContentState extends State<_JudgeContent> {
   String filter = 'all';
   String sort = 'queue';
+  String? selectedSubmissionId;
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +56,7 @@ class _JudgeContentState extends State<_JudgeContent> {
         submissionProvider.isLoading ||
         scores.isLoading ||
         teamsProvider.isLoading;
+    final selectedSubmission = _selectedSubmission(submissions);
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -130,15 +132,25 @@ class _JudgeContentState extends State<_JudgeContent> {
             actionLabel: 'Show all',
             onAction: () => setState(() => filter = 'all'),
           )
-        else
-          for (final submission in submissions)
+        else ...[
+          _SubmissionSelector(
+            submissions: submissions,
+            scores: scores,
+            teams: teams,
+            value: selectedSubmission?.id,
+            onChanged: (value) => setState(() => selectedSubmissionId = value),
+          ),
+          const SizedBox(height: 12),
+          if (selectedSubmission != null)
             _JudgeSubmissionCard(
-              submission: submission,
+              key: ValueKey('judge-card-${selectedSubmission.id}'),
+              submission: selectedSubmission,
               scores: scores,
               teams: teams,
               judge: auth.user,
               canSubmit: isJudge && !scores.isLoading,
             ),
+        ],
       ],
     );
   }
@@ -175,10 +187,111 @@ class _JudgeContentState extends State<_JudgeContent> {
     }
     return filtered;
   }
+
+  ProjectSubmission? _selectedSubmission(List<ProjectSubmission> submissions) {
+    if (submissions.isEmpty) return null;
+    for (final submission in submissions) {
+      if (submission.id == selectedSubmissionId) return submission;
+    }
+    return submissions.first;
+  }
+}
+
+class _SubmissionSelector extends StatelessWidget {
+  const _SubmissionSelector({
+    required this.submissions,
+    required this.scores,
+    required this.teams,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final List<ProjectSubmission> submissions;
+  final ScoreProvider scores;
+  final List<Team> teams;
+  final String? value;
+  final ValueChanged<String?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Select submission',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '${submissions.length} submission${submissions.length == 1 ? '' : 's'} in this queue',
+              style: const TextStyle(color: SealPalette.onSurfaceVariant),
+            ),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              isExpanded: true,
+              initialValue: value ?? submissions.first.id,
+              decoration: const InputDecoration(
+                labelText: 'Submission to score',
+                prefixIcon: Icon(Icons.assignment_turned_in_outlined),
+              ),
+              items: [
+                for (final submission in submissions)
+                  DropdownMenuItem(
+                    value: submission.id,
+                    child: Text(
+                      '${submission.projectName} - ${_teamName(submission.teamId)}',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+              ],
+              onChanged: onChanged,
+            ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final submission in submissions.take(4))
+                  ChoiceChip(
+                    selected: (value ?? submissions.first.id) == submission.id,
+                    label: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 180),
+                      child: Text(
+                        submission.projectName,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    avatar: Icon(
+                      scores.scoreCountFor(submission.id) == 0
+                          ? Icons.pending_actions_outlined
+                          : Icons.verified_outlined,
+                      size: 18,
+                    ),
+                    onSelected: (_) => onChanged(submission.id),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _teamName(String teamId) {
+    for (final team in teams) {
+      if (team.id == teamId) return team.name;
+    }
+    return 'Unknown team';
+  }
 }
 
 class _JudgeSubmissionCard extends StatefulWidget {
   const _JudgeSubmissionCard({
+    super.key,
     required this.submission,
     required this.scores,
     required this.teams,
@@ -348,7 +461,7 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
               children: [
                 Expanded(
                   child: _ScoreMetric(
-                    label: 'Draft score',
+                    label: 'Current score',
                     value: currentAverage.toStringAsFixed(1),
                     accent: SealPalette.tertiary,
                   ),
@@ -464,7 +577,7 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
     );
     if (!mounted) return;
     setState(() => isSubmitting = false);
-    if (!mounted) return;
+    if (widget.scores.error != null) return;
     Team? team;
     for (final item in widget.teams) {
       if (item.id == widget.submission.teamId) {
@@ -482,7 +595,7 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
         userId: recipientId,
       );
     }
-    if (!mounted || widget.scores.error != null) return;
+    if (!mounted) return;
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Score published.')));

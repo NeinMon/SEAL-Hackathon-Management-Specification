@@ -164,29 +164,34 @@ class _NotificationTile extends StatelessWidget {
           '${notification.content}\n${DateFormat('dd/MM HH:mm').format(notification.createdAt)}',
         ),
         isThreeLine: true,
-        trailing: notification.isRead
-            ? IconButton(
-                tooltip: 'Delete',
-                onPressed: () => _confirmDelete(context),
-                icon: const Icon(Icons.delete_outline),
-              )
-            : Wrap(
-                spacing: 4,
-                children: [
-                  IconButton(
-                    tooltip: 'Mark as read',
-                    onPressed: () => context
-                        .read<NotificationProvider>()
-                        .markRead(notification.id),
-                    icon: const Icon(Icons.done),
-                  ),
-                  IconButton(
-                    tooltip: 'Delete',
-                    onPressed: () => _confirmDelete(context),
-                    icon: const Icon(Icons.delete_outline),
-                  ),
-                ],
+        trailing: PopupMenuButton<String>(
+          tooltip: 'Notification actions',
+          onSelected: (value) {
+            if (value == 'read') {
+              context.read<NotificationProvider>().markRead(notification.id);
+            }
+            if (value == 'delete') {
+              _confirmDelete(context);
+            }
+          },
+          itemBuilder: (context) => [
+            if (!notification.isRead)
+              const PopupMenuItem(
+                value: 'read',
+                child: ListTile(
+                  leading: Icon(Icons.done),
+                  title: Text('Mark as read'),
+                ),
               ),
+            const PopupMenuItem(
+              value: 'delete',
+              child: ListTile(
+                leading: Icon(Icons.delete_outline),
+                title: Text('Delete'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

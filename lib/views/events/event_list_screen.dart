@@ -8,17 +8,34 @@ class EventListScreen extends StatefulWidget {
 }
 
 class _EventListScreenState extends State<EventListScreen> {
+  final search = TextEditingController();
+
   @override
   void initState() {
     super.initState();
+    search.addListener(_refreshSearchUi);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<EventProvider>().loadEvents();
     });
   }
 
   @override
+  void dispose() {
+    search
+      ..removeListener(_refreshSearchUi)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _refreshSearchUi() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = context.watch<EventProvider>();
+    final hasActiveQuery =
+        search.text.trim().isNotEmpty || provider.filter != 'all';
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -36,9 +53,20 @@ class _EventListScreenState extends State<EventListScreen> {
         if (provider.error != null)
           StatusBanner(message: provider.error!, isError: true),
         TextField(
-          decoration: const InputDecoration(
-            prefixIcon: Icon(Icons.search),
+          controller: search,
+          decoration: InputDecoration(
+            prefixIcon: const Icon(Icons.search),
             hintText: 'Search by title, location, or topic',
+            suffixIcon: search.text.trim().isEmpty
+                ? null
+                : IconButton(
+                    tooltip: 'Clear search',
+                    onPressed: () {
+                      search.clear();
+                      provider.updateSearch('');
+                    },
+                    icon: const Icon(Icons.close),
+                  ),
           ),
           onChanged: provider.updateSearch,
         ),
@@ -79,9 +107,17 @@ class _EventListScreenState extends State<EventListScreen> {
           const LoadingCardList(itemCount: 3)
         else if (provider.filteredEvents.isEmpty)
           EmptyState(
-            message: 'No events available',
-            actionLabel: 'Reload events',
-            onAction: provider.loadEvents,
+            message: hasActiveQuery
+                ? 'No events match the current search.'
+                : 'No events available.',
+            actionLabel: hasActiveQuery ? 'Clear search' : 'Reload events',
+            onAction: hasActiveQuery
+                ? () {
+                    search.clear();
+                    provider.updateSearch('');
+                    provider.updateFilter('all');
+                  }
+                : provider.loadEvents,
           )
         else
           for (final event in provider.filteredEvents) EventCard(event: event),
