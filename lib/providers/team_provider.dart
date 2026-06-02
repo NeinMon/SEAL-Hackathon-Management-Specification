@@ -1,4 +1,10 @@
-part of '../main.dart';
+import 'package:flutter/foundation.dart';
+
+import '../core/app_helpers.dart';
+import '../models/app_user.dart';
+import '../models/hackathon_event.dart';
+import '../models/team.dart';
+import '../services/supabase_services.dart';
 
 class TeamProvider extends ChangeNotifier {
   final TeamService _service = const TeamService();
@@ -30,7 +36,7 @@ class TeamProvider extends ChangeNotifier {
     message = null;
     final cleanName = name.trim();
     if (cleanName.length < 2) {
-      error = 'Team name must be at least 2 characters.';
+      error = 'Tên team cần ít nhất 2 ký tự.';
       notifyListeners();
       return;
     }
@@ -43,7 +49,7 @@ class TeamProvider extends ChangeNotifier {
         leaderId: leader.id,
       );
       await loadTeams();
-      message = 'Team created successfully.';
+      message = 'Đã tạo team.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
       isLoading = false;
@@ -61,7 +67,7 @@ class TeamProvider extends ChangeNotifier {
     message = null;
     final team = _teamById(teamId);
     if (team != null && team.members.any((member) => member.id == user.id)) {
-      error = 'You are already a member of this team.';
+      error = 'Bạn đã là thành viên của team này.';
       notifyListeners();
       return;
     }
@@ -69,7 +75,7 @@ class TeamProvider extends ChangeNotifier {
         event != null &&
         event.maxTeamSize > 0 &&
         team.members.length >= event.maxTeamSize) {
-      error = '${team.name} is already full for this event.';
+      error = '${team.name} đã đủ thành viên cho event này.';
       notifyListeners();
       return;
     }
@@ -78,7 +84,7 @@ class TeamProvider extends ChangeNotifier {
     try {
       await _service.joinTeam(teamId, user.id);
       await loadTeams();
-      message = 'Joined team successfully.';
+      message = 'Đã tham gia team.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
       isLoading = false;
@@ -96,7 +102,7 @@ class TeamProvider extends ChangeNotifier {
     message = null;
     final cleanEmail = email.trim();
     if (!AppValidators.isValidEmail(cleanEmail)) {
-      error = 'Enter a valid member email address.';
+      error = 'Nhập email thành viên hợp lệ.';
       notifyListeners();
       return;
     }
@@ -105,7 +111,7 @@ class TeamProvider extends ChangeNotifier {
         event != null &&
         event.maxTeamSize > 0 &&
         team.members.length >= event.maxTeamSize) {
-      error = '${team.name} is already full for this event.';
+      error = '${team.name} đã đủ thành viên cho event này.';
       notifyListeners();
       return;
     }
@@ -114,7 +120,7 @@ class TeamProvider extends ChangeNotifier {
     try {
       await _service.inviteMemberByEmail(teamId, cleanEmail);
       await loadTeams();
-      message = 'Invitation sent.';
+      message = 'Đã gửi lời mời.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
       isLoading = false;
@@ -128,7 +134,7 @@ class TeamProvider extends ChangeNotifier {
     message = null;
     final cleanName = name.trim();
     if (cleanName.length < 2) {
-      error = 'Team name must be at least 2 characters.';
+      error = 'Tên team cần ít nhất 2 ký tự.';
       notifyListeners();
       return;
     }
@@ -137,7 +143,7 @@ class TeamProvider extends ChangeNotifier {
     try {
       await _service.updateTeamName(teamId, cleanName);
       await loadTeams();
-      message = 'Team updated successfully.';
+      message = 'Đã cập nhật team.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
       isLoading = false;
@@ -154,7 +160,7 @@ class TeamProvider extends ChangeNotifier {
     try {
       await _service.leaveTeam(teamId, user.id);
       await loadTeams();
-      message = 'Left team successfully.';
+      message = 'Đã rời team.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
       isLoading = false;

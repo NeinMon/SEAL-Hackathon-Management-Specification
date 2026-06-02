@@ -1,4 +1,8 @@
-part of '../main.dart';
+import 'package:flutter/foundation.dart';
+
+import '../core/app_helpers.dart';
+import '../models/project_score.dart';
+import '../services/supabase_services.dart';
 
 class ScoreProvider extends ChangeNotifier {
   final ScoreService _service = const ScoreService();
@@ -28,7 +32,7 @@ class ScoreProvider extends ChangeNotifier {
     try {
       await _service.createScore(score);
       await loadScores();
-      message = 'Score saved successfully.';
+      message = 'Đã lưu điểm.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }

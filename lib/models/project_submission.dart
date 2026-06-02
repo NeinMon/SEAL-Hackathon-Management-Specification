@@ -1,5 +1,3 @@
-part of '../main.dart';
-
 class ProjectSubmission {
   ProjectSubmission({
     required this.id,

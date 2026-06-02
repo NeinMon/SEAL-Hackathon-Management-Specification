@@ -1,4 +1,8 @@
-part of '../main.dart';
+import 'package:flutter/foundation.dart';
+
+import '../core/app_helpers.dart';
+import '../models/hackathon_event.dart';
+import '../services/supabase_services.dart';
 
 class EventProvider extends ChangeNotifier {
   final EventService _service = const EventService();
@@ -65,8 +69,8 @@ class EventProvider extends ChangeNotifier {
       await _service.saveEvent(event, existingEventId: existingEventId);
       await loadEvents();
       message = existingEventId == null
-          ? 'Event created successfully.'
-          : 'Event updated successfully.';
+          ? 'Đã tạo event.'
+          : 'Đã cập nhật event.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }

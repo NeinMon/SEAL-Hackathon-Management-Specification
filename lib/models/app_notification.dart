@@ -1,5 +1,3 @@
-part of '../main.dart';
-
 class AppNotification {
   AppNotification({
     required this.id,

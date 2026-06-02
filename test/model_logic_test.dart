@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:seal_hackathon_app/main.dart';
-import 'package:supabase/supabase.dart';
 
 void main() {
   test('AppUser parses Supabase profile rows', () {
@@ -110,7 +109,7 @@ void main() {
     expect(AppValidators.isValidWebUrl('https://github.com/seal/app'), isTrue);
     expect(AppValidators.isValidWebUrl('ftp://example.com/file'), isFalse);
     expect(AppValidators.scoreError(0, 5, 10), isNull);
-    expect(AppValidators.scoreError(11, 5, 10), contains('between 0 and 10'));
+    expect(AppValidators.scoreError(11, 5, 10), contains('0 đến 10'));
   });
 
   test('FriendlyErrorMapper hides raw PostgrestException details', () {
@@ -121,7 +120,7 @@ void main() {
       ),
     );
 
-    expect(message, contains('Permission denied'));
+    expect(message, contains('không có quyền'));
     expect(message, isNot(contains('PostgrestException')));
   });
 
@@ -169,7 +168,7 @@ void main() {
 
     await provider.joinTeam('team-id', user, event: event);
 
-    expect(provider.error, contains('already full'));
+    expect(provider.error, contains('đủ thành viên'));
   });
 
   test('EventProvider filters by phase and search keyword', () {
@@ -256,7 +255,7 @@ void main() {
         receiverId: 'mentor',
       );
 
-      expect(provider.error, 'Message cannot be empty.');
+      expect(provider.error, 'Tin nhắn không được để trống.');
     },
   );
 }

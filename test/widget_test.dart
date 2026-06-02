@@ -6,9 +6,9 @@ void main() {
   testWidgets('requires Supabase configuration', (WidgetTester tester) async {
     await tester.pumpWidget(const SealApp());
 
-    expect(find.text('Supabase connection required'), findsOneWidget);
+    expect(find.text('Cần kết nối Supabase'), findsOneWidget);
     expect(
-      find.textContaining('no longer runs with mock data'),
+      find.textContaining('không còn chạy bằng dữ liệu mock'),
       findsOneWidget,
     );
   });

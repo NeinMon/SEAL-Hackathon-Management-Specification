@@ -1,4 +1,10 @@
-part of '../main.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import '../core/app_helpers.dart';
+import '../providers/auth_provider.dart';
 
 class SealPalette {
   const SealPalette._();
@@ -246,6 +252,32 @@ class EmptyState extends StatelessWidget {
   }
 }
 
+class ErrorState extends StatelessWidget {
+  const ErrorState({
+    super.key,
+    required this.message,
+    this.actionLabel = 'Thử lại',
+    this.onRetry,
+  });
+
+  final String message;
+  final String actionLabel;
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final noInternet = FriendlyErrorMapper.looksLikeNetworkError(message);
+    return EmptyState(
+      icon: noInternet ? Icons.wifi_off_outlined : Icons.error_outline,
+      message: noInternet
+          ? 'Không có kết nối mạng. Kiểm tra mạng rồi thử lại.'
+          : message,
+      actionLabel: onRetry == null ? null : actionLabel,
+      onAction: onRetry,
+    );
+  }
+}
+
 class LoadingCardList extends StatelessWidget {
   const LoadingCardList({super.key, int? count, int? itemCount})
     : count = itemCount ?? count ?? 3;
@@ -279,6 +311,170 @@ class LoadingCardList extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+class EventCardSkeleton extends StatelessWidget {
+  const EventCardSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(height: 156, color: SealPalette.surfaceContainerHigh),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                _LoadingBar(widthFactor: 0.72),
+                SizedBox(height: 14),
+                _LoadingBar(widthFactor: 0.94),
+                SizedBox(height: 10),
+                _LoadingBar(widthFactor: 0.55),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class DashboardMetricSkeleton extends StatelessWidget {
+  const DashboardMetricSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: const [
+        Expanded(child: _MetricSkeletonCard()),
+        SizedBox(width: 10),
+        Expanded(child: _MetricSkeletonCard()),
+      ],
+    );
+  }
+}
+
+class _MetricSkeletonCard extends StatelessWidget {
+  const _MetricSkeletonCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 84,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: SealPalette.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: SealPalette.outlineVariant),
+      ),
+      child: const Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _LoadingBar(widthFactor: 0.45),
+          SizedBox(height: 16),
+          _LoadingBar(widthFactor: 0.25),
+        ],
+      ),
+    );
+  }
+}
+
+class ChatSkeleton extends StatelessWidget {
+  const ChatSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: const [
+        _ChatSkeletonBubble(widthFactor: 0.72, alignment: Alignment.centerLeft),
+        _ChatSkeletonBubble(
+          widthFactor: 0.56,
+          alignment: Alignment.centerRight,
+        ),
+        _ChatSkeletonBubble(widthFactor: 0.82, alignment: Alignment.centerLeft),
+      ],
+    );
+  }
+}
+
+class _ChatSkeletonBubble extends StatelessWidget {
+  const _ChatSkeletonBubble({
+    required this.widthFactor,
+    required this.alignment,
+  });
+
+  final double widthFactor;
+  final Alignment alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: alignment,
+      child: FractionallySizedBox(
+        widthFactor: widthFactor,
+        child: Container(
+          height: 84,
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: SealPalette.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _LoadingBar(widthFactor: 0.35),
+              SizedBox(height: 14),
+              _LoadingBar(widthFactor: 0.88),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AdaptiveTwoPane extends StatelessWidget {
+  const AdaptiveTwoPane({
+    super.key,
+    required this.leading,
+    required this.trailing,
+    this.breakpoint = 760,
+    this.leadingFlex = 5,
+    this.trailingFlex = 7,
+  });
+
+  final Widget leading;
+  final Widget trailing;
+  final double breakpoint;
+  final int leadingFlex;
+  final int trailingFlex;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < breakpoint) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [leading, const SizedBox(height: 16), trailing],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(flex: leadingFlex, child: leading),
+            const SizedBox(width: 16),
+            Expanded(flex: trailingFlex, child: trailing),
+          ],
+        );
+      },
     );
   }
 }
@@ -317,6 +513,33 @@ class EventImageFallback extends StatelessWidget {
           color: SealPalette.onSurfaceVariant,
         ),
       ),
+    );
+  }
+}
+
+class EventNetworkImage extends StatelessWidget {
+  const EventNetworkImage({super.key, required this.url, required this.fit});
+
+  final String url;
+  final BoxFit fit;
+
+  @override
+  Widget build(BuildContext context) {
+    return CachedNetworkImage(
+      imageUrl: url,
+      fit: fit,
+      placeholder: (context, url) {
+        return Container(
+          color: SealPalette.surfaceContainerHigh,
+          child: const Center(
+            child: SizedBox.square(
+              dimension: 28,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+        );
+      },
+      errorWidget: (context, url, error) => const EventImageFallback(),
     );
   }
 }
@@ -489,7 +712,7 @@ class HackCommandTopBar extends StatelessWidget {
           ),
           trailing ??
               IconButton(
-                tooltip: 'Support',
+                tooltip: 'Hỗ trợ',
                 onPressed: () {},
                 icon: const Icon(Icons.help_outline_rounded),
               ),
@@ -519,18 +742,18 @@ class RoleGate extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       children: [
         const SealSectionHeader(
-          title: 'Access Restricted',
-          subtitle: 'This feature is not available for your current role.',
+          title: 'Không có quyền truy cập',
+          subtitle: 'Tính năng này không khả dụng với role hiện tại.',
           icon: Icons.lock_outline,
         ),
         StatusBanner(
-          message: message ?? 'Please login with a permitted role.',
+          message: message ?? 'Vui lòng đăng nhập bằng tài khoản phù hợp.',
           isError: true,
         ),
         OutlinedButton.icon(
           onPressed: () => context.go(AppRoutes.events),
           icon: const Icon(Icons.event_outlined),
-          label: const Text('Back to Events'),
+          label: const Text('Về Events'),
         ),
       ],
     );
@@ -561,14 +784,14 @@ class SessionRequired extends StatelessWidget {
               const HackCommandTopBar(),
               const SizedBox(height: 24),
               const SealSectionHeader(
-                title: 'Please Sign In',
-                subtitle: 'Sign in to continue using SEAL Hackathon.',
+                title: 'Vui lòng đăng nhập',
+                subtitle: 'Đăng nhập để tiếp tục sử dụng SEAL Hackathon.',
                 icon: Icons.lock_outline,
               ),
               FilledButton.icon(
                 onPressed: () => context.go(AppRoutes.login),
                 icon: const Icon(Icons.login),
-                label: const Text('Go to Login'),
+                label: const Text('Đến màn hình đăng nhập'),
               ),
             ],
           ),
@@ -615,7 +838,7 @@ class SupabaseRequiredScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 16),
                         Text(
-                          'Supabase connection required',
+                          'Cần kết nối Supabase',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 24,
@@ -624,7 +847,7 @@ class SupabaseRequiredScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Start the app with SUPABASE_URL and SUPABASE_ANON_KEY. The app no longer runs with mock data.',
+                          'Chạy app với SUPABASE_URL và SUPABASE_ANON_KEY. App không còn chạy bằng dữ liệu mock.',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: SealPalette.onSurfaceVariant,

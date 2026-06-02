@@ -1,4 +1,4 @@
-part of '../../main.dart';
+import '../../shared.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen({super.key});
@@ -41,26 +41,27 @@ class _EventListScreenState extends State<EventListScreen> {
       children: [
         SealSectionHeader(
           title: 'Events',
-          subtitle:
-              'Find hackathons, follow deadlines, and open event details.',
+          subtitle: 'Theo dõi hackathon, deadline và thông tin chi tiết.',
           icon: Icons.event_outlined,
           trailing: IconButton.filledTonal(
-            tooltip: 'Refresh events',
+            tooltip: 'Tải lại Events',
             onPressed: provider.isLoading ? null : provider.loadEvents,
             icon: const Icon(Icons.refresh),
           ),
         ),
-        if (provider.error != null)
+        if (provider.error != null && provider.events.isEmpty)
+          ErrorState(message: provider.error!, onRetry: provider.loadEvents)
+        else if (provider.error != null)
           StatusBanner(message: provider.error!, isError: true),
         TextField(
           controller: search,
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search),
-            hintText: 'Search by title, location, or topic',
+            hintText: 'Tìm theo tên, địa điểm hoặc chủ đề',
             suffixIcon: search.text.trim().isEmpty
                 ? null
                 : IconButton(
-                    tooltip: 'Clear search',
+                    tooltip: 'Xóa tìm kiếm',
                     onPressed: () {
                       search.clear();
                       provider.updateSearch('');
@@ -76,25 +77,25 @@ class _EventListScreenState extends State<EventListScreen> {
           child: Row(
             children: [
               CommandChip(
-                label: 'Upcoming',
+                label: 'Sắp diễn ra',
                 selected: provider.filter == 'upcoming',
                 onTap: () => provider.updateFilter('upcoming'),
               ),
               const SizedBox(width: 8),
               CommandChip(
-                label: 'Active',
+                label: 'Đang mở',
                 selected: provider.filter == 'active',
                 onTap: () => provider.updateFilter('active'),
               ),
               const SizedBox(width: 8),
               CommandChip(
-                label: 'All',
+                label: 'Tất cả',
                 selected: provider.filter == 'all',
                 onTap: () => provider.updateFilter('all'),
               ),
               const SizedBox(width: 8),
               CommandChip(
-                label: 'Closed',
+                label: 'Đã đóng',
                 selected: provider.filter == 'closed',
                 onTap: () => provider.updateFilter('closed'),
                 icon: Icons.tune,
@@ -104,13 +105,21 @@ class _EventListScreenState extends State<EventListScreen> {
         ),
         const SizedBox(height: 16),
         if (provider.isLoading)
-          const LoadingCardList(itemCount: 3)
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 3,
+            itemBuilder: (context, index) => const Padding(
+              padding: EdgeInsets.only(bottom: 14),
+              child: EventCardSkeleton(),
+            ),
+          )
         else if (provider.filteredEvents.isEmpty)
           EmptyState(
             message: hasActiveQuery
-                ? 'No events match the current search.'
-                : 'No events available.',
-            actionLabel: hasActiveQuery ? 'Clear search' : 'Reload events',
+                ? 'Không có event phù hợp.'
+                : 'Chưa có event.',
+            actionLabel: hasActiveQuery ? 'Xóa tìm kiếm' : 'Tải lại Events',
             onAction: hasActiveQuery
                 ? () {
                     search.clear();
@@ -120,7 +129,13 @@ class _EventListScreenState extends State<EventListScreen> {
                 : provider.loadEvents,
           )
         else
-          for (final event in provider.filteredEvents) EventCard(event: event),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: provider.filteredEvents.length,
+            itemBuilder: (context, index) =>
+                EventCard(event: provider.filteredEvents[index]),
+          ),
       ],
     );
   }
@@ -134,118 +149,103 @@ class EventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final formatter = DateFormat('dd/MM/yyyy');
     final phase = _phaseFor(event);
-    return Card(
-      margin: const EdgeInsets.only(bottom: 14),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () => context.go('/events/${event.id}'),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AspectRatio(
-              aspectRatio: 16 / 7,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network(
-                    event.bannerUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const EventImageFallback(),
-                  ),
-                  const DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Color(0xAA060E20)],
+    return Semantics(
+      button: true,
+      label: 'Mở event ${event.title}',
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 14),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => context.go('/events/${event.id}'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AspectRatio(
+                aspectRatio: 16 / 7,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    EventNetworkImage(url: event.bannerUrl, fit: BoxFit.cover),
+                    const DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.transparent, Color(0xAA060E20)],
+                        ),
                       ),
                     ),
-                  ),
-                  Positioned(
-                    right: 14,
-                    top: 14,
-                    child: StatusPill(
-                      label: phase.label,
-                      color: phase.color,
-                      icon: phase.icon,
+                    Positioned(
+                      left: 14,
+                      top: 14,
+                      child: _EventStatusBadge(phase: phase),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    event.title,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      event.title,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w900,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    event.description,
-                    style: const TextStyle(
-                      color: SealPalette.onSurfaceVariant,
-                      height: 1.35,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 8,
-                    children: [
-                      InfoChip(
-                        icon: Icons.calendar_month,
-                        text:
-                            '${formatter.format(event.startDate)} - ${formatter.format(event.endDate)}',
-                      ),
-                      InfoChip(
-                        icon: Icons.schedule_outlined,
-                        text:
-                            'Register by ${formatter.format(event.registrationDeadline)}',
-                      ),
-                      InfoChip(
-                        icon: Icons.place_outlined,
-                        text: event.location,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.groups_2_outlined,
-                        size: 18,
+                    const SizedBox(height: 6),
+                    Text(
+                      event.description,
+                      style: const TextStyle(
                         color: SealPalette.onSurfaceVariant,
+                        height: 1.35,
                       ),
-                      const SizedBox(width: 6),
-                      const Expanded(
-                        child: Text(
-                          'Open for team registration',
-                          style: TextStyle(
-                            color: SealPalette.onSurfaceVariant,
-                            fontWeight: FontWeight.w800,
+                    ),
+                    const SizedBox(height: 14),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        _EventMetaPill(
+                          icon: Icons.calendar_month,
+                          value:
+                              '${formatter.format(event.startDate)} - ${formatter.format(event.endDate)}',
+                        ),
+                        _EventMetaPill(
+                          icon: Icons.schedule_outlined,
+                          value:
+                              'Đăng ký trước ${formatter.format(event.registrationDeadline)}',
+                        ),
+                        _EventMetaPill(
+                          icon: Icons.place_outlined,
+                          value: event.location,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Expanded(
+                          child: StatusPill(
+                            label: 'Đăng ký team',
+                            color: SealPalette.secondary,
+                            icon: Icons.groups_2_outlined,
                           ),
                         ),
-                      ),
-                      SizedBox(
-                        width: 132,
-                        child: FilledButton(
+                        TextButton.icon(
                           onPressed: () => context.go('/events/${event.id}'),
-                          child: const Text('View Details'),
+                          icon: const Icon(Icons.arrow_forward),
+                          label: const Text('Chi tiết'),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -255,22 +255,101 @@ class EventCard extends StatelessWidget {
     final now = DateTime.now();
     if (event.endDate.isBefore(now)) {
       return const _EventPhase(
-        'Closed',
+        'Đã đóng',
         SealPalette.onSurfaceVariant,
         Icons.lock_clock_outlined,
       );
     }
     if (event.startDate.isAfter(now)) {
       return const _EventPhase(
-        'Upcoming',
+        'Sắp diễn ra',
         SealPalette.tertiary,
         Icons.upcoming_outlined,
       );
     }
     return const _EventPhase(
-      'Active',
+      'Đang mở',
       SealPalette.secondary,
       Icons.bolt_outlined,
+    );
+  }
+}
+
+class _EventStatusBadge extends StatelessWidget {
+  const _EventStatusBadge({required this.phase});
+
+  final _EventPhase phase;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: SealPalette.surface.withValues(alpha: 0.82),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: phase.color.withValues(alpha: 0.56)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.24),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(phase.icon, size: 16, color: phase.color),
+            const SizedBox(width: 6),
+            Text(
+              phase.label,
+              style: TextStyle(
+                color: phase.color,
+                fontSize: 12,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _EventMetaPill extends StatelessWidget {
+  const _EventMetaPill({required this.icon, required this.value});
+
+  final IconData icon;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: SealPalette.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: SealPalette.outlineVariant),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: SealPalette.primary),
+          const SizedBox(width: 7),
+          Flexible(
+            child: Text(
+              value,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: SealPalette.onSurface,
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

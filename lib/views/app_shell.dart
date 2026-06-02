@@ -1,4 +1,4 @@
-part of '../main.dart';
+import '../shared.dart';
 
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.child});
@@ -20,17 +20,17 @@ class AppShell extends StatelessWidget {
         titleSpacing: 0,
         automaticallyImplyLeading: false,
         title: HackCommandTopBar(
-          subtitle: auth.user?.role.toUpperCase(),
+          subtitle: auth.user == null ? null : AppRoles.label(auth.user!.role),
           trailing: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                tooltip: 'Notifications',
+                tooltip: 'Thông báo',
                 onPressed: () => context.go(AppRoutes.notifications),
                 icon: const Icon(Icons.notifications_outlined),
               ),
               PopupMenuButton<String>(
-                tooltip: 'Account',
+                tooltip: 'Tài khoản',
                 icon: const Icon(Icons.more_vert),
                 onSelected: (value) async {
                   if (value == 'profile') {
@@ -53,14 +53,14 @@ class AppShell extends StatelessWidget {
                     value: 'profile',
                     child: ListTile(
                       leading: Icon(Icons.person_outline),
-                      title: Text('Profile'),
+                      title: Text('Hồ sơ'),
                     ),
                   ),
                   PopupMenuItem(
                     value: 'logout',
                     child: ListTile(
                       leading: Icon(Icons.logout),
-                      title: Text('Logout'),
+                      title: Text('Đăng xuất'),
                     ),
                   ),
                 ],
@@ -111,12 +111,12 @@ class AppShell extends StatelessWidget {
         return const [
           RoleNavigationItem('Events', Icons.event_outlined, AppRoutes.events),
           RoleNavigationItem(
-            'Judge',
+            'Chấm điểm',
             Icons.rate_review_outlined,
             AppRoutes.judge,
           ),
           RoleNavigationItem(
-            'Alerts',
+            'Thông báo',
             Icons.notifications_outlined,
             AppRoutes.notifications,
           ),
@@ -124,10 +124,10 @@ class AppShell extends StatelessWidget {
       case 'mentor':
         return const [
           RoleNavigationItem('Events', Icons.event_outlined, AppRoutes.events),
-          RoleNavigationItem('Teams', Icons.groups_outlined, AppRoutes.teams),
+          RoleNavigationItem('Team', Icons.groups_outlined, AppRoutes.teams),
           RoleNavigationItem('Chat', Icons.chat_outlined, AppRoutes.chat),
           RoleNavigationItem(
-            'Alerts',
+            'Thông báo',
             Icons.notifications_outlined,
             AppRoutes.notifications,
           ),
@@ -139,14 +139,14 @@ class AppShell extends StatelessWidget {
             Icons.dashboard_customize_outlined,
             AppRoutes.organizer,
           ),
-          RoleNavigationItem('Teams', Icons.groups_outlined, AppRoutes.teams),
+          RoleNavigationItem('Team', Icons.groups_outlined, AppRoutes.teams),
           RoleNavigationItem(
-            'Judge',
+            'Chấm điểm',
             Icons.rate_review_outlined,
             AppRoutes.judge,
           ),
           RoleNavigationItem(
-            'Alerts',
+            'Thông báo',
             Icons.notifications_outlined,
             AppRoutes.notifications,
           ),
@@ -155,14 +155,14 @@ class AppShell extends StatelessWidget {
       default:
         return const [
           RoleNavigationItem('Events', Icons.event_outlined, AppRoutes.events),
-          RoleNavigationItem('Teams', Icons.groups_outlined, AppRoutes.teams),
+          RoleNavigationItem('Team', Icons.groups_outlined, AppRoutes.teams),
           RoleNavigationItem(
-            'Submit',
+            'Nộp bài',
             Icons.upload_file_outlined,
             AppRoutes.submit,
           ),
           RoleNavigationItem('Chat', Icons.chat_outlined, AppRoutes.chat),
-          RoleNavigationItem('Map', Icons.map_outlined, AppRoutes.map),
+          RoleNavigationItem('Bản đồ', Icons.map_outlined, AppRoutes.map),
         ];
     }
   }

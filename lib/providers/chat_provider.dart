@@ -1,4 +1,9 @@
-part of '../main.dart';
+import 'package:flutter/foundation.dart';
+
+import '../core/app_helpers.dart';
+import '../models/app_user.dart';
+import '../models/chat_message.dart';
+import '../services/supabase_services.dart';
 
 class ChatProvider extends ChangeNotifier {
   final ChatService _service = const ChatService();
@@ -52,13 +57,13 @@ class ChatProvider extends ChangeNotifier {
   }) async {
     if (isSending) return;
     if (message.trim().isEmpty) {
-      error = 'Message cannot be empty.';
+      error = 'Tin nhắn không được để trống.';
       notifyListeners();
       return;
     }
     error = null;
     if (senderId == null || receiverId == null) {
-      error = 'Select a conversation before sending a message.';
+      error = 'Chọn cuộc trò chuyện trước khi gửi tin nhắn.';
       notifyListeners();
       return;
     }

@@ -1,4 +1,8 @@
-part of '../main.dart';
+import 'package:flutter/foundation.dart';
+
+import '../core/app_helpers.dart';
+import '../models/project_submission.dart';
+import '../services/supabase_services.dart';
 
 class SubmissionProvider extends ChangeNotifier {
   final SubmissionService _service = const SubmissionService();
@@ -37,8 +41,8 @@ class SubmissionProvider extends ChangeNotifier {
       );
       await loadSubmissions();
       message = existingSubmissionId == null
-          ? 'Project submitted successfully.'
-          : 'Project submission updated successfully.';
+          ? 'Đã nộp project.'
+          : 'Đã cập nhật bài nộp.';
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }

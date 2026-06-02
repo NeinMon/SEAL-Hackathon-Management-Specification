@@ -1,4 +1,4 @@
-part of '../../main.dart';
+import '../../shared.dart';
 
 class JudgeScreen extends StatefulWidget {
   const JudgeScreen({super.key});
@@ -22,7 +22,7 @@ class _JudgeScreenState extends State<JudgeScreen> {
   Widget build(BuildContext context) {
     return const RoleGate(
       allowedRoles: AppRoles.scorers,
-      message: 'Only judges and organizers can access scoring.',
+      message: 'Chỉ giám khảo và ban tổ chức mới truy cập được chấm điểm.',
       child: _JudgeContent(),
     );
   }
@@ -36,21 +36,46 @@ class _JudgeContent extends StatefulWidget {
 }
 
 class _JudgeContentState extends State<_JudgeContent> {
+  final search = TextEditingController();
   String filter = 'all';
   String sort = 'queue';
   String? selectedSubmissionId;
 
   @override
+  void initState() {
+    super.initState();
+    search.addListener(_refreshSearch);
+  }
+
+  @override
+  void dispose() {
+    search
+      ..removeListener(_refreshSearch)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _refreshSearch() {
+    if (mounted) setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     final submissionProvider = context.watch<SubmissionProvider>();
-    final submissions = _visibleSubmissions(
-      submissionProvider.submissions,
-      context.watch<ScoreProvider>(),
-    );
     final scores = context.watch<ScoreProvider>();
     final teamsProvider = context.watch<TeamProvider>();
     final teams = teamsProvider.teams;
+    final submissions = _visibleSubmissions(
+      submissionProvider.submissions,
+      scores,
+      teams,
+    );
+    final total = submissionProvider.submissions.length;
+    final scored = submissionProvider.submissions
+        .where((submission) => scores.scoreCountFor(submission.id) > 0)
+        .length;
+    final unscored = total - scored;
     final isJudge = auth.user?.role == 'judge';
     final loading =
         submissionProvider.isLoading ||
@@ -61,12 +86,11 @@ class _JudgeContentState extends State<_JudgeContent> {
       padding: const EdgeInsets.all(16),
       children: [
         SealSectionHeader(
-          title: 'Judging',
-          subtitle:
-              'Score submissions with technical, UI/UX, and innovation criteria.',
+          title: 'Chấm điểm',
+          subtitle: 'Chấm bài theo tiêu chí kỹ thuật, UI/UX và đổi mới.',
           icon: Icons.rate_review_outlined,
           trailing: IconButton.filledTonal(
-            tooltip: 'Refresh judging queue',
+            tooltip: 'Tải lại hàng chờ chấm',
             onPressed: loading ? null : () => _refresh(context),
             icon: const Icon(Icons.refresh),
           ),
@@ -76,7 +100,7 @@ class _JudgeContentState extends State<_JudgeContent> {
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Text(
-                'Login with role Judge to submit official scores. You can still preview the screen.',
+                'Đăng nhập role Giám khảo để gửi điểm chính thức. Ban tổ chức có thể xem trước màn này.',
               ),
             ),
           ),
@@ -85,71 +109,108 @@ class _JudgeContentState extends State<_JudgeContent> {
         if (submissionProvider.error != null)
           StatusBanner(message: submissionProvider.error!, isError: true),
         if (scores.message != null) StatusBanner(message: scores.message!),
+        _JudgeProgress(total: total, scored: scored, unscored: unscored),
+        const SizedBox(height: 10),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
             CommandChip(
-              label: 'All',
+              label: 'Tất cả',
               selected: filter == 'all',
               onTap: () => setState(() => filter = 'all'),
             ),
             CommandChip(
-              label: 'Unscored',
+              label: 'Chưa chấm',
               selected: filter == 'unscored',
               onTap: () => setState(() => filter = 'unscored'),
               icon: Icons.pending_actions_outlined,
             ),
             CommandChip(
-              label: 'Scored',
+              label: 'Đã chấm',
               selected: filter == 'scored',
               onTap: () => setState(() => filter = 'scored'),
               icon: Icons.verified_outlined,
             ),
           ],
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
+        TextField(
+          controller: search,
+          decoration: InputDecoration(
+            labelText: 'Tìm bài nộp hoặc team',
+            prefixIcon: const Icon(Icons.search),
+            suffixIcon: search.text.trim().isEmpty
+                ? null
+                : IconButton(
+                    tooltip: 'Xóa tìm kiếm',
+                    onPressed: search.clear,
+                    icon: const Icon(Icons.close),
+                  ),
+          ),
+        ),
+        const SizedBox(height: 8),
         DropdownButtonFormField<String>(
           initialValue: sort,
           decoration: const InputDecoration(
-            labelText: 'Sort queue',
+            labelText: 'Sắp xếp hàng chờ',
             prefixIcon: Icon(Icons.sort_outlined),
           ),
           items: const [
-            DropdownMenuItem(value: 'queue', child: Text('Newest first')),
-            DropdownMenuItem(value: 'project', child: Text('Project name')),
+            DropdownMenuItem(value: 'queue', child: Text('Mới nhất trước')),
+            DropdownMenuItem(value: 'project', child: Text('Tên project')),
             DropdownMenuItem(value: 'team', child: Text('Team')),
-            DropdownMenuItem(value: 'score', child: Text('Average score')),
+            DropdownMenuItem(value: 'score', child: Text('Điểm trung bình')),
           ],
           onChanged: (value) => setState(() => sort = value ?? 'queue'),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 12),
         if (loading)
           const LoadingCardList(itemCount: 3)
         else if (submissions.isEmpty)
           EmptyState(
-            message: 'No submissions match this queue',
-            actionLabel: 'Show all',
+            message: 'Không có bài nộp phù hợp.',
+            actionLabel: 'Hiện tất cả',
             onAction: () => setState(() => filter = 'all'),
           )
         else ...[
-          _SubmissionSelector(
-            submissions: submissions,
-            scores: scores,
-            teams: teams,
-            value: selectedSubmission?.id,
-            onChanged: (value) => setState(() => selectedSubmissionId = value),
-          ),
-          const SizedBox(height: 12),
-          if (selectedSubmission != null)
-            _JudgeSubmissionCard(
-              key: ValueKey('judge-card-${selectedSubmission.id}'),
-              submission: selectedSubmission,
-              scores: scores,
-              teams: teams,
-              judge: auth.user,
-              canSubmit: isJudge && !scores.isLoading,
+          AdaptiveTwoPane(
+            leading: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _SubmissionSelector(
+                  submissions: submissions,
+                  scores: scores,
+                  teams: teams,
+                  value: selectedSubmission?.id,
+                  onChanged: (value) =>
+                      setState(() => selectedSubmissionId = value),
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton.icon(
+                  onPressed: unscored == 0
+                      ? null
+                      : () => _selectNextUnscored(
+                          submissionProvider.submissions,
+                          scores,
+                          teams,
+                        ),
+                  icon: const Icon(Icons.skip_next_outlined),
+                  label: const Text('Bài chưa chấm tiếp theo'),
+                ),
+              ],
             ),
+            trailing: selectedSubmission == null
+                ? const EmptyState(message: 'Chọn một bài để chấm.')
+                : _JudgeSubmissionCard(
+                    key: ValueKey('judge-card-${selectedSubmission.id}'),
+                    submission: selectedSubmission,
+                    scores: scores,
+                    teams: teams,
+                    judge: auth.user,
+                    canSubmit: isJudge && !scores.isLoading,
+                  ),
+          ),
         ],
       ],
     );
@@ -166,12 +227,22 @@ class _JudgeContentState extends State<_JudgeContent> {
   List<ProjectSubmission> _visibleSubmissions(
     List<ProjectSubmission> all,
     ScoreProvider scores,
+    List<Team> teams,
   ) {
     final filtered = all.where((submission) {
       final scored = scores.scoreCountFor(submission.id) > 0;
-      return filter == 'all' ||
+      final keyword = search.text.trim().toLowerCase();
+      final teamName = _teamName(submission.teamId, teams).toLowerCase();
+      final matchesSearch =
+          keyword.isEmpty ||
+          submission.projectName.toLowerCase().contains(keyword) ||
+          submission.description.toLowerCase().contains(keyword) ||
+          teamName.contains(keyword);
+      final matchesFilter =
+          filter == 'all' ||
           (filter == 'scored' && scored) ||
           (filter == 'unscored' && !scored);
+      return matchesSearch && matchesFilter;
     }).toList();
     switch (sort) {
       case 'project':
@@ -195,6 +266,27 @@ class _JudgeContentState extends State<_JudgeContent> {
     }
     return submissions.first;
   }
+
+  void _selectNextUnscored(
+    List<ProjectSubmission> all,
+    ScoreProvider scores,
+    List<Team> teams,
+  ) {
+    final queue = _visibleSubmissions(all, scores, teams);
+    for (final submission in queue) {
+      if (scores.scoreCountFor(submission.id) == 0) {
+        setState(() => selectedSubmissionId = submission.id);
+        return;
+      }
+    }
+  }
+
+  String _teamName(String teamId, List<Team> teams) {
+    for (final team in teams) {
+      if (team.id == teamId) return team.name;
+    }
+    return 'Chưa rõ team';
+  }
 }
 
 class _SubmissionSelector extends StatelessWidget {
@@ -216,26 +308,42 @@ class _SubmissionSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.zero,
+      color: SealPalette.primary.withValues(alpha: 0.08),
       child: Padding(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Select submission',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+            Row(
+              children: [
+                const Icon(
+                  Icons.assignment_turned_in_outlined,
+                  color: SealPalette.primary,
+                ),
+                const SizedBox(width: 8),
+                const Expanded(
+                  child: Text(
+                    'Chọn bài nộp',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                  ),
+                ),
+                StatusPill(
+                  label: '${submissions.length}',
+                  icon: Icons.list_alt,
+                ),
+              ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             Text(
-              '${submissions.length} submission${submissions.length == 1 ? '' : 's'} in this queue',
+              '${submissions.length} bài trong hàng chờ này',
               style: const TextStyle(color: SealPalette.onSurfaceVariant),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             DropdownButtonFormField<String>(
               isExpanded: true,
               initialValue: value ?? submissions.first.id,
               decoration: const InputDecoration(
-                labelText: 'Submission to score',
+                labelText: 'Bài cần chấm',
                 prefixIcon: Icon(Icons.assignment_turned_in_outlined),
               ),
               items: [
@@ -250,7 +358,7 @@ class _SubmissionSelector extends StatelessWidget {
               ],
               onChanged: onChanged,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 8,
@@ -285,7 +393,68 @@ class _SubmissionSelector extends StatelessWidget {
     for (final team in teams) {
       if (team.id == teamId) return team.name;
     }
-    return 'Unknown team';
+    return 'Chưa rõ team';
+  }
+}
+
+class _JudgeProgress extends StatelessWidget {
+  const _JudgeProgress({
+    required this.total,
+    required this.scored,
+    required this.unscored,
+  });
+
+  final int total;
+  final int scored;
+  final int unscored;
+
+  @override
+  Widget build(BuildContext context) {
+    final progress = total == 0 ? 0.0 : scored / total;
+    return Semantics(
+      label: 'Tiến độ chấm: $scored đã chấm và $unscored chưa chấm',
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: SealPalette.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: SealPalette.outlineVariant),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Tiến độ chấm',
+                    style: TextStyle(fontWeight: FontWeight.w900),
+                  ),
+                  const SizedBox(height: 8),
+                  LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 7,
+                    borderRadius: BorderRadius.circular(999),
+                    color: unscored == 0
+                        ? SealPalette.secondary
+                        : SealPalette.primary,
+                    backgroundColor: SealPalette.surfaceContainerHighest,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            StatusPill(
+              label: '$scored/$total',
+              color: unscored == 0
+                  ? SealPalette.secondary
+                  : SealPalette.tertiary,
+              icon: Icons.fact_check_outlined,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 
@@ -321,6 +490,7 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
   @override
   void initState() {
     super.initState();
+    feedback.addListener(_refreshFeedbackState);
     _hydrateFromExistingScore();
   }
 
@@ -332,8 +502,14 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
 
   @override
   void dispose() {
-    feedback.dispose();
+    feedback
+      ..removeListener(_refreshFeedbackState)
+      ..dispose();
     super.dispose();
+  }
+
+  void _refreshFeedbackState() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -368,9 +544,7 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
                     runSpacing: 8,
                     children: [
                       StatusPill(
-                        label: existingScore == null
-                            ? 'Needs review'
-                            : 'Already scored',
+                        label: existingScore == null ? 'Cần chấm' : 'Đã chấm',
                         color: existingScore == null
                             ? SealPalette.tertiary
                             : SealPalette.secondary,
@@ -379,7 +553,7 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
                             : Icons.verified_outlined,
                       ),
                       StatusPill(
-                        label: '$scoreCount score${scoreCount == 1 ? '' : 's'}',
+                        label: '$scoreCount lượt chấm',
                         icon: Icons.leaderboard_outlined,
                       ),
                     ],
@@ -423,7 +597,7 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
             const SizedBox(height: 14),
             const StatusBanner(
               message:
-                  'Review the repository, demo quality, implementation depth, and product impact before publishing a score.',
+                  'Xem repository, chất lượng demo, độ sâu triển khai và tác động sản phẩm trước khi gửi điểm.',
             ),
             const Text(
               'Rubric Evaluation',
@@ -433,7 +607,7 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
             _ScoreSlider(
               label: 'Technical depth',
               description:
-                  'Architecture, correctness, reliability, and implementation depth.',
+                  'Kiến trúc, độ đúng, độ tin cậy và độ sâu triển khai.',
               icon: Icons.memory_outlined,
               value: technical,
               onChanged: (value) => setState(() => technical = value),
@@ -442,7 +616,7 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
             _ScoreSlider(
               label: 'UI/UX quality',
               description:
-                  'Mobile flow, clarity, accessibility, and demo polish.',
+                  'Luồng mobile, độ rõ ràng, accessibility và độ hoàn thiện demo.',
               icon: Icons.design_services_outlined,
               value: ui,
               onChanged: (value) => setState(() => ui = value),
@@ -451,34 +625,12 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
             _ScoreSlider(
               label: 'Innovation',
               description:
-                  'Originality, impact, useful AI/automation, and product fit.',
+                  'Tính mới, tác động, AI/automation hữu ích và độ phù hợp sản phẩm.',
               icon: Icons.auto_awesome_outlined,
               value: innovation,
               onChanged: (value) => setState(() => innovation = value),
             ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _ScoreMetric(
-                    label: 'Current score',
-                    value: currentAverage.toStringAsFixed(1),
-                    accent: SealPalette.tertiary,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _ScoreMetric(
-                    label: 'Published avg',
-                    value: widget.scores
-                        .averageFor(submission.id)
-                        .toStringAsFixed(1),
-                    accent: SealPalette.primary,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
             TextField(
               controller: feedback,
               minLines: 2,
@@ -498,20 +650,14 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
                 ),
               ),
             ],
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: !widget.canSubmit || isSubmitting
-                  ? null
-                  : _submitScore,
-              icon: isSubmitting
-                  ? const SizedBox.square(
-                      dimension: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.check),
-              label: Text(
-                existingScore == null ? 'Submit score' : 'Update score',
-              ),
+            const SizedBox(height: 10),
+            _ScoreSummaryCard(
+              currentAverage: currentAverage,
+              feedbackReady: feedback.text.trim().isNotEmpty,
+              existingScore: existingScore,
+              isSubmitting: isSubmitting,
+              canSubmit: widget.canSubmit,
+              onSubmit: _submitScore,
             ),
           ],
         ),
@@ -532,9 +678,7 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
       return;
     }
     if (feedback.text.trim().isEmpty) {
-      setState(
-        () => inlineError = 'Feedback is required before publishing a score.',
-      );
+      setState(() => inlineError = 'Cần nhập feedback trước khi gửi điểm.');
       return;
     }
     final existingScore = widget.scores.scoreFor(
@@ -545,18 +689,18 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          title: const Text('Update existing score?'),
+          title: const Text('Cập nhật điểm cũ?'),
           content: Text(
-            'This will replace your previous score for ${widget.submission.projectName}.',
+            'Điểm trước đó của bạn cho ${widget.submission.projectName} sẽ được thay thế.',
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: const Text('Hủy'),
             ),
             FilledButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Update'),
+              child: const Text('Cập nhật'),
             ),
           ],
         ),
@@ -589,8 +733,8 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
         team?.members.map((member) => member.id).toSet() ?? {judge.id};
     for (final recipientId in recipients) {
       await context.read<NotificationProvider>().push(
-        'Score published',
-        '${widget.submission.projectName} has a new score.',
+        'Đã công bố điểm',
+        '${widget.submission.projectName} có điểm mới.',
         'score',
         userId: recipientId,
       );
@@ -598,7 +742,7 @@ class _JudgeSubmissionCardState extends State<_JudgeSubmissionCard> {
     if (!mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Score published.')));
+    ).showSnackBar(const SnackBar(content: Text('Đã công bố điểm.')));
   }
 
   void _hydrateFromExistingScore() {
@@ -631,6 +775,108 @@ class _ScoreSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Semantics(
+      label: '$label ${value.toStringAsFixed(1)} điểm. $description',
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: SealPalette.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: SealPalette.outlineVariant),
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: SealPalette.primary),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                ),
+                Text(
+                  value.toStringAsFixed(1),
+                  style: const TextStyle(
+                    color: SealPalette.tertiary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                description,
+                style: const TextStyle(
+                  color: SealPalette.onSurfaceVariant,
+                  fontSize: 12,
+                  height: 1.25,
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 38,
+              child: Row(
+                children: [
+                  IconButton(
+                    tooltip: 'Giảm',
+                    onPressed: () => _step(-0.5),
+                    icon: const Icon(Icons.remove),
+                  ),
+                  Expanded(
+                    child: Slider(
+                      value: value.clamp(0, 10).toDouble(),
+                      min: 0,
+                      max: 10,
+                      divisions: 20,
+                      label: value.toStringAsFixed(1),
+                      onChanged: (next) => onChanged(_rounded(next)),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Tăng',
+                    onPressed: () => _step(0.5),
+                    icon: const Icon(Icons.add),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _step(double delta) {
+    onChanged(_rounded((value + delta).clamp(0, 10).toDouble()));
+  }
+
+  double _rounded(double raw) => double.parse(raw.toStringAsFixed(1));
+}
+
+class _ScoreSummaryCard extends StatelessWidget {
+  const _ScoreSummaryCard({
+    required this.currentAverage,
+    required this.feedbackReady,
+    required this.existingScore,
+    required this.isSubmitting,
+    required this.canSubmit,
+    required this.onSubmit,
+  });
+
+  final double currentAverage;
+  final bool feedbackReady;
+  final ProjectScore? existingScore;
+  final bool isSubmitting;
+  final bool canSubmit;
+  final VoidCallback onSubmit;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -642,70 +888,40 @@ class _ScoreSlider extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(icon, color: SealPalette.primary),
-              const SizedBox(width: 8),
               Expanded(
-                child: Text(
-                  label,
-                  style: const TextStyle(fontWeight: FontWeight.w800),
+                child: _ScoreMetric(
+                  label: 'Điểm hiện tại',
+                  value: currentAverage.toStringAsFixed(1),
+                  accent: SealPalette.tertiary,
                 ),
               ),
-              Text(
-                value.toStringAsFixed(1),
-                style: const TextStyle(
-                  color: SealPalette.tertiary,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w900,
+              const SizedBox(width: 10),
+              Expanded(
+                child: _ScoreMetric(
+                  label: 'Feedback',
+                  value: feedbackReady ? 'Sẵn sàng' : 'Thiếu',
+                  accent: feedbackReady
+                      ? SealPalette.secondary
+                      : SealPalette.error,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              description,
-              style: const TextStyle(
-                color: SealPalette.onSurfaceVariant,
-                fontSize: 12,
-                height: 1.25,
-              ),
-            ),
-          ),
-          Row(
-            children: [
-              IconButton(
-                tooltip: 'Decrease',
-                onPressed: () => _step(-0.5),
-                icon: const Icon(Icons.remove),
-              ),
-              Expanded(
-                child: Slider(
-                  value: value.clamp(0, 10).toDouble(),
-                  min: 0,
-                  max: 10,
-                  divisions: 20,
-                  label: value.toStringAsFixed(1),
-                  onChanged: (next) => onChanged(_rounded(next)),
-                ),
-              ),
-              IconButton(
-                tooltip: 'Increase',
-                onPressed: () => _step(0.5),
-                icon: const Icon(Icons.add),
-              ),
-            ],
+          const SizedBox(height: 10),
+          FilledButton.icon(
+            onPressed: !canSubmit || isSubmitting ? null : onSubmit,
+            icon: isSubmitting
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.check),
+            label: Text(existingScore == null ? 'Gửi điểm' : 'Cập nhật điểm'),
           ),
         ],
       ),
     );
   }
-
-  void _step(double delta) {
-    onChanged(_rounded((value + delta).clamp(0, 10).toDouble()));
-  }
-
-  double _rounded(double raw) => double.parse(raw.toStringAsFixed(1));
 }
 
 class _ScoreMetric extends StatelessWidget {

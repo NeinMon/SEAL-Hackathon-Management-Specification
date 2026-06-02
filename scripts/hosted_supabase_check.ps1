@@ -4,6 +4,9 @@ param(
   [string]$ProjectUrl = $env:SUPABASE_URL,
   [string]$AnonKey = $env:SUPABASE_ANON_KEY,
   [string]$ServiceRoleKey = $env:SUPABASE_SERVICE_ROLE_KEY,
+  [string]$ProjectRef = $env:SUPABASE_PROJECT_REF,
+  [string]$DatabasePassword = $env:SUPABASE_DB_PASSWORD,
+  [switch]$ApplyMigrations,
   [switch]$SkipSeed
 )
 
@@ -15,6 +18,16 @@ if (-not $ProjectUrl -or -not $AnonKey) {
 
 Write-Output "== Hosted Supabase check: $Environment =="
 Write-Output "ProjectUrl: $ProjectUrl"
+
+if ($ApplyMigrations) {
+  if (-not $ProjectRef) {
+    throw "Set SUPABASE_PROJECT_REF or pass -ProjectRef when using -ApplyMigrations."
+  }
+  Write-Output "== Apply hosted migrations =="
+  .\scripts\apply_hosted_migrations.ps1 `
+    -ProjectRef $ProjectRef `
+    -DatabasePassword $DatabasePassword
+}
 
 if (-not $SkipSeed) {
   if (-not $ServiceRoleKey) {

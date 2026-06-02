@@ -1,4 +1,4 @@
-part of '../../main.dart';
+import '../../shared.dart';
 
 class TeamScreen extends StatefulWidget {
   const TeamScreen({super.key});
@@ -49,6 +49,13 @@ class _TeamScreenState extends State<TeamScreen> {
                 (team) => team.members.any((member) => member.id == user.id),
               )
               .toList();
+    final otherTeams = user == null
+        ? teams.teams
+        : teams.teams
+              .where(
+                (team) => !team.members.any((member) => member.id == user.id),
+              )
+              .toList();
     final canCreateTeamRole =
         user != null && AppRoles.participantCreators.contains(user.role);
     final canCreateTeam =
@@ -60,11 +67,11 @@ class _TeamScreenState extends State<TeamScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         SealSectionHeader(
-          title: 'Teams',
-          subtitle: 'Create a team, invite members, and manage participation.',
+          title: 'Team',
+          subtitle: 'Tạo team, mời thành viên và quản lý tham gia.',
           icon: Icons.groups_outlined,
           trailing: IconButton.filledTonal(
-            tooltip: 'Refresh teams',
+            tooltip: 'Tải lại Team',
             onPressed: loading
                 ? null
                 : () => Future.wait([
@@ -86,7 +93,7 @@ class _TeamScreenState extends State<TeamScreen> {
                   children: [
                     const Expanded(
                       child: Text(
-                        'Team overview',
+                        'Tổng quan team',
                         style: TextStyle(
                           color: SealPalette.onSurfaceVariant,
                           fontWeight: FontWeight.w900,
@@ -107,7 +114,7 @@ class _TeamScreenState extends State<TeamScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Text(
-                        'Active',
+                        'Đang mở',
                         style: TextStyle(
                           color: SealPalette.secondary,
                           fontSize: 12,
@@ -119,7 +126,7 @@ class _TeamScreenState extends State<TeamScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  teams.teams.isEmpty ? 'No teams yet' : 'Teams available',
+                  teams.teams.isEmpty ? 'Chưa có team' : 'Team đang có',
                   style: const TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.w900,
@@ -141,13 +148,13 @@ class _TeamScreenState extends State<TeamScreen> {
         Row(
           children: [
             Expanded(
-              child: MetricCard(label: 'Teams', value: '${teams.teams.length}'),
+              child: MetricCard(label: 'Team', value: '${teams.teams.length}'),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: MetricCard(
                 label: 'Check-in',
-                value: teams.teams.isEmpty ? 'Pending' : 'Verified',
+                value: teams.teams.isEmpty ? 'Chờ' : 'Đã xác nhận',
                 accent: teams.teams.isEmpty
                     ? SealPalette.tertiary
                     : SealPalette.secondary,
@@ -160,7 +167,7 @@ class _TeamScreenState extends State<TeamScreen> {
           FilledButton.icon(
             onPressed: loading ? null : () => context.go(AppRoutes.submit),
             icon: const Icon(Icons.upload_file_outlined),
-            label: const Text('Submit Project'),
+            label: const Text('Nộp project'),
           ),
           const SizedBox(height: 16),
         ] else if (canCreateTeamRole &&
@@ -171,7 +178,7 @@ class _TeamScreenState extends State<TeamScreen> {
                 ? null
                 : () => setState(() => showCreateTeam = true),
             icon: const Icon(Icons.add),
-            label: const Text('Create Team'),
+            label: const Text('Tạo team'),
           ),
           const SizedBox(height: 16),
         ],
@@ -183,7 +190,7 @@ class _TeamScreenState extends State<TeamScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Create Team',
+                    'Tạo team',
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 12),
@@ -212,7 +219,7 @@ class _TeamScreenState extends State<TeamScreen> {
                     controller: name,
                     textInputAction: TextInputAction.done,
                     decoration: const InputDecoration(
-                      labelText: 'Team name',
+                      labelText: 'Tên team',
                       prefixIcon: Icon(Icons.groups_outlined),
                     ),
                   ),
@@ -229,7 +236,7 @@ class _TeamScreenState extends State<TeamScreen> {
                                     name.clear();
                                   }),
                             icon: const Icon(Icons.close),
-                            label: const Text('Cancel'),
+                            label: const Text('Hủy'),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -252,8 +259,8 @@ class _TeamScreenState extends State<TeamScreen> {
                                       name.clear();
                                     });
                                     await context.read<NotificationProvider>().push(
-                                      'Team created',
-                                      '$teamName joined ${selectedEvent.title}.',
+                                      'Đã tạo team',
+                                      '$teamName đã tham gia ${selectedEvent.title}.',
                                       'invitation',
                                       userId: user.id,
                                     );
@@ -267,7 +274,7 @@ class _TeamScreenState extends State<TeamScreen> {
                                   ),
                                 )
                               : const Icon(Icons.add),
-                          label: const Text('Create team'),
+                          label: const Text('Tạo team'),
                         ),
                       ),
                     ],
@@ -275,7 +282,7 @@ class _TeamScreenState extends State<TeamScreen> {
                   if (events.events.isEmpty) ...[
                     const SizedBox(height: 10),
                     const Text(
-                      'No event is available. Load events before creating a team.',
+                      'Chưa có event. Tải event trước khi tạo team.',
                       style: TextStyle(color: SealPalette.error),
                     ),
                   ],
@@ -283,7 +290,7 @@ class _TeamScreenState extends State<TeamScreen> {
                       !AppRoles.participantCreators.contains(user.role)) ...[
                     const SizedBox(height: 10),
                     const Text(
-                      'This role can view teams but cannot create participant teams.',
+                      'Role này chỉ xem team, không tạo team thí sinh.',
                       style: TextStyle(color: SealPalette.onSurfaceVariant),
                     ),
                   ],
@@ -297,30 +304,55 @@ class _TeamScreenState extends State<TeamScreen> {
                 ? null
                 : () => setState(() => showCreateTeam = true),
             icon: const Icon(Icons.add),
-            label: const Text('Create Team'),
+            label: const Text('Tạo team'),
           ),
         const SizedBox(height: 16),
-        if (teams.error != null)
+        if (teams.error != null && teams.teams.isEmpty)
+          ErrorState(
+            message: teams.error!,
+            onRetry: () => context.read<TeamProvider>().loadTeams(),
+          )
+        else if (teams.error != null)
           StatusBanner(message: teams.error!, isError: true),
         if (teams.message != null) StatusBanner(message: teams.message!),
         if (loading)
           const LoadingCardList(itemCount: 2)
         else if (teams.teams.isEmpty)
-          const EmptyState(message: 'No team yet. Create one to continue.')
+          const EmptyState(message: 'Chưa có team. Tạo team để tiếp tục.')
         else ...[
-          const Padding(
-            padding: EdgeInsets.only(bottom: 8),
-            child: Text(
-              'Team Roster',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+          if (myTeams.isNotEmpty) ...[
+            const _TeamGroupTitle(title: 'Team của tôi'),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: myTeams.length,
+              itemBuilder: (context, index) {
+                final team = myTeams[index];
+                return TeamCard(
+                  team: team,
+                  currentUser: user,
+                  event: _eventFor(team.eventId, events.events),
+                  highlighted: true,
+                );
+              },
             ),
-          ),
-          for (final team in teams.teams)
-            TeamCard(
-              team: team,
-              currentUser: user,
-              event: _eventFor(team.eventId, events.events),
+          ],
+          if (otherTeams.isNotEmpty) ...[
+            const _TeamGroupTitle(title: 'Team khác'),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: otherTeams.length,
+              itemBuilder: (context, index) {
+                final team = otherTeams[index];
+                return TeamCard(
+                  team: team,
+                  currentUser: user,
+                  event: _eventFor(team.eventId, events.events),
+                );
+              },
             ),
+          ],
         ],
       ],
     );
@@ -342,17 +374,36 @@ class _TeamScreenState extends State<TeamScreen> {
   }
 }
 
+class _TeamGroupTitle extends StatelessWidget {
+  const _TeamGroupTitle({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8, top: 4),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+      ),
+    );
+  }
+}
+
 class TeamCard extends StatelessWidget {
   const TeamCard({
     super.key,
     required this.team,
     required this.currentUser,
     required this.event,
+    this.highlighted = false,
   });
 
   final Team team;
   final AppUser? currentUser;
   final HackathonEvent? event;
+  final bool highlighted;
 
   @override
   Widget build(BuildContext context) {
@@ -361,84 +412,104 @@ class TeamCard extends StatelessWidget {
         user != null && team.members.any((member) => member.id == user.id);
     final isLeader = user != null && team.leaderId == user.id;
     final leaderName = _leaderName(team);
-    final eventTitle = event?.title ?? 'Event not loaded';
+    final eventTitle = event?.title ?? 'Chưa tải event';
     final memberLimit = event?.maxTeamSize ?? 0;
     final teamIsFull = memberLimit > 0 && team.members.length >= memberLimit;
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.groups_outlined),
-              title: Text(
-                team.name,
-                style: const TextStyle(fontWeight: FontWeight.w800),
-              ),
-              subtitle: Text(
-                team.members.isEmpty
-                    ? '$eventTitle\nNo members yet'
-                    : '$eventTitle\nLeader: $leaderName\nMembers (${team.members.length}${memberLimit > 0 ? '/$memberLimit' : ''}): ${team.members.map((member) => member.fullName).join(', ')}',
-              ),
-              isThreeLine: true,
-              trailing: isLeader
-                  ? const StatusPill(
+    return Semantics(
+      label:
+          'Team ${team.name}, ${team.members.length} thành viên, leader $leaderName',
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        color: highlighted ? SealPalette.primary.withValues(alpha: 0.08) : null,
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _MemberAvatarStack(members: team.members),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          team.name,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          eventTitle,
+                          style: const TextStyle(
+                            color: SealPalette.onSurfaceVariant,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Leader: $leaderName',
+                          style: const TextStyle(
+                            color: SealPalette.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (isLeader)
+                    const StatusPill(
                       label: 'Leader',
                       color: SealPalette.secondary,
                       icon: Icons.verified_outlined,
                     )
-                  : teamIsFull
-                  ? const StatusPill(
-                      label: 'Full',
+                  else if (teamIsFull)
+                    const StatusPill(
+                      label: 'Đã đầy',
                       color: SealPalette.tertiary,
                       icon: Icons.lock_outline,
-                    )
-                  : null,
-            ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                if (user != null && !isMember && !teamIsFull)
-                  OutlinedButton.icon(
-                    onPressed: () => context.read<TeamProvider>().joinTeam(
-                      team.id,
-                      user,
-                      event: event,
                     ),
-                    icon: const Icon(Icons.group_add_outlined),
-                    label: const Text('Join'),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  StatusPill(
+                    label:
+                        '${team.members.length}${memberLimit > 0 ? '/$memberLimit' : ''} thành viên',
+                    icon: Icons.groups_outlined,
                   ),
-                if (user != null && !isMember && teamIsFull)
-                  const StatusPill(
-                    label: 'Team is full',
-                    color: SealPalette.tertiary,
-                    icon: Icons.lock_outline,
-                  ),
-                if (user != null && isMember)
-                  OutlinedButton.icon(
-                    onPressed: () => _confirmLeaveTeam(context, team, user),
-                    icon: const Icon(Icons.exit_to_app_outlined),
-                    label: const Text('Leave'),
-                  ),
-                if (isLeader)
-                  OutlinedButton.icon(
-                    onPressed: () => _showEditTeamDialog(context, team),
-                    icon: const Icon(Icons.edit_outlined),
-                    label: const Text('Edit'),
-                  ),
-                if (isLeader && !teamIsFull)
-                  OutlinedButton.icon(
-                    onPressed: () => _showInviteDialog(context, team, event),
-                    icon: const Icon(Icons.person_add_alt_outlined),
-                    label: const Text('Invite to this team'),
-                  ),
-              ],
-            ),
-          ],
+                  for (final member in team.members.take(3))
+                    StatusPill(label: member.fullName),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _TeamActions(
+                isLeader: isLeader,
+                isMember: isMember,
+                teamIsFull: teamIsFull,
+                user: user,
+                onSubmit: () => context.go(AppRoutes.submit),
+                onJoin: user == null
+                    ? null
+                    : () => context.read<TeamProvider>().joinTeam(
+                        team.id,
+                        user,
+                        event: event,
+                      ),
+                onLeave: user == null
+                    ? null
+                    : () => _confirmLeaveTeam(context, team, user),
+                onEdit: () => _showEditTeamDialog(context, team),
+                onInvite: () => _showInviteDialog(context, team, event),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -448,7 +519,7 @@ class TeamCard extends StatelessWidget {
     for (final member in team.members) {
       if (member.id == team.leaderId) return member.fullName;
     }
-    return 'Unknown';
+    return 'Chưa rõ';
   }
 
   Future<void> _showEditTeamDialog(BuildContext context, Team team) async {
@@ -456,19 +527,19 @@ class TeamCard extends StatelessWidget {
     final newName = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Update team'),
+        title: const Text('Cập nhật team'),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(labelText: 'Team name'),
+          decoration: const InputDecoration(labelText: 'Tên team'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: const Text('Hủy'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: const Text('Save'),
+            child: const Text('Lưu'),
           ),
         ],
       ),
@@ -485,16 +556,16 @@ class TeamCard extends StatelessWidget {
     final shouldLeave = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Leave team?'),
-        content: Text('You will leave ${team.name}.'),
+        title: const Text('Rời team?'),
+        content: Text('Bạn sẽ rời ${team.name}.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: const Text('Hủy'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Leave'),
+            child: const Text('Rời team'),
           ),
         ],
       ),
@@ -512,6 +583,141 @@ class TeamCard extends StatelessWidget {
   }
 }
 
+class _MemberAvatarStack extends StatelessWidget {
+  const _MemberAvatarStack({required this.members});
+
+  final List<AppUser> members;
+
+  @override
+  Widget build(BuildContext context) {
+    final visible = members.take(3).toList();
+    return SizedBox(
+      width: 58,
+      height: 42,
+      child: Stack(
+        children: [
+          if (visible.isEmpty)
+            const _MemberAvatar(label: '?')
+          else
+            for (var index = 0; index < visible.length; index++)
+              Positioned(
+                left: index * 16,
+                child: _MemberAvatar(label: _initials(visible[index].fullName)),
+              ),
+        ],
+      ),
+    );
+  }
+
+  String _initials(String value) {
+    final parts = value.trim().split(RegExp(r'\s+'));
+    if (parts.isEmpty || parts.first.isEmpty) return '?';
+    final first = parts.first.substring(0, 1);
+    final last = parts.length > 1 && parts.last.isNotEmpty
+        ? parts.last.substring(0, 1)
+        : '';
+    return (first + last).toUpperCase();
+  }
+}
+
+class _MemberAvatar extends StatelessWidget {
+  const _MemberAvatar({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return CircleAvatar(
+      radius: 19,
+      backgroundColor: SealPalette.primaryContainer,
+      foregroundColor: Colors.white,
+      child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
+    );
+  }
+}
+
+class _TeamActions extends StatelessWidget {
+  const _TeamActions({
+    required this.isLeader,
+    required this.isMember,
+    required this.teamIsFull,
+    required this.user,
+    required this.onSubmit,
+    required this.onJoin,
+    required this.onLeave,
+    required this.onEdit,
+    required this.onInvite,
+  });
+
+  final bool isLeader;
+  final bool isMember;
+  final bool teamIsFull;
+  final AppUser? user;
+  final VoidCallback onSubmit;
+  final VoidCallback? onJoin;
+  final VoidCallback? onLeave;
+  final VoidCallback onEdit;
+  final VoidCallback onInvite;
+
+  @override
+  Widget build(BuildContext context) {
+    if (user == null) return const SizedBox.shrink();
+    if (isLeader) {
+      return Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          FilledButton.icon(
+            onPressed: teamIsFull ? null : onInvite,
+            icon: const Icon(Icons.person_add_alt_outlined),
+            label: const Text('Mời'),
+          ),
+          OutlinedButton.icon(
+            onPressed: onEdit,
+            icon: const Icon(Icons.edit_outlined),
+            label: const Text('Sửa'),
+          ),
+          TextButton.icon(
+            onPressed: onSubmit,
+            icon: const Icon(Icons.upload_file_outlined),
+            label: const Text('Nộp bài'),
+          ),
+        ],
+      );
+    }
+    if (isMember) {
+      return Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          FilledButton.icon(
+            onPressed: onSubmit,
+            icon: const Icon(Icons.upload_file_outlined),
+            label: const Text('Nộp project'),
+          ),
+          OutlinedButton.icon(
+            onPressed: onLeave,
+            icon: const Icon(Icons.exit_to_app_outlined),
+            label: const Text('Rời team'),
+          ),
+        ],
+      );
+    }
+    if (teamIsFull) {
+      return const StatusPill(
+        label: 'Team đã đầy',
+        color: SealPalette.tertiary,
+        icon: Icons.lock_outline,
+      );
+    }
+    return FilledButton.icon(
+      onPressed: onJoin,
+      icon: const Icon(Icons.group_add_outlined),
+      label: const Text('Tham gia team'),
+    );
+  }
+}
+
 class TeamInviteFlow {
   const TeamInviteFlow._();
 
@@ -524,7 +730,7 @@ class TeamInviteFlow {
     final email = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Invite member'),
+        title: const Text('Mời thành viên'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -544,18 +750,18 @@ class TeamInviteFlow {
             TextField(
               controller: controller,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: 'Member email'),
+              decoration: const InputDecoration(labelText: 'Email thành viên'),
             ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: const Text('Hủy'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: const Text('Invite'),
+            child: const Text('Gửi lời mời'),
           ),
         ],
       ),
@@ -569,8 +775,8 @@ class TeamInviteFlow {
     if (!context.mounted) return;
     if (invited != null) {
       await context.read<NotificationProvider>().push(
-        'Team invitation',
-        'You were invited to ${team.name}.',
+        'Lời mời vào team',
+        'Bạn được mời vào ${team.name}.',
         'invitation',
         userId: invited.id,
       );

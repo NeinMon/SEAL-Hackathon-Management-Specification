@@ -1,4 +1,8 @@
-part of '../main.dart';
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:supabase/supabase.dart';
 
 class AppRoles {
   const AppRoles._();
@@ -10,6 +14,16 @@ class AppRoles {
 
   static const participantCreators = {participant, organizer};
   static const scorers = {judge, organizer};
+
+  static String label(String role) {
+    return switch (role) {
+      participant => 'Thí sinh',
+      judge => 'Giám khảo',
+      mentor => 'Mentor',
+      organizer => 'Ban tổ chức',
+      _ => role,
+    };
+  }
 }
 
 class AppRoutes {
@@ -45,7 +59,20 @@ class AppValidators {
   static String? scoreError(double technical, double ui, double innovation) {
     final values = [technical, ui, innovation];
     final inRange = values.every((score) => score >= 0 && score <= 10);
-    return inRange ? null : 'Scores must be between 0 and 10.';
+    return inRange ? null : 'Điểm phải nằm trong khoảng 0 đến 10.';
+  }
+}
+
+class AppLabels {
+  const AppLabels._();
+
+  static String submissionStatus(String status) {
+    return switch (status) {
+      'reviewed' => 'Đã chấm',
+      'submitted' => 'Đã nộp',
+      'draft' => 'Bản nháp',
+      _ => status,
+    };
   }
 }
 
@@ -83,7 +110,11 @@ class AppLogger {
   const AppLogger._();
 
   static void info(String event, [Map<String, Object?>? fields]) {
-    debugPrint('[seal][info] $event ${fields ?? const {}}');
+    debugPrint('[seal][info] $event ${_safeFields(fields)}');
+  }
+
+  static void action(String event, [Map<String, Object?>? fields]) {
+    debugPrint('[seal][action] $event ${_safeFields(fields)}');
   }
 
   static void error(
@@ -92,29 +123,59 @@ class AppLogger {
     Map<String, Object?>? fields,
   ]) {
     debugPrint(
-      '[seal][error] $event ${fields ?? const {}} message=${FriendlyErrorMapper.message(exception)}',
+      '[seal][error] $event ${_safeFields(fields)} message=${FriendlyErrorMapper.message(exception)}',
     );
   }
+
+  static Map<String, Object?> _safeFields(Map<String, Object?>? fields) {
+    if (fields == null) return const {};
+    return {
+      for (final entry in fields.entries)
+        if (!_sensitiveKeys.contains(entry.key.toLowerCase()))
+          entry.key: entry.value,
+    };
+  }
+
+  static const _sensitiveKeys = {
+    'password',
+    'token',
+    'apikey',
+    'api_key',
+    'anonkey',
+    'anon_key',
+    'servicerolekey',
+    'service_role_key',
+  };
 }
 
 class FriendlyErrorMapper {
   const FriendlyErrorMapper._();
 
+  static bool looksLikeNetworkError(Object exception) {
+    final text = exception.toString().toLowerCase();
+    return exception is TimeoutException ||
+        text.contains('socket') ||
+        text.contains('network') ||
+        text.contains('connection') ||
+        text.contains('timed out') ||
+        text.contains('failed host lookup');
+  }
+
   static String message(Object exception) {
     if (exception is AuthException) return exception.message;
     if (exception is TimeoutException) {
-      return 'Connection timed out. Check your network and try again.';
+      return 'Kết nối quá lâu. Kiểm tra mạng rồi thử lại.';
     }
     if (exception is PostgrestException) {
       final text = exception.message.toLowerCase();
       if (exception.code == '42501' || text.contains('row-level security')) {
-        return 'Permission denied for this action. Check the logged-in role and make sure the latest RLS migrations are applied.';
+        return 'Tài khoản hiện tại không có quyền thực hiện thao tác này. Kiểm tra role đăng nhập và migrations RLS.';
       }
       if (exception.code == '23505') {
-        return 'This record already exists. Refresh the screen and update the existing item instead.';
+        return 'Dữ liệu này đã tồn tại. Tải lại màn hình rồi cập nhật bản ghi hiện có.';
       }
       if (exception.code == '23514') {
-        return 'The submitted data failed a database rule. Check score ranges, status, and notification type.';
+        return 'Dữ liệu chưa đạt quy tắc của database. Kiểm tra điểm, trạng thái và loại thông báo.';
       }
       return exception.message;
     }

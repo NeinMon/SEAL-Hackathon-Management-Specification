@@ -1,4 +1,4 @@
-﻿part of '../main.dart';
+import 'app_user.dart';
 
 class Team {
   const Team({

@@ -1,4 +1,4 @@
-part of '../../main.dart';
+import '../../shared.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -8,6 +8,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final formKey = GlobalKey<FormState>();
   final email = TextEditingController();
   final password = TextEditingController();
   final name = TextEditingController();
@@ -74,150 +75,191 @@ class _LoginScreenState extends State<LoginScreen> {
                         Card(
                           child: Padding(
                             padding: const EdgeInsets.all(24),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text(
-                                  registerMode
-                                      ? 'Create your account'
-                                      : 'Sign in',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 0.6,
-                                    color: SealPalette.onSurfaceVariant,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                if (registerMode) ...[
-                                  TextField(
-                                    controller: name,
-                                    textInputAction: TextInputAction.next,
-                                    autofillHints: const [AutofillHints.name],
-                                    decoration: const InputDecoration(
-                                      labelText: 'Full name',
-                                      prefixIcon: Icon(Icons.badge_outlined),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  TextField(
-                                    controller: university,
-                                    textInputAction: TextInputAction.next,
-                                    decoration: const InputDecoration(
-                                      labelText: 'University',
-                                      prefixIcon: Icon(Icons.school_outlined),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                ],
-                                TextField(
-                                  controller: email,
-                                  keyboardType: TextInputType.emailAddress,
-                                  textInputAction: TextInputAction.next,
-                                  autofillHints: const [AutofillHints.email],
-                                  decoration: const InputDecoration(
-                                    labelText: 'Email address',
-                                    prefixIcon: Icon(Icons.alternate_email),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                TextField(
-                                  controller: password,
-                                  obscureText: !showPassword,
-                                  textInputAction: TextInputAction.done,
-                                  autofillHints: const [AutofillHints.password],
-                                  decoration: InputDecoration(
-                                    labelText: 'Password',
-                                    prefixIcon: const Icon(Icons.lock_outline),
-                                    suffixIcon: IconButton(
-                                      tooltip: showPassword
-                                          ? 'Hide password'
-                                          : 'Show password',
-                                      onPressed: () => setState(
-                                        () => showPassword = !showPassword,
-                                      ),
-                                      icon: Icon(
-                                        showPassword
-                                            ? Icons.visibility_off_outlined
-                                            : Icons.visibility_outlined,
+                            child: Form(
+                              key: formKey,
+                              child: AutofillGroup(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Text(
+                                      registerMode
+                                          ? 'Tạo tài khoản'
+                                          : 'Đăng nhập',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: 0.6,
+                                        color: SealPalette.onSurfaceVariant,
                                       ),
                                     ),
-                                  ),
-                                ),
-                                if (registerMode) ...[
-                                  const SizedBox(height: 12),
-                                  DropdownButtonFormField<String>(
-                                    initialValue: role,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Account role',
-                                      prefixIcon: Icon(
-                                        Icons.verified_user_outlined,
+                                    const SizedBox(height: 16),
+                                    if (registerMode) ...[
+                                      TextFormField(
+                                        controller: name,
+                                        textInputAction: TextInputAction.next,
+                                        autofillHints: const [
+                                          AutofillHints.name,
+                                        ],
+                                        validator: (value) =>
+                                            (value ?? '').trim().length < 2
+                                            ? 'Nhập họ tên của bạn.'
+                                            : null,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Họ tên',
+                                          prefixIcon: Icon(
+                                            Icons.badge_outlined,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      TextFormField(
+                                        controller: university,
+                                        textInputAction: TextInputAction.next,
+                                        autofillHints: const [
+                                          AutofillHints.organizationName,
+                                        ],
+                                        validator: (value) =>
+                                            (value ?? '').trim().length < 2
+                                            ? 'Nhập trường của bạn.'
+                                            : null,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Trường',
+                                          prefixIcon: Icon(
+                                            Icons.school_outlined,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                    ],
+                                    TextFormField(
+                                      controller: email,
+                                      keyboardType: TextInputType.emailAddress,
+                                      textInputAction: TextInputAction.next,
+                                      autofillHints: const [
+                                        AutofillHints.email,
+                                      ],
+                                      validator: (value) =>
+                                          AppValidators.isValidEmail(
+                                            value ?? '',
+                                          )
+                                          ? null
+                                          : 'Nhập email hợp lệ.',
+                                      decoration: const InputDecoration(
+                                        labelText: 'Email',
+                                        prefixIcon: Icon(Icons.alternate_email),
                                       ),
                                     ),
-                                    items: const [
-                                      DropdownMenuItem(
-                                        value: 'participant',
-                                        child: Text('Participant'),
+                                    const SizedBox(height: 12),
+                                    TextFormField(
+                                      controller: password,
+                                      obscureText: !showPassword,
+                                      textInputAction: TextInputAction.done,
+                                      autofillHints: const [
+                                        AutofillHints.password,
+                                      ],
+                                      validator: (value) =>
+                                          (value ?? '').length < 6
+                                          ? 'Mật khẩu cần ít nhất 6 ký tự.'
+                                          : null,
+                                      decoration: InputDecoration(
+                                        labelText: 'Mật khẩu',
+                                        prefixIcon: const Icon(
+                                          Icons.lock_outline,
+                                        ),
+                                        suffixIcon: IconButton(
+                                          tooltip: showPassword
+                                              ? 'Ẩn mật khẩu'
+                                              : 'Hiện mật khẩu',
+                                          onPressed: () => setState(
+                                            () => showPassword = !showPassword,
+                                          ),
+                                          icon: Icon(
+                                            showPassword
+                                                ? Icons.visibility_off_outlined
+                                                : Icons.visibility_outlined,
+                                          ),
+                                        ),
                                       ),
-                                      DropdownMenuItem(
-                                        value: 'judge',
-                                        child: Text('Judge'),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 'mentor',
-                                        child: Text('Mentor'),
-                                      ),
-                                      DropdownMenuItem(
-                                        value: 'organizer',
-                                        child: Text('Organizer'),
+                                    ),
+                                    if (registerMode) ...[
+                                      const SizedBox(height: 12),
+                                      DropdownButtonFormField<String>(
+                                        initialValue: role,
+                                        decoration: const InputDecoration(
+                                          labelText: 'Role tài khoản',
+                                          prefixIcon: Icon(
+                                            Icons.verified_user_outlined,
+                                          ),
+                                        ),
+                                        items: const [
+                                          DropdownMenuItem(
+                                            value: 'participant',
+                                            child: Text('Thí sinh'),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: 'judge',
+                                            child: Text('Giám khảo'),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: 'mentor',
+                                            child: Text('Mentor'),
+                                          ),
+                                          DropdownMenuItem(
+                                            value: 'organizer',
+                                            child: Text('Ban tổ chức'),
+                                          ),
+                                        ],
+                                        onChanged: (value) => setState(() {
+                                          role = value!;
+                                        }),
                                       ),
                                     ],
-                                    onChanged: (value) => setState(() {
-                                      role = value!;
-                                    }),
-                                  ),
-                                ],
-                                if (!registerMode) ...[
-                                  const SizedBox(height: 12),
-                                  const Text(
-                                    'Your role is managed by your account profile.',
-                                    style: TextStyle(
-                                      color: SealPalette.onSurfaceVariant,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
+                                    if (!registerMode) ...[
+                                      const SizedBox(height: 12),
+                                      const Text(
+                                        'Role được quản lý theo hồ sơ tài khoản.',
+                                        style: TextStyle(
+                                          color: SealPalette.onSurfaceVariant,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                    if (auth.error != null) ...[
+                                      const SizedBox(height: 12),
+                                      Text(
+                                        auth.error!,
+                                        style: TextStyle(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.error,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                    const SizedBox(height: 20),
+                                    FilledButton.icon(
+                                      onPressed: auth.isLoading
+                                          ? null
+                                          : () => _submit(context),
+                                      icon: auth.isLoading
+                                          ? const SizedBox.square(
+                                              dimension: 18,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                              ),
+                                            )
+                                          : const Icon(Icons.login),
+                                      label: Text(
+                                        registerMode
+                                            ? 'Tạo tài khoản'
+                                            : 'Đăng nhập',
+                                      ),
                                     ),
-                                  ),
-                                ],
-                                if (auth.error != null) ...[
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    auth.error!,
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.error,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ],
-                                const SizedBox(height: 20),
-                                FilledButton.icon(
-                                  onPressed: auth.isLoading
-                                      ? null
-                                      : () => _submit(context),
-                                  icon: auth.isLoading
-                                      ? const SizedBox.square(
-                                          dimension: 18,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : const Icon(Icons.login),
-                                  label: Text(
-                                    registerMode ? 'Create account' : 'Sign in',
-                                  ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
@@ -236,8 +278,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                               label: Text(
                                 registerMode
-                                    ? 'I already have an account'
-                                    : 'Create new account',
+                                    ? 'Tôi đã có tài khoản'
+                                    : 'Tạo tài khoản mới',
                               ),
                             ),
                           ],
@@ -255,6 +297,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _submit(BuildContext context) async {
+    if (!formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
     if (registerMode) {
       await auth.register(
@@ -267,6 +310,7 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       await auth.login(email.text, password.text);
     }
+    TextInput.finishAutofillContext();
     if (context.mounted && auth.user != null) {
       context.go(_homeForRole(auth.user!.role));
     }
@@ -316,7 +360,7 @@ class _LoginHero extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         const Text(
-          'Events, teams, submissions, scoring, messages, and venue support in one mobile workspace.',
+          'Quản lý event, team, bài nộp, chấm điểm, tin nhắn và địa điểm trong một app mobile.',
           textAlign: TextAlign.center,
           style: TextStyle(color: SealPalette.onSurfaceVariant, height: 1.35),
         ),

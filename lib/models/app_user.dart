@@ -1,5 +1,3 @@
-﻿part of '../main.dart';
-
 class AppUser {
   const AppUser({
     required this.id,

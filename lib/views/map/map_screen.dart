@@ -1,4 +1,4 @@
-part of '../../main.dart';
+import '../../shared.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -24,8 +24,8 @@ class _MapScreenState extends State<MapScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           const SealSectionHeader(
-            title: 'Venue',
-            subtitle: 'Map marker and external navigation support.',
+            title: 'Địa điểm',
+            subtitle: 'Bản đồ, địa chỉ và hỗ trợ mở app chỉ đường.',
             icon: Icons.map_outlined,
           ),
           const LoadingCardList(itemCount: 2),
@@ -37,11 +37,14 @@ class _MapScreenState extends State<MapScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           SealSectionHeader(
-            title: 'Venue',
-            subtitle: 'Map marker and external navigation support.',
+            title: 'Địa điểm',
+            subtitle: 'Bản đồ, địa chỉ và hỗ trợ mở app chỉ đường.',
             icon: Icons.map_outlined,
           ),
-          StatusBanner(message: eventProvider.error!, isError: true),
+          ErrorState(
+            message: eventProvider.error!,
+            onRetry: eventProvider.loadEvents,
+          ),
         ],
       );
     }
@@ -50,11 +53,11 @@ class _MapScreenState extends State<MapScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           SealSectionHeader(
-            title: 'Venue',
-            subtitle: 'Map marker and external navigation support.',
+            title: 'Địa điểm',
+            subtitle: 'Bản đồ, địa chỉ và hỗ trợ mở app chỉ đường.',
             icon: Icons.map_outlined,
           ),
-          EmptyState(message: 'No event location available.'),
+          EmptyState(message: 'Chưa có địa điểm event.'),
         ],
       );
     }
@@ -64,8 +67,8 @@ class _MapScreenState extends State<MapScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         SealSectionHeader(
-          title: 'Venue',
-          subtitle: 'Map marker and external navigation support.',
+          title: 'Địa điểm',
+          subtitle: 'Bản đồ, địa chỉ và hỗ trợ mở app chỉ đường.',
           icon: Icons.map_outlined,
         ),
         Card(
@@ -117,44 +120,46 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 14),
                 Text(
                   event.location,
                   style: const TextStyle(
                     fontSize: 22,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    const InfoChip(
-                      icon: Icons.phone_outlined,
-                      text: '0900 000 000',
-                    ),
-                    const InfoChip(
-                      icon: Icons.access_time_outlined,
-                      text: '08:00 - 18:00',
-                    ),
-                    InfoChip(
-                      icon: Icons.gps_fixed_outlined,
-                      text: '${event.latitude}, ${event.longitude}',
-                    ),
-                  ],
+                const SizedBox(height: 12),
+                _VenueInfoTile(
+                  icon: Icons.place_outlined,
+                  label: 'Địa chỉ',
+                  value: event.location,
+                ),
+                const _VenueInfoTile(
+                  icon: Icons.access_time_outlined,
+                  label: 'Giờ mở',
+                  value: '08:00 - 18:00',
+                ),
+                const _VenueInfoTile(
+                  icon: Icons.phone_outlined,
+                  label: 'Hotline',
+                  value: '0900 000 000',
+                ),
+                _VenueInfoTile(
+                  icon: Icons.gps_fixed_outlined,
+                  label: 'Tọa độ',
+                  value: '${event.latitude}, ${event.longitude}',
                 ),
                 const SizedBox(height: 16),
                 FilledButton.icon(
                   onPressed: () => _copyAddress(context, event.location),
                   icon: const Icon(Icons.copy_outlined),
-                  label: const Text('Copy address'),
+                  label: const Text('Copy địa chỉ'),
                 ),
                 const SizedBox(height: 8),
                 OutlinedButton.icon(
                   onPressed: () => _confirmExternalMap(context, event),
                   icon: const Icon(Icons.directions_outlined),
-                  label: const Text('Open in Maps'),
+                  label: const Text('Mở Maps'),
                 ),
               ],
             ),
@@ -171,18 +176,18 @@ class _MapScreenState extends State<MapScreen> {
     final shouldOpen = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Open external Maps?'),
+        title: const Text('Mở Maps bên ngoài?'),
         content: const Text(
-          'This leaves SEAL Hackathon. Use Android Back or Recent Apps to return.',
+          'Bạn sẽ rời SEAL Hackathon tạm thời. Dùng nút Back hoặc Recent Apps để quay lại.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Stay here'),
+            child: const Text('Ở lại'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Open Maps'),
+            child: const Text('Mở Maps'),
           ),
         ],
       ),
@@ -198,6 +203,58 @@ class _MapScreenState extends State<MapScreen> {
     if (!context.mounted) return;
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Address copied.')));
+    ).showSnackBar(const SnackBar(content: Text('Đã copy địa chỉ.')));
+  }
+}
+
+class _VenueInfoTile extends StatelessWidget {
+  const _VenueInfoTile({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              color: SealPalette.primary.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: SealPalette.primary, size: 18),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: SealPalette.onSurfaceVariant,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  value,
+                  style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

@@ -1,4 +1,9 @@
-part of '../main.dart';
+import 'package:flutter/foundation.dart';
+import 'package:supabase/supabase.dart';
+
+import '../core/app_helpers.dart';
+import '../models/app_user.dart';
+import '../services/supabase_services.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthService _service = const AuthService();
@@ -33,7 +38,7 @@ class AuthProvider extends ChangeNotifier {
       final cleanEmail = email.trim();
       if (!AppValidators.isValidEmail(cleanEmail) || password.length < 6) {
         throw const AuthException(
-          'Enter a valid email and a password with at least 6 characters.',
+          'Nhập email hợp lệ và mật khẩu ít nhất 6 ký tự.',
         );
       }
       user = await _service.login(cleanEmail, password);
@@ -62,11 +67,11 @@ class AuthProvider extends ChangeNotifier {
       final cleanUniversity = university.trim();
       if (!AppValidators.isValidEmail(cleanEmail) || password.length < 6) {
         throw const AuthException(
-          'Enter a valid email and a password with at least 6 characters.',
+          'Nhập email hợp lệ và mật khẩu ít nhất 6 ký tự.',
         );
       }
       if (cleanName.length < 2 || cleanUniversity.length < 2) {
-        throw const AuthException('Full name and university are required.');
+        throw const AuthException('Họ tên và trường là bắt buộc.');
       }
       user = await _service.register(
         fullName: cleanName,
@@ -98,7 +103,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
     try {
       if (fullName.trim().length < 2 || university.trim().length < 2) {
-        throw const AuthException('Full name and university are required.');
+        throw const AuthException('Họ tên và trường là bắt buộc.');
       }
       user = await _service.updateProfile(
         userId: current.id,

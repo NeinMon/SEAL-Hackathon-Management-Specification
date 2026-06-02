@@ -1,5 +1,3 @@
-part of '../main.dart';
-
 class ChatMessage {
   ChatMessage({
     required this.id,

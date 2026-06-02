@@ -1,5 +1,3 @@
-﻿part of '../main.dart';
-
 class ProjectScore {
   const ProjectScore({
     required this.submissionId,

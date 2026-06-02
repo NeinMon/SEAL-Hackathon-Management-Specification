@@ -1,4 +1,14 @@
-part of '../main.dart';
+import 'package:supabase/supabase.dart';
+
+import '../core/app_helpers.dart';
+import '../core/supabase_config.dart';
+import '../models/app_notification.dart';
+import '../models/app_user.dart';
+import '../models/chat_message.dart';
+import '../models/hackathon_event.dart';
+import '../models/project_score.dart';
+import '../models/project_submission.dart';
+import '../models/team.dart';
 
 class AuthService {
   const AuthService();
@@ -117,6 +127,31 @@ class UserDirectoryService {
   }
 }
 
+class AdminService {
+  const AdminService();
+
+  Future<String> resetDemoData() {
+    AppLogger.action('admin.reset_demo');
+    return AppOperation.run('admin.reset_demo', () async {
+      final response = await SupabaseGateway.client.functions.invoke(
+        'admin-reset-demo',
+        body: {'source': 'organizer_app'},
+      );
+      final data = response.data;
+      if (response.status < 200 || response.status >= 300) {
+        if (data is Map && data['error'] != null) {
+          throw Exception(data['error']);
+        }
+        throw Exception('Không thể reset dữ liệu demo.');
+      }
+      if (data is Map && data['message'] is String) {
+        return data['message'] as String;
+      }
+      return 'Đã reset dữ liệu demo.';
+    });
+  }
+}
+
 class EventService {
   const EventService();
 
@@ -135,6 +170,10 @@ class EventService {
 
   Future<void> saveEvent(HackathonEvent event, {String? existingEventId}) {
     final payload = event.toJson();
+    AppLogger.action('event.save', {
+      'event_id': existingEventId ?? event.id,
+      'mode': existingEventId == null ? 'create' : 'update',
+    });
     return AppOperation.run('events.save', () {
       if (existingEventId == null) {
         return SupabaseGateway.client.from('events').insert(payload);
@@ -167,6 +206,10 @@ class TeamService {
     required String eventId,
     required String leaderId,
   }) async {
+    AppLogger.action('team.create', {
+      'event_id': eventId,
+      'leader_id': leaderId,
+    });
     return AppOperation.run('teams.create', () async {
       final row = await SupabaseGateway.client
           .from('teams')
@@ -181,6 +224,7 @@ class TeamService {
   }
 
   Future<void> joinTeam(String teamId, String userId) {
+    AppLogger.action('team.join', {'team_id': teamId, 'user_id': userId});
     return AppOperation.run('teams.join', () {
       return SupabaseGateway.client.from('team_members').upsert({
         'team_id': teamId,
@@ -190,6 +234,7 @@ class TeamService {
   }
 
   Future<void> inviteMemberByEmail(String teamId, String email) async {
+    AppLogger.action('team.invite', {'team_id': teamId, 'email': email});
     return AppOperation.run('teams.invite', () async {
       final user = await SupabaseGateway.client
           .from('users')
@@ -207,6 +252,7 @@ class TeamService {
   }
 
   Future<void> updateTeamName(String teamId, String name) {
+    AppLogger.action('team.rename', {'team_id': teamId});
     return AppOperation.run('teams.update_name', () {
       return SupabaseGateway.client
           .from('teams')
@@ -216,6 +262,7 @@ class TeamService {
   }
 
   Future<void> leaveTeam(String teamId, String userId) {
+    AppLogger.action('team.leave', {'team_id': teamId, 'user_id': userId});
     return AppOperation.run('teams.leave', () {
       return SupabaseGateway.client
           .from('team_members')
@@ -254,6 +301,12 @@ class SubmissionService {
       'description': submission.description,
       'status': submission.status,
     };
+    AppLogger.action('submission.save', {
+      'submission_id': existingSubmissionId ?? submission.id,
+      'team_id': submission.teamId,
+      'status': submission.status,
+      'mode': existingSubmissionId == null ? 'create' : 'update',
+    });
     return AppOperation.run('submissions.save', () {
       if (existingSubmissionId != null) {
         return SupabaseGateway.client
@@ -293,6 +346,11 @@ class ScoreService {
   }
 
   Future<void> createScore(ProjectScore score) {
+    AppLogger.action('score.upsert', {
+      'submission_id': score.submissionId,
+      'judge_id': score.judgeId,
+      'average': score.average,
+    });
     return AppOperation.run('scores.upsert', () {
       return SupabaseGateway.client.from('scores').upsert({
         'submission_id': score.submissionId,
@@ -330,6 +388,7 @@ class NotificationService {
     required String content,
     required String type,
   }) {
+    AppLogger.action('notification.create', {'user_id': userId, 'type': type});
     return AppOperation.run('notifications.create', () {
       return SupabaseGateway.client.from('notifications').insert({
         'user_id': userId,
@@ -434,6 +493,10 @@ class ChatService {
     required String receiverId,
     required String message,
   }) {
+    AppLogger.action('chat.send', {
+      'sender_id': senderId,
+      'receiver_id': receiverId,
+    });
     return AppOperation.run('chat.send', () {
       return SupabaseGateway.client.from('messages').insert({
         'sender_id': senderId,

@@ -1,4 +1,9 @@
-part of '../main.dart';
+import 'package:flutter/foundation.dart';
+
+import '../core/app_helpers.dart';
+import '../core/supabase_config.dart';
+import '../models/app_notification.dart';
+import '../services/supabase_services.dart';
 
 class NotificationProvider extends ChangeNotifier {
   final NotificationService _service = const NotificationService();

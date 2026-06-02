@@ -1,4 +1,4 @@
-part of '../../main.dart';
+import '../../shared.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -57,15 +57,14 @@ class _ChatScreenState extends State<ChatScreen> {
         AppRoles.mentor,
         AppRoles.organizer,
       },
-      message: 'Chat is available for participants, mentors, and organizers.',
+      message: 'Chat khả dụng cho thí sinh, mentor và ban tổ chức.',
       child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
             child: SealSectionHeader(
               title: 'Mentor Chat',
-              subtitle:
-                  'Coordinate with mentors and organizers during the contest.',
+              subtitle: 'Trao đổi với mentor và ban tổ chức trong cuộc thi.',
               icon: Icons.chat_outlined,
             ),
           ),
@@ -78,7 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               initialValue: chat.selectedContact?.id,
               decoration: const InputDecoration(
-                labelText: 'Chat with mentor / organizer',
+                labelText: 'Chat với mentor / ban tổ chức',
                 prefixIcon: Icon(Icons.support_agent_outlined),
               ),
               items: [
@@ -103,82 +102,111 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           if (chat.error != null)
-            StatusBanner(message: chat.error!, isError: true),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: ErrorState(
+                message: chat.error!,
+                onRetry: user == null || chat.selectedContact == null
+                    ? null
+                    : () => chat.load(user.id, chat.selectedContact!.id),
+              ),
+            ),
           if (chat.contacts.isEmpty)
             const StatusBanner(
-              message:
-                  'No mentor or organizer account found. Create a mentor account to chat.',
+              message: 'Chưa có tài khoản mentor hoặc ban tổ chức để chat.',
               isError: true,
             ),
           Expanded(
             child: chat.isLoading
                 ? const Padding(
                     padding: EdgeInsets.all(16),
-                    child: LoadingCardList(itemCount: 3),
+                    child: ChatSkeleton(),
                   )
-                : ListView(
+                : ListView.builder(
                     controller: scrollController,
                     padding: const EdgeInsets.all(16),
-                    children: [
-                      if (messages.isEmpty)
-                        const EmptyState(message: 'No messages yet')
-                      else ...[
-                        Center(
-                          child: StatusPill(
-                            label:
-                                'Today, ${DateFormat('HH:mm').format(DateTime.now())}',
-                            color: SealPalette.onSurfaceVariant,
-                            icon: Icons.schedule_outlined,
+                    itemCount: messages.isEmpty ? 1 : messages.length + 2,
+                    itemBuilder: (context, index) {
+                      if (messages.isEmpty) {
+                        return const _EmptyChatState();
+                      }
+                      if (index == 0) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 14),
+                            child: StatusPill(
+                              label:
+                                  'Hôm nay, ${DateFormat('HH:mm').format(DateTime.now())}',
+                              color: SealPalette.onSurfaceVariant,
+                              icon: Icons.schedule_outlined,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 14),
-                        for (final message in messages)
-                          _MessageBubble(message: message, currentUser: user),
-                      ],
-                    ],
+                        );
+                      }
+                      if (index == messages.length + 1) {
+                        return const SizedBox(height: 4);
+                      }
+                      return _MessageBubble(
+                        message: messages[index - 1],
+                        currentUser: user,
+                      );
+                    },
                   ),
           ),
           Padding(
-            padding: const EdgeInsets.all(12),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: controller,
-                    decoration: const InputDecoration(
-                      hintText: 'Ask a mentor...',
-                      prefixIcon: Icon(Icons.chat_bubble_outline),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: SealPalette.surfaceContainerLow,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: SealPalette.outlineVariant),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: controller,
+                      minLines: 1,
+                      maxLines: 3,
+                      decoration: const InputDecoration(
+                        hintText: 'Hỏi mentor...',
+                        prefixIcon: Icon(Icons.chat_bubble_outline),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                IconButton.filled(
-                  tooltip: 'Send',
-                  onPressed:
-                      user == null ||
-                          chat.selectedContact == null ||
-                          chat.isLoading ||
-                          chat.isSending ||
-                          controller.text.trim().isEmpty
-                      ? null
-                      : () async {
-                          await chat.send(
-                            user.fullName,
-                            controller.text,
-                            senderId: user.id,
-                            receiverId: chat.selectedContact!.id,
-                          );
-                          controller.clear();
-                          _scrollToLatest();
-                        },
-                  icon: chat.isSending
-                      ? const SizedBox.square(
-                          dimension: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.send),
-                ),
-              ],
+                  const SizedBox(width: 8),
+                  IconButton.filled(
+                    tooltip: 'Gửi',
+                    onPressed:
+                        user == null ||
+                            chat.selectedContact == null ||
+                            chat.isLoading ||
+                            chat.isSending ||
+                            controller.text.trim().isEmpty
+                        ? null
+                        : () async {
+                            await chat.send(
+                              user.fullName,
+                              controller.text,
+                              senderId: user.id,
+                              receiverId: chat.selectedContact!.id,
+                            );
+                            controller.clear();
+                            _scrollToLatest();
+                          },
+                    icon: chat.isSending
+                        ? const SizedBox.square(
+                            dimension: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.send),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -205,40 +233,46 @@ class _MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mine = message.senderId == currentUser?.id;
-    return Align(
-      alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * 0.78,
-        ),
-        child: GestureDetector(
-          onLongPress: mine && currentUser != null
-              ? () => _confirmDelete(context, currentUser!.id)
-              : null,
-          child: Card(
-            color: mine
-                ? SealPalette.primaryContainer.withValues(alpha: 0.95)
-                : SealPalette.surfaceContainerHigh,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    mine ? 'Me' : message.sender,
-                    style: const TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(message.message),
-                  const SizedBox(height: 6),
-                  Text(
-                    DateFormat('HH:mm').format(message.createdAt),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: SealPalette.onSurfaceVariant,
+    final senderLabel = mine ? 'Tin nhắn của bạn' : message.sender;
+    return Semantics(
+      label:
+          '$senderLabel lúc ${DateFormat('HH:mm').format(message.createdAt)}',
+      child: Align(
+        alignment: mine ? Alignment.centerRight : Alignment.centerLeft,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.sizeOf(context).width * (mine ? 0.68 : 0.76),
+          ),
+          child: GestureDetector(
+            onLongPress: mine && currentUser != null
+                ? () => _confirmDelete(context, currentUser!.id)
+                : null,
+            child: Card(
+              margin: const EdgeInsets.only(bottom: 8),
+              color: mine
+                  ? SealPalette.primaryContainer.withValues(alpha: 0.95)
+                  : SealPalette.surfaceContainerHigh,
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      mine ? 'Tôi' : message.sender,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(message.message),
+                    const SizedBox(height: 6),
+                    Text(
+                      DateFormat('HH:mm').format(message.createdAt),
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: SealPalette.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -251,21 +285,47 @@ class _MessageBubble extends StatelessWidget {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete message?'),
-        content: const Text('This removes your message from the conversation.'),
+        title: const Text('Xóa tin nhắn?'),
+        content: const Text('Tin nhắn của bạn sẽ bị xóa khỏi cuộc trò chuyện.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: const Text('Hủy'),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: const Text('Xóa'),
           ),
         ],
       ),
     );
     if (shouldDelete != true || !context.mounted) return;
     await context.read<ChatProvider>().deleteMessage(message, userId);
+  }
+}
+
+class _EmptyChatState extends StatelessWidget {
+  const _EmptyChatState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const EmptyState(
+          icon: Icons.chat_bubble_outline,
+          message: 'Chưa có tin nhắn.',
+        ),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 8,
+          runSpacing: 8,
+          children: const [
+            StatusPill(label: 'Hỏi về bài nộp'),
+            StatusPill(label: 'Review GitHub link'),
+            StatusPill(label: 'Checklist demo'),
+          ],
+        ),
+      ],
+    );
   }
 }

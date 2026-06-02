@@ -1,4 +1,4 @@
-part of '../../main.dart';
+import '../../shared.dart';
 
 class EventDetailScreen extends StatefulWidget {
   const EventDetailScreen({super.key, required this.eventId});
@@ -29,8 +29,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           const SealSectionHeader(
-            title: 'Event Detail',
-            subtitle: 'Loading hackathon information from the event catalog.',
+            title: 'Chi tiết Event',
+            subtitle: 'Đang tải thông tin hackathon từ hệ thống.',
             icon: Icons.event_outlined,
           ),
           if (eventProvider.error != null)
@@ -43,7 +43,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               ),
             )
           else
-            const EmptyState(message: 'Event not found.'),
+            const EmptyState(message: 'Không tìm thấy event.'),
         ],
       );
     }
@@ -61,8 +61,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             (a, b) =>
                 scores.averageFor(b.id).compareTo(scores.averageFor(a.id)),
           );
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    final overview = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Card(
           clipBehavior: Clip.antiAlias,
@@ -71,11 +71,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             children: [
               AspectRatio(
                 aspectRatio: 16 / 8,
-                child: Image.network(
-                  event.bannerUrl,
+                child: EventNetworkImage(
+                  url: event.bannerUrl,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const EventImageFallback(),
                 ),
               ),
               Padding(
@@ -85,7 +83,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   children: [
                     StatusPill(
                       label:
-                          'Registration closes ${DateFormat('dd/MM').format(event.registrationDeadline)}',
+                          'Đóng đăng ký ${DateFormat('dd/MM').format(event.registrationDeadline)}',
                       color: SealPalette.tertiary,
                       icon: Icons.schedule_outlined,
                     ),
@@ -126,65 +124,94 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             InfoChip(icon: Icons.place_outlined, text: event.location),
             InfoChip(
               icon: Icons.groups_outlined,
-              text: 'Max ${event.maxTeamSize} members',
+              text: 'Tối đa ${event.maxTeamSize} thành viên',
             ),
           ],
         ),
         const SizedBox(height: 16),
-        DetailTile(title: 'Rules', value: event.rules),
-        DetailTile(title: 'Prize', value: event.prize),
+        DetailTile(title: 'Luật thi', value: event.rules),
+        DetailTile(title: 'Giải thưởng', value: event.prize),
         const SizedBox(height: 12),
         _EventRoleActions(role: role),
-        const SizedBox(height: 16),
+      ],
+    );
+    final leaderboard = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
         const Text(
-          'Leaderboard',
+          'Bảng xếp hạng',
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 8),
         if (eventSubmissions.isEmpty)
-          const EmptyState(message: 'No scored submissions yet')
+          const EmptyState(message: 'Chưa có bài nào được chấm.')
         else
-          for (final submission in eventSubmissions)
-            Card(
-              margin: const EdgeInsets.only(bottom: 8),
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: SealPalette.primary.withValues(alpha: 0.14),
-                  child: Text(
-                    '#${eventSubmissions.indexOf(submission) + 1}',
-                    style: const TextStyle(
-                      color: SealPalette.primary,
-                      fontWeight: FontWeight.w900,
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: eventSubmissions.length,
+            itemBuilder: (context, index) {
+              final submission = eventSubmissions[index];
+              return Card(
+                margin: const EdgeInsets.only(bottom: 8),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: SealPalette.primary.withValues(
+                      alpha: 0.14,
                     ),
-                  ),
-                ),
-                title: Text(submission.projectName),
-                subtitle: Text(
-                  '${_teamName(submission.teamId, eventTeams)}\n${scores.scoreCountFor(submission.id)} judge score${scores.scoreCountFor(submission.id) == 1 ? '' : 's'}',
-                ),
-                isThreeLine: true,
-                trailing: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      scores.averageFor(submission.id).toStringAsFixed(1),
+                    child: Text(
+                      '#${index + 1}',
                       style: const TextStyle(
-                        fontSize: 18,
+                        color: SealPalette.primary,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
-                    const Text(
-                      'avg',
-                      style: TextStyle(
-                        color: SealPalette.onSurfaceVariant,
-                        fontSize: 12,
+                  ),
+                  title: Text(submission.projectName),
+                  subtitle: Text(
+                    '${_teamName(submission.teamId, eventTeams)}\n${scores.scoreCountFor(submission.id)} lượt chấm',
+                  ),
+                  isThreeLine: true,
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        scores.averageFor(submission.id).toStringAsFixed(1),
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
-                    ),
-                  ],
+                      const Text(
+                        'TB',
+                        style: TextStyle(
+                          color: SealPalette.onSurfaceVariant,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ),
+              );
+            },
+          ),
+      ],
+    );
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        SealSectionHeader(
+          title: 'Chi tiết Event',
+          subtitle: 'Timeline, luật thi, địa điểm và bảng xếp hạng.',
+          icon: Icons.event_outlined,
+          trailing: IconButton.filledTonal(
+            tooltip: 'Về Events',
+            onPressed: () => context.go(AppRoutes.events),
+            icon: const Icon(Icons.arrow_back),
+          ),
+        ),
+        AdaptiveTwoPane(leading: overview, trailing: leaderboard),
       ],
     );
   }
@@ -193,7 +220,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     for (final team in teams) {
       if (team.id == teamId) return team.name;
     }
-    return 'Team not loaded';
+    return 'Chưa tải team';
   }
 }
 
@@ -208,22 +235,22 @@ class _EventRoleActions extends StatelessWidget {
       AppRoles.judge => (
         path: AppRoutes.judge,
         icon: Icons.rate_review_outlined,
-        label: 'Open judging queue',
+        label: 'Mở hàng chờ chấm',
       ),
       AppRoles.organizer => (
         path: AppRoutes.organizer,
         icon: Icons.dashboard_customize_outlined,
-        label: 'Open organizer dashboard',
+        label: 'Mở Dashboard ban tổ chức',
       ),
       AppRoles.mentor => (
         path: AppRoutes.chat,
         icon: Icons.chat_outlined,
-        label: 'Open mentor chat',
+        label: 'Mở Mentor Chat',
       ),
       _ => (
         path: AppRoutes.teams,
         icon: Icons.group_add_outlined,
-        label: 'Create or manage team',
+        label: 'Tạo hoặc quản lý team',
       ),
     };
     return Column(
@@ -238,7 +265,7 @@ class _EventRoleActions extends StatelessWidget {
         OutlinedButton.icon(
           onPressed: () => context.go(AppRoutes.map),
           icon: const Icon(Icons.map_outlined),
-          label: const Text('View event location'),
+          label: const Text('Xem địa điểm'),
         ),
       ],
     );
@@ -255,7 +282,7 @@ class _EventTimeline extends StatelessWidget {
     final items = [
       _TimelineItem(
         icon: Icons.how_to_reg_outlined,
-        label: 'Register',
+        label: 'Đăng ký',
         date: event.registrationDeadline,
       ),
       _TimelineItem(
@@ -265,7 +292,7 @@ class _EventTimeline extends StatelessWidget {
       ),
       _TimelineItem(
         icon: Icons.emoji_events_outlined,
-        label: 'Final',
+        label: 'Chung kết',
         date: event.endDate,
       ),
     ];
@@ -280,7 +307,7 @@ class _EventTimeline extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Event Timeline',
+            'Timeline',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 12),
