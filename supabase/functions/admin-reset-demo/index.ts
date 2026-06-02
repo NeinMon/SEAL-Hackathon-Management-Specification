@@ -108,6 +108,7 @@ Deno.serve(async (request) => {
 
   try {
     await resetDemoRows(admin);
+    await cleanupExtraDemoAuthUsers(admin);
     const users = await seedDemoRows(admin);
     return json({
       ok: true,
@@ -133,6 +134,16 @@ function json(body: Record<string, unknown>, status = 200) {
 }
 
 async function resetDemoRows(admin: ReturnType<typeof createClient>) {
+  await must(admin.from("scores").delete().not("id", "is", null));
+  await must(admin.from("notifications").delete().not("id", "is", null));
+  await must(admin.from("messages").delete().not("id", "is", null));
+  await must(admin.from("submission_history").delete().not("id", "is", null));
+  await must(admin.from("submissions").delete().not("id", "is", null));
+  await must(admin.from("team_members").delete().not("team_id", "is", null));
+  await must(admin.from("teams").delete().not("id", "is", null));
+  await must(admin.from("events").delete().not("id", "is", null));
+  await must(admin.from("users").delete().not("id", "is", null));
+
   await must(admin.from("scores").delete().ilike("feedback", "Smoke score%"));
   await must(
     admin.from("scores").delete().ilike("feedback", "Seeded by service role%"),
@@ -298,6 +309,17 @@ async function seedDemoRows(admin: ReturnType<typeof createClient>) {
   );
 
   return users;
+}
+
+async function cleanupExtraDemoAuthUsers(admin: ReturnType<typeof createClient>) {
+  const keepEmails = new Set(demoUsers.map((user) => user.email));
+  const list = await admin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+  if (list.error) throw list.error;
+  for (const user of list.data.users) {
+    if (!user.email?.endsWith("@seal.test")) continue;
+    if (keepEmails.has(user.email)) continue;
+    await must(admin.auth.admin.deleteUser(user.id));
+  }
 }
 
 async function ensureDemoUser(admin: ReturnType<typeof createClient>, user: DemoUser) {

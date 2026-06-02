@@ -28,6 +28,20 @@ function Enc([string]$Value) {
   [uri]::EscapeDataString($Value)
 }
 
+function Invoke-DeleteAll([string]$Table, [string]$Label, [string]$Filter = "id=not.is.null") {
+  Invoke-DemoDelete $Table $Filter $Label
+}
+
+Invoke-DeleteAll "scores" "all scores"
+Invoke-DeleteAll "notifications" "all notifications"
+Invoke-DeleteAll "messages" "all messages"
+Invoke-DeleteAll "submission_history" "all submission history"
+Invoke-DeleteAll "submissions" "all submissions"
+Invoke-DemoDelete "team_members" "team_id=not.is.null" "all team members"
+Invoke-DeleteAll "teams" "all teams"
+Invoke-DeleteAll "events" "all events"
+Invoke-DemoDelete "users" "id=not.is.null" "all public users"
+
 Invoke-DemoDelete "scores" "feedback=$(Enc 'like.Smoke score*')" "smoke scores"
 Invoke-DemoDelete "scores" "feedback=$(Enc 'like.Seeded by service role*')" "negative smoke scores"
 Invoke-DemoDelete "scores" "submission_id=eq.22222222-2222-4222-8222-222222222222" "seed submission scores"
