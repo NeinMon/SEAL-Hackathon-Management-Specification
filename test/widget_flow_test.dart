@@ -22,19 +22,98 @@ void main() {
   });
 
   testWidgets('Login form validates before calling auth flow', (tester) async {
+    tester.view.physicalSize = const Size(800, 1200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (_) => AuthProvider(restoreSession: false),
         child: const MaterialApp(home: LoginScreen()),
       ),
     );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const Key('auth_submit_button')));
     await tester.pump();
 
-    await tester.tap(find.byType(FilledButton));
+    expect(find.text('Nhập email.'), findsOneWidget);
+    expect(find.text('Nhập mật khẩu.'), findsOneWidget);
+  });
+
+  testWidgets('Register form validates required profile fields', (tester) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => AuthProvider(restoreSession: false),
+        child: const MaterialApp(home: LoginScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Tạo tài khoản mới'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const Key('auth_submit_button')));
     await tester.pump();
 
-    expect(find.text('Nhập email hợp lệ.'), findsOneWidget);
-    expect(find.text('Mật khẩu cần ít nhất 6 ký tự.'), findsOneWidget);
+    expect(find.text('Nhập họ tên.'), findsOneWidget);
+    expect(find.text('Nhập trường.'), findsOneWidget);
+    expect(find.text('Nhập email.'), findsOneWidget);
+    expect(find.text('Nhập mật khẩu.'), findsOneWidget);
+    expect(find.text('Nhập lại mật khẩu.'), findsOneWidget);
+  });
+
+  testWidgets('Register form rejects mismatched confirm password', (tester) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider(
+        create: (_) => AuthProvider(restoreSession: false),
+        child: const MaterialApp(home: LoginScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Tạo tài khoản mới'));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'Nguyen Van A');
+    await tester.enterText(find.byType(TextFormField).at(1), 'FPT University');
+    await tester.enterText(find.byType(TextFormField).at(2), 'new@seal.test');
+    await tester.enterText(find.byType(TextFormField).at(3), '123456');
+    await tester.enterText(
+      find.byKey(const Key('register_confirm_password')),
+      '654321',
+    );
+    await tester.tap(find.byKey(const Key('auth_submit_button')));
+    await tester.pump();
+
+    expect(find.text('Mật khẩu nhập lại không khớp.'), findsOneWidget);
+  });
+
+  testWidgets('Event list exposes sort dropdown', (tester) async {
+    final provider = TestEventProvider()
+      ..events = [
+        _event(id: 'campus', title: 'Campus Innovation', location: 'HCMC'),
+      ];
+
+    await tester.pumpWidget(
+      ChangeNotifierProvider<EventProvider>.value(
+        value: provider,
+        child: const MaterialApp(home: Scaffold(body: EventListScreen())),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byKey(const Key('event_sort_dropdown')), findsOneWidget);
+    expect(find.text('Còn đăng ký'), findsOneWidget);
   });
 
   testWidgets('Event list filters by search keyword', (tester) async {
