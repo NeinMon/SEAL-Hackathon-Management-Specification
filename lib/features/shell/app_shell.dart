@@ -1,4 +1,4 @@
-import '../shared.dart';
+import '../../shared.dart';
 
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.child});
@@ -25,12 +25,12 @@ class AppShell extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               IconButton(
-                tooltip: 'Thông báo',
+                tooltip: AppStrings.notificationsNavLabel,
                 onPressed: () => context.go(AppRoutes.notifications),
                 icon: const Icon(Icons.notifications_outlined),
               ),
               PopupMenuButton<String>(
-                tooltip: 'Tài khoản',
+                tooltip: AppStrings.accountMenuTooltip,
                 icon: const Icon(Icons.more_vert),
                 onSelected: (value) async {
                   if (value == 'profile') {
@@ -38,14 +38,33 @@ class AppShell extends StatelessWidget {
                     return;
                   }
                   if (value != 'logout') return;
+                  final auth = context.read<AuthProvider>();
+                  if (auth.user == null) {
+                    if (!context.mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(AppStrings.notLoggedInMessage),
+                      ),
+                    );
+                    context.go(AppRoutes.login);
+                    return;
+                  }
                   context.read<EventProvider>().clear();
                   context.read<TeamProvider>().clear();
                   context.read<SubmissionProvider>().clear();
                   context.read<ScoreProvider>().clear();
                   context.read<NotificationProvider>().clear();
                   context.read<ChatProvider>().clear();
-                  await context.read<AuthProvider>().logout();
+                  final loggedOut = await auth.logout();
                   if (!context.mounted) return;
+                  if (!loggedOut) {
+                    final message =
+                        auth.error ?? AppStrings.logoutFailedMessage;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(message)),
+                    );
+                    return;
+                  }
                   context.go(AppRoutes.login);
                 },
                 itemBuilder: (context) => const [
@@ -53,14 +72,14 @@ class AppShell extends StatelessWidget {
                     value: 'profile',
                     child: ListTile(
                       leading: Icon(Icons.person_outline),
-                      title: Text('Hồ sơ'),
+                      title: Text(AppStrings.profileNavLabel),
                     ),
                   ),
                   PopupMenuItem(
                     value: 'logout',
                     child: ListTile(
                       leading: Icon(Icons.logout),
-                      title: Text('Đăng xuất'),
+                      title: Text(AppStrings.logoutButton),
                     ),
                   ),
                 ],
@@ -109,25 +128,41 @@ class AppShell extends StatelessWidget {
     switch (role) {
       case 'judge':
         return const [
-          RoleNavigationItem('Events', Icons.event_outlined, AppRoutes.events),
           RoleNavigationItem(
-            'Chấm điểm',
+            AppStrings.eventsNavLabel,
+            Icons.event_outlined,
+            AppRoutes.events,
+          ),
+          RoleNavigationItem(
+            AppStrings.judgeNavLabel,
             Icons.rate_review_outlined,
             AppRoutes.judge,
           ),
           RoleNavigationItem(
-            'Thông báo',
+            AppStrings.notificationsNavLabel,
             Icons.notifications_outlined,
             AppRoutes.notifications,
           ),
         ];
       case 'mentor':
         return const [
-          RoleNavigationItem('Events', Icons.event_outlined, AppRoutes.events),
-          RoleNavigationItem('Team', Icons.groups_outlined, AppRoutes.teams),
-          RoleNavigationItem('Chat', Icons.chat_outlined, AppRoutes.chat),
           RoleNavigationItem(
-            'Thông báo',
+            AppStrings.eventsNavLabel,
+            Icons.event_outlined,
+            AppRoutes.events,
+          ),
+          RoleNavigationItem(
+            AppStrings.teamNavLabel,
+            Icons.groups_outlined,
+            AppRoutes.teams,
+          ),
+          RoleNavigationItem(
+            AppStrings.chatNavLabel,
+            Icons.chat_outlined,
+            AppRoutes.chat,
+          ),
+          RoleNavigationItem(
+            AppStrings.notificationsNavLabel,
             Icons.notifications_outlined,
             AppRoutes.notifications,
           ),
@@ -135,18 +170,22 @@ class AppShell extends StatelessWidget {
       case 'organizer':
         return const [
           RoleNavigationItem(
-            'Dashboard',
+            AppStrings.dashboardNavLabel,
             Icons.dashboard_customize_outlined,
             AppRoutes.organizer,
           ),
-          RoleNavigationItem('Team', Icons.groups_outlined, AppRoutes.teams),
           RoleNavigationItem(
-            'Chấm điểm',
+            AppStrings.teamNavLabel,
+            Icons.groups_outlined,
+            AppRoutes.teams,
+          ),
+          RoleNavigationItem(
+            AppStrings.judgeNavLabel,
             Icons.rate_review_outlined,
             AppRoutes.judge,
           ),
           RoleNavigationItem(
-            'Thông báo',
+            AppStrings.notificationsNavLabel,
             Icons.notifications_outlined,
             AppRoutes.notifications,
           ),
@@ -154,15 +193,31 @@ class AppShell extends StatelessWidget {
       case 'participant':
       default:
         return const [
-          RoleNavigationItem('Events', Icons.event_outlined, AppRoutes.events),
-          RoleNavigationItem('Team', Icons.groups_outlined, AppRoutes.teams),
           RoleNavigationItem(
-            'Nộp bài',
+            AppStrings.eventsNavLabel,
+            Icons.event_outlined,
+            AppRoutes.events,
+          ),
+          RoleNavigationItem(
+            AppStrings.teamNavLabel,
+            Icons.groups_outlined,
+            AppRoutes.teams,
+          ),
+          RoleNavigationItem(
+            AppStrings.submitNavLabel,
             Icons.upload_file_outlined,
             AppRoutes.submit,
           ),
-          RoleNavigationItem('Chat', Icons.chat_outlined, AppRoutes.chat),
-          RoleNavigationItem('Bản đồ', Icons.map_outlined, AppRoutes.map),
+          RoleNavigationItem(
+            AppStrings.chatNavLabel,
+            Icons.chat_outlined,
+            AppRoutes.chat,
+          ),
+          RoleNavigationItem(
+            AppStrings.mapNavLabel,
+            Icons.map_outlined,
+            AppRoutes.map,
+          ),
         ];
     }
   }

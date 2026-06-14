@@ -1,4 +1,5 @@
-import '../../shared.dart';
+﻿import '../../../shared.dart';
+import '../widgets/venue_info_tile.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -21,11 +22,11 @@ class _MapScreenState extends State<MapScreen> {
     final eventProvider = context.watch<EventProvider>();
     if (eventProvider.isLoading) {
       return ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSizes.paddingMedium),
         children: [
           const SealSectionHeader(
-            title: 'Địa điểm',
-            subtitle: 'Bản đồ, địa chỉ và hỗ trợ mở app chỉ đường.',
+            title: AppStrings.mapTitle,
+            subtitle: AppStrings.mapSubtitle,
             icon: Icons.map_outlined,
           ),
           const LoadingCardList(itemCount: 2),
@@ -34,11 +35,11 @@ class _MapScreenState extends State<MapScreen> {
     }
     if (eventProvider.error != null) {
       return ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSizes.paddingMedium),
         children: [
-          SealSectionHeader(
-            title: 'Địa điểm',
-            subtitle: 'Bản đồ, địa chỉ và hỗ trợ mở app chỉ đường.',
+          const SealSectionHeader(
+            title: AppStrings.mapTitle,
+            subtitle: AppStrings.mapSubtitle,
             icon: Icons.map_outlined,
           ),
           ErrorState(
@@ -50,30 +51,30 @@ class _MapScreenState extends State<MapScreen> {
     }
     if (eventProvider.events.isEmpty) {
       return ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSizes.paddingMedium),
         children: [
-          SealSectionHeader(
-            title: 'Địa điểm',
-            subtitle: 'Bản đồ, địa chỉ và hỗ trợ mở app chỉ đường.',
+          const SealSectionHeader(
+            title: AppStrings.mapTitle,
+            subtitle: AppStrings.mapSubtitle,
             icon: Icons.map_outlined,
           ),
-          EmptyState(message: 'Chưa có địa điểm event.'),
+          const EmptyState(message: AppStrings.noVenueYet),
         ],
       );
     }
     final event = eventProvider.events.first;
     final position = LatLng(event.latitude, event.longitude);
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSizes.paddingMedium),
       children: [
-        SealSectionHeader(
-          title: 'Địa điểm',
-          subtitle: 'Bản đồ, địa chỉ và hỗ trợ mở app chỉ đường.',
+        const SealSectionHeader(
+          title: AppStrings.mapTitle,
+          subtitle: AppStrings.mapSubtitle,
           icon: Icons.map_outlined,
         ),
         Card(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSizes.paddingMedium),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -120,7 +121,7 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: AppSizes.sectionGap),
                 Text(
                   event.location,
                   style: const TextStyle(
@@ -128,38 +129,38 @@ class _MapScreenState extends State<MapScreen> {
                     fontWeight: FontWeight.w900,
                   ),
                 ),
-                const SizedBox(height: 12),
-                _VenueInfoTile(
+                const SizedBox(height: AppSizes.paddingCompact),
+                VenueInfoTile(
                   icon: Icons.place_outlined,
-                  label: 'Địa chỉ',
+                  label: AppStrings.addressLabel,
                   value: event.location,
                 ),
-                const _VenueInfoTile(
+                const VenueInfoTile(
                   icon: Icons.access_time_outlined,
-                  label: 'Giờ mở',
-                  value: '08:00 - 18:00',
+                  label: AppStrings.openingHoursLabel,
+                  value: AppStrings.defaultOpeningHours,
                 ),
-                const _VenueInfoTile(
+                const VenueInfoTile(
                   icon: Icons.phone_outlined,
-                  label: 'Hotline',
-                  value: '0900 000 000',
+                  label: AppStrings.hotlineLabel,
+                  value: AppStrings.defaultHotline,
                 ),
-                _VenueInfoTile(
+                VenueInfoTile(
                   icon: Icons.gps_fixed_outlined,
-                  label: 'Tọa độ',
+                  label: AppStrings.coordinatesLabel,
                   value: '${event.latitude}, ${event.longitude}',
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSizes.paddingMedium),
                 FilledButton.icon(
                   onPressed: () => _copyAddress(context, event.location),
                   icon: const Icon(Icons.copy_outlined),
-                  label: const Text('Copy địa chỉ'),
+                  label: const Text(AppStrings.copyAddressButton),
                 ),
                 const SizedBox(height: 8),
                 OutlinedButton.icon(
                   onPressed: () => _confirmExternalMap(context, event),
                   icon: const Icon(Icons.directions_outlined),
-                  label: const Text('Mở Maps'),
+                  label: const Text(AppStrings.openMapsButton),
                 ),
               ],
             ),
@@ -176,18 +177,16 @@ class _MapScreenState extends State<MapScreen> {
     final shouldOpen = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Mở Maps bên ngoài?'),
-        content: const Text(
-          'Bạn sẽ rời SEAL Hackathon tạm thời. Dùng nút Back hoặc Recent Apps để quay lại.',
-        ),
+        title: const Text(AppStrings.openExternalMapsTitle),
+        content: const Text(AppStrings.openExternalMapsBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Ở lại'),
+            child: const Text(AppStrings.stayButton),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Mở Maps'),
+            child: const Text(AppStrings.openMapsButton),
           ),
         ],
       ),
@@ -201,60 +200,8 @@ class _MapScreenState extends State<MapScreen> {
   Future<void> _copyAddress(BuildContext context, String location) async {
     await Clipboard.setData(ClipboardData(text: location));
     if (!context.mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Đã copy địa chỉ.')));
-  }
-}
-
-class _VenueInfoTile extends StatelessWidget {
-  const _VenueInfoTile({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
-        children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              color: SealPalette.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: SealPalette.primary, size: 18),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(
-                    color: SealPalette.onSurfaceVariant,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                Text(
-                  value,
-                  style: const TextStyle(fontWeight: FontWeight.w800),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(AppStrings.addressCopiedSuccess)),
     );
   }
 }
