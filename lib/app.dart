@@ -8,7 +8,7 @@ import 'features/events/screens/event_list_screen.dart';
 import 'views/judge/judge_screen.dart';
 import 'features/map/screens/map_screen.dart';
 import 'features/notifications/screens/notification_screen.dart';
-import 'views/organizer/organizer_dashboard_screen.dart';
+import 'features/organizer/screens/organizer_dashboard_screen.dart';
 import 'features/profile/screens/profile_screen.dart';
 import 'views/submissions/submission_screen.dart';
 import 'views/teams/team_screen.dart';
