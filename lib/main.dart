@@ -15,8 +15,8 @@ export 'features/map/screens/map_screen.dart';
 export 'features/notifications/screens/notification_screen.dart';
 export 'features/organizer/screens/organizer_dashboard_screen.dart';
 export 'features/profile/screens/profile_screen.dart';
-export 'views/submissions/submission_screen.dart';
-export 'views/teams/team_screen.dart';
+export 'features/submissions/screens/submission_screen.dart';
+export 'features/teams/screens/team_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -14,6 +14,12 @@ class TeamProvider extends ChangeNotifier {
   String? error;
 
   Future<void> loadTeams() async {
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      notifyListeners();
+      return;
+    }
     isLoading = true;
     error = null;
     notifyListeners();
@@ -34,9 +40,15 @@ class TeamProvider extends ChangeNotifier {
     if (isLoading) return;
     error = null;
     message = null;
-    final cleanName = name.trim();
-    if (cleanName.length < 2) {
-      error = 'Tên team cần ít nhất 2 ký tự.';
+    final nameError = AppValidators.teamName(name);
+    if (nameError != null) {
+      error = nameError;
+      notifyListeners();
+      return;
+    }
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
       notifyListeners();
       return;
     }
@@ -44,12 +56,12 @@ class TeamProvider extends ChangeNotifier {
     notifyListeners();
     try {
       await _service.createTeam(
-        name: cleanName,
+        name: name.trim(),
         eventId: event.id,
         leaderId: leader.id,
       );
       await loadTeams();
-      message = 'Đã tạo team.';
+      message = AppStrings.teamCreatedSuccess;
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
       isLoading = false;
@@ -65,9 +77,14 @@ class TeamProvider extends ChangeNotifier {
     if (isLoading) return;
     error = null;
     message = null;
+    if (teamId.trim().isEmpty) {
+      error = AppStrings.invalidTeamError;
+      notifyListeners();
+      return;
+    }
     final team = _teamById(teamId);
     if (team != null && team.members.any((member) => member.id == user.id)) {
-      error = 'Bạn đã là thành viên của team này.';
+      error = AppStrings.alreadyTeamMemberError;
       notifyListeners();
       return;
     }
@@ -75,7 +92,13 @@ class TeamProvider extends ChangeNotifier {
         event != null &&
         event.maxTeamSize > 0 &&
         team.members.length >= event.maxTeamSize) {
-      error = '${team.name} đã đủ thành viên cho event này.';
+      error = AppStrings.teamFullForEventError(team.name);
+      notifyListeners();
+      return;
+    }
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
       notifyListeners();
       return;
     }
@@ -84,7 +107,7 @@ class TeamProvider extends ChangeNotifier {
     try {
       await _service.joinTeam(teamId, user.id);
       await loadTeams();
-      message = 'Đã tham gia team.';
+      message = AppStrings.teamJoinedSuccess;
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
       isLoading = false;
@@ -100,9 +123,9 @@ class TeamProvider extends ChangeNotifier {
     if (isLoading) return;
     error = null;
     message = null;
-    final cleanEmail = email.trim();
-    if (!AppValidators.isValidEmail(cleanEmail)) {
-      error = 'Nhập email thành viên hợp lệ.';
+    final emailError = AppValidators.inviteEmail(email);
+    if (emailError != null) {
+      error = emailError;
       notifyListeners();
       return;
     }
@@ -111,16 +134,22 @@ class TeamProvider extends ChangeNotifier {
         event != null &&
         event.maxTeamSize > 0 &&
         team.members.length >= event.maxTeamSize) {
-      error = '${team.name} đã đủ thành viên cho event này.';
+      error = AppStrings.teamFullForEventError(team.name);
+      notifyListeners();
+      return;
+    }
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
       notifyListeners();
       return;
     }
     isLoading = true;
     notifyListeners();
     try {
-      await _service.inviteMemberByEmail(teamId, cleanEmail);
+      await _service.inviteMemberByEmail(teamId, email.trim());
       await loadTeams();
-      message = 'Đã gửi lời mời.';
+      message = AppStrings.invitationSentSuccess;
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
       isLoading = false;
@@ -132,18 +161,24 @@ class TeamProvider extends ChangeNotifier {
     if (isLoading) return;
     error = null;
     message = null;
-    final cleanName = name.trim();
-    if (cleanName.length < 2) {
-      error = 'Tên team cần ít nhất 2 ký tự.';
+    final nameError = AppValidators.teamName(name);
+    if (nameError != null) {
+      error = nameError;
+      notifyListeners();
+      return;
+    }
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
       notifyListeners();
       return;
     }
     isLoading = true;
     notifyListeners();
     try {
-      await _service.updateTeamName(teamId, cleanName);
+      await _service.updateTeamName(teamId, name.trim());
       await loadTeams();
-      message = 'Đã cập nhật team.';
+      message = AppStrings.teamUpdatedSuccess;
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
       isLoading = false;
@@ -155,12 +190,23 @@ class TeamProvider extends ChangeNotifier {
     if (isLoading) return;
     error = null;
     message = null;
+    if (teamId.trim().isEmpty) {
+      error = AppStrings.invalidTeamError;
+      notifyListeners();
+      return;
+    }
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      notifyListeners();
+      return;
+    }
     isLoading = true;
     notifyListeners();
     try {
       await _service.leaveTeam(teamId, user.id);
       await loadTeams();
-      message = 'Đã rời team.';
+      message = AppStrings.teamLeftSuccess;
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
       isLoading = false;

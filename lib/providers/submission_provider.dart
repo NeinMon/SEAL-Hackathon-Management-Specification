@@ -13,6 +13,12 @@ class SubmissionProvider extends ChangeNotifier {
   String? error;
 
   Future<void> loadSubmissions() async {
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      notifyListeners();
+      return;
+    }
     isLoading = true;
     error = null;
     notifyListeners();
@@ -34,6 +40,26 @@ class SubmissionProvider extends ChangeNotifier {
     error = null;
     message = null;
     notifyListeners();
+    final validationError = AppValidators.submissionPayload(
+      teamId: submission.teamId,
+      name: submission.projectName,
+      githubUrl: submission.githubUrl,
+      videoUrl: submission.videoUrl,
+      description: submission.description,
+    );
+    if (validationError != null) {
+      error = validationError;
+      isLoading = false;
+      notifyListeners();
+      return;
+    }
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      isLoading = false;
+      notifyListeners();
+      return;
+    }
     try {
       await _service.saveSubmission(
         submission,
@@ -41,8 +67,8 @@ class SubmissionProvider extends ChangeNotifier {
       );
       await loadSubmissions();
       message = existingSubmissionId == null
-          ? 'Đã nộp project.'
-          : 'Đã cập nhật bài nộp.';
+          ? AppStrings.submissionCreatedSuccess
+          : AppStrings.submissionUpdatedSuccess;
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }
