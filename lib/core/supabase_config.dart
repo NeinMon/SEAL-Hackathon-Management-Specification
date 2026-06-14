@@ -1,4 +1,4 @@
-import 'package:supabase/supabase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SupabaseConfig {
   static const local = 'local';
@@ -10,13 +10,17 @@ class SupabaseConfig {
     defaultValue: local,
   );
   static const url = String.fromEnvironment('SUPABASE_URL');
-  static const anonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+  static const publishableKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
-  static bool get isConfigured => url.isNotEmpty && anonKey.isNotEmpty;
+  static bool get isConfigured => url.isNotEmpty && publishableKey.isNotEmpty;
   static bool get isProduction => environment == production;
   static bool get isStaging => environment == staging;
   static bool get isLocal => environment == local;
   static bool get isKnownEnvironment => isLocal || isStaging || isProduction;
+
+  static const authRedirectScheme = 'vn.seal.hackathon';
+  static const authRedirectHost = 'auth-callback';
+  static const authRedirectUrl = '$authRedirectScheme://$authRedirectHost';
 
   static String get displayName {
     if (isProduction) return 'Production';
@@ -33,9 +37,15 @@ class SupabaseGateway {
 
   static bool get enabled => SupabaseConfig.isConfigured;
 
-  static void initialize() {
-    if (!SupabaseConfig.isConfigured) return;
-    _client ??= SupabaseClient(SupabaseConfig.url, SupabaseConfig.anonKey);
+  static bool get isReady => enabled && _client != null;
+
+  static Future<void> initialize() async {
+    if (!SupabaseConfig.isConfigured || _client != null) return;
+    await Supabase.initialize(
+      url: SupabaseConfig.url,
+      publishableKey: SupabaseConfig.publishableKey,
+    );
+    _client = Supabase.instance.client;
   }
 
   static SupabaseClient get client {

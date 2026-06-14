@@ -1,4 +1,4 @@
-import 'package:supabase/supabase.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/app_helpers.dart';
 import '../core/supabase_config.dart';
@@ -9,6 +9,18 @@ import '../models/hackathon_event.dart';
 import '../models/project_score.dart';
 import '../models/project_submission.dart';
 import '../models/team.dart';
+
+class RegisterResult {
+  const RegisterResult({
+    this.user,
+    this.requiresEmailVerification = false,
+    required this.email,
+  });
+
+  final AppUser? user;
+  final bool requiresEmailVerification;
+  final String email;
+}
 
 class AuthService {
   const AuthService();
@@ -49,31 +61,67 @@ class AuthService {
     return AppUser.fromJson(profile);
   }
 
-  Future<AppUser> register({
+  Future<RegisterResult> register({
     required String fullName,
     required String email,
     required String password,
-    required String role,
     required String university,
   }) async {
     return AppOperation.run('auth.register', () async {
       final response = await SupabaseGateway.client.auth.signUp(
         email: email,
         password: password,
+        emailRedirectTo: SupabaseConfig.authRedirectUrl,
+        data: {
+          'full_name': fullName,
+          'university': university,
+        },
       );
       final authUser = response.user;
       if (authUser == null) {
         throw const AuthException('Unable to create an account.');
       }
-      final profile = AppUser(
-        id: authUser.id,
-        fullName: fullName,
-        email: email,
-        role: role,
-        university: university,
+      if (response.session == null) {
+        final identities = authUser.identities;
+        if (identities == null || identities.isEmpty) {
+          throw const AuthException(
+            'Email này đã được đăng ký. Hãy đăng nhập hoặc dùng "Quên mật khẩu".',
+          );
+        }
+        return RegisterResult(
+          requiresEmailVerification: true,
+          email: email,
+        );
+      }
+      final profile = await _fetchProfile(authUser.id);
+      return RegisterResult(user: profile, email: email);
+    });
+  }
+
+  Future<AppUser> verifySignupOtp({
+    required String email,
+    required String otp,
+  }) async {
+    return AppOperation.run('auth.verify_signup_otp', () async {
+      final response = await SupabaseGateway.client.auth.verifyOTP(
+        type: OtpType.signup,
+        email: email.trim(),
+        token: otp.trim(),
       );
-      await SupabaseGateway.client.from('users').upsert(profile.toJson());
-      return profile;
+      final authUser = response.user;
+      if (authUser == null) {
+        throw const AuthException('Mã OTP không hợp lệ hoặc đã hết hạn.');
+      }
+      return _fetchProfile(authUser.id);
+    });
+  }
+
+  Future<void> requestPasswordReset(String email) {
+    return AppOperation.run('auth.reset_password', () async {
+      await SupabaseGateway.client.auth.resetPasswordForEmail(
+        email.trim(),
+        redirectTo: SupabaseConfig.authRedirectUrl,
+      );
     });
   }
 
@@ -125,6 +173,33 @@ class UserDirectoryService {
           .toList();
     });
   }
+
+  Future<AppUser> updateUserRole({
+    required String userId,
+    required String role,
+  }) {
+    return AppOperation.run('users.update_role', () async {
+      final userError = AppValidators.requireUserId(userId);
+      if (userError != null) {
+        throw Exception(userError);
+      }
+      final roleError = AppValidators.userRole(role);
+      if (roleError != null) {
+        throw Exception(roleError);
+      }
+      final currentUserId = SupabaseGateway.client.auth.currentUser?.id;
+      if (currentUserId != null && currentUserId == userId) {
+        throw Exception(AppStrings.cannotChangeOwnRole);
+      }
+      final row = await SupabaseGateway.client
+          .from('users')
+          .update({'role': role})
+          .eq('id', userId)
+          .select()
+          .single();
+      return AppUser.fromJson(row);
+    });
+  }
 }
 
 class AdminService {
@@ -141,6 +216,13 @@ class AdminService {
       if (response.status < 200 || response.status >= 300) {
         if (data is Map && data['error'] != null) {
           throw Exception(data['error']);
+        }
+        if (SupabaseConfig.isLocal) {
+          throw Exception(
+            'Edge Function chưa deploy trên local. Chạy: '
+            'npx supabase functions serve admin-reset-demo '
+            'hoặc dùng scripts\\reset_demo_database.ps1 rồi seed_demo_users.ps1.',
+          );
         }
         throw Exception('Không thể reset dữ liệu demo.');
       }

@@ -8,9 +8,11 @@ export 'package:go_router/go_router.dart';
 export 'package:intl/intl.dart' hide TextDirection;
 export 'package:latlong2/latlong.dart' hide Path;
 export 'package:provider/provider.dart';
-export 'package:supabase/supabase.dart';
+export 'package:supabase_flutter/supabase_flutter.dart';
 
 export 'core/app_helpers.dart';
+export 'core/constants/constants.dart';
+export 'core/themes/seal_theme.dart';
 export 'core/supabase_config.dart';
 export 'models/app_notification.dart';
 export 'models/app_user.dart';

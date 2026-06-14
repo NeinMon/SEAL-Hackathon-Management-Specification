@@ -1,6 +1,7 @@
+import 'core/auth_deep_link.dart';
 import 'shared.dart';
 import 'views/app_shell.dart';
-import 'views/auth/login_screen.dart';
+import 'features/auth/screens/login_screen.dart';
 import 'views/chat/chat_screen.dart';
 import 'views/events/event_detail_screen.dart';
 import 'views/events/event_list_screen.dart';
@@ -8,7 +9,7 @@ import 'views/judge/judge_screen.dart';
 import 'views/map/map_screen.dart';
 import 'views/notifications/notification_screen.dart';
 import 'views/organizer/organizer_dashboard_screen.dart';
-import 'views/profile/profile_screen.dart';
+import 'features/profile/screens/profile_screen.dart';
 import 'views/submissions/submission_screen.dart';
 import 'views/teams/team_screen.dart';
 
@@ -19,7 +20,7 @@ class SealApp extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!SupabaseConfig.isConfigured) {
       return MaterialApp(
-        title: 'SEAL Hackathon',
+        title: AppStrings.appName,
         debugShowCheckedModeBanner: false,
         theme: buildSealTheme(),
         home: const SupabaseRequiredScreen(),
@@ -36,16 +37,60 @@ class SealApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
-      child: MaterialApp.router(
-        title: 'SEAL Hackathon',
-        debugShowCheckedModeBanner: false,
-        routerConfig: buildSealRouter(),
-        theme: buildSealTheme(),
+      child: const _AuthDeepLinkScope(
+        child: _SealRouterApp(),
       ),
     );
   }
 }
 
+class _SealRouterApp extends StatelessWidget {
+  const _SealRouterApp();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: AppStrings.appName,
+      debugShowCheckedModeBanner: false,
+      routerConfig: buildSealRouter(),
+      theme: buildSealTheme(),
+    );
+  }
+}
+
+class _AuthDeepLinkScope extends StatefulWidget {
+  const _AuthDeepLinkScope({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_AuthDeepLinkScope> createState() => _AuthDeepLinkScopeState();
+}
+
+class _AuthDeepLinkScopeState extends State<_AuthDeepLinkScope> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted || !SupabaseGateway.isReady) return;
+      await AuthDeepLinkHandler.setup(
+        onAuthenticated: () async {
+          if (!mounted) return;
+          await context.read<AuthProvider>().refreshFromDeepLink();
+        },
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    AuthDeepLinkHandler.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
+}
 GoRouter buildSealRouter() {
   return GoRouter(
     initialLocation: AppRoutes.login,
@@ -247,3 +292,4 @@ ThemeData buildSealTheme() {
 extension _InputBorderLet on OutlineInputBorder {
   T let<T>(T Function(OutlineInputBorder border) builder) => builder(this);
 }
+

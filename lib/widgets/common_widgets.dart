@@ -6,37 +6,6 @@ import 'package:provider/provider.dart';
 import '../core/app_helpers.dart';
 import '../providers/auth_provider.dart';
 
-class SealPalette {
-  const SealPalette._();
-
-  static const background = Color(0xFF10131D);
-  static const surface = Color(0xFF151922);
-  static const surfaceContainerLowest = Color(0xFF0C0F17);
-  static const surfaceContainerLow = Color(0xFF171C27);
-  static const surfaceContainer = Color(0xFF1D2430);
-  static const surfaceContainerHigh = Color(0xFF26303C);
-  static const surfaceContainerHighest = Color(0xFF323D4A);
-  static const glassPanel = Color(0xD91B222E);
-  static const onSurface = Color(0xFFF0F4FA);
-  static const onSurfaceVariant = Color(0xFFB7C0CE);
-  static const outline = Color(0xFF8994A5);
-  static const outlineVariant = Color(0xFF3A4452);
-  static const primary = Color(0xFF8FC7FF);
-  static const primaryContainer = Color(0xFF2477D4);
-  static const indigo = Color(0xFF8B7CF6);
-  static const onPrimary = Color(0xFF071D35);
-  static const onPrimaryContainer = Color(0xFFEAF4FF);
-  static const secondary = Color(0xFF57D68D);
-  static const secondaryContainer = Color(0xFF1F8F5B);
-  static const onSecondary = Color(0xFF041E12);
-  static const tertiary = Color(0xFFFFC36A);
-  static const warningContainer = Color(0xFF875E16);
-  static const rose = Color(0xFFFF8CA3);
-  static const error = Color(0xFFFFA69E);
-  static const errorContainer = Color(0xFF8D2521);
-  static const onErrorContainer = Color(0xFFFFE2DF);
-}
-
 class InfoChip extends StatelessWidget {
   const InfoChip({super.key, required this.icon, required this.text});
   final IconData icon;
@@ -155,7 +124,7 @@ class MetricCard extends StatelessWidget {
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSizes.paddingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -242,7 +211,7 @@ class EmptyState extends StatelessWidget {
               ),
             ),
             if (actionLabel != null && onAction != null) ...[
-              const SizedBox(height: 14),
+              const SizedBox(height: AppSizes.sectionGap),
               OutlinedButton(onPressed: onAction, child: Text(actionLabel!)),
             ],
           ],
@@ -256,7 +225,7 @@ class ErrorState extends StatelessWidget {
   const ErrorState({
     super.key,
     required this.message,
-    this.actionLabel = 'Thử lại',
+    this.actionLabel = AppStrings.retryButton,
     this.onRetry,
   });
 
@@ -269,9 +238,7 @@ class ErrorState extends StatelessWidget {
     final noInternet = FriendlyErrorMapper.looksLikeNetworkError(message);
     return EmptyState(
       icon: noInternet ? Icons.wifi_off_outlined : Icons.error_outline,
-      message: noInternet
-          ? 'Không có kết nối mạng. Kiểm tra mạng rồi thử lại.'
-          : message,
+      message: noInternet ? AppStrings.networkOfflineMessage : message,
       actionLabel: onRetry == null ? null : actionLabel,
       onAction: onRetry,
     );
@@ -292,7 +259,7 @@ class LoadingCardList extends StatelessWidget {
           Container(
             height: 112,
             margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSizes.paddingMedium),
             decoration: BoxDecoration(
               color: SealPalette.surfaceContainerLow,
               borderRadius: BorderRadius.circular(8),
@@ -302,7 +269,7 @@ class LoadingCardList extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _LoadingBar(widthFactor: index.isEven ? 0.52 : 0.72),
-                const SizedBox(height: 14),
+                const SizedBox(height: AppSizes.sectionGap),
                 const _LoadingBar(widthFactor: 0.92),
                 const SizedBox(height: 10),
                 const _LoadingBar(widthFactor: 0.64),
@@ -327,7 +294,7 @@ class EventCardSkeleton extends StatelessWidget {
         children: [
           Container(height: 156, color: SealPalette.surfaceContainerHigh),
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSizes.paddingMedium),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
@@ -463,7 +430,7 @@ class AdaptiveTwoPane extends StatelessWidget {
         if (constraints.maxWidth < breakpoint) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [leading, const SizedBox(height: 16), trailing],
+            children: [leading, const SizedBox(height: AppSizes.paddingMedium), trailing],
           );
         }
         return Row(
@@ -556,7 +523,7 @@ class StatusBanner extends StatelessWidget {
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppSizes.paddingCompact),
       decoration: BoxDecoration(
         color: isError
             ? colors.errorContainer.withValues(alpha: 0.22)
@@ -638,7 +605,7 @@ class SealSectionHeader extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) ...[const SizedBox(width: 10), trailing!],
+          if (trailing != null) ...[const SizedBox(width: AppSizes.paddingSmall + 2), trailing!],
         ],
       ),
     );
@@ -682,14 +649,14 @@ class HackCommandTopBar extends StatelessWidget {
               size: 20,
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: AppSizes.paddingSmall + 2),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'SEAL Hackathon',
+                  AppStrings.appName,
                   style: TextStyle(
                     color: SealPalette.onSurface,
                     fontSize: 18,
@@ -739,21 +706,21 @@ class RoleGate extends StatelessWidget {
     final role = context.watch<AuthProvider>().user?.role;
     if (role != null && allowedRoles.contains(role)) return child;
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSizes.paddingMedium),
       children: [
         const SealSectionHeader(
-          title: 'Không có quyền truy cập',
-          subtitle: 'Tính năng này không khả dụng với role hiện tại.',
+          title: AppStrings.accessDeniedTitle,
+          subtitle: AppStrings.accessDeniedSubtitle,
           icon: Icons.lock_outline,
         ),
         StatusBanner(
-          message: message ?? 'Vui lòng đăng nhập bằng tài khoản phù hợp.',
+          message: message ?? AppStrings.accessDeniedDefaultMessage,
           isError: true,
         ),
         OutlinedButton.icon(
           onPressed: () => context.go(AppRoutes.events),
           icon: const Icon(Icons.event_outlined),
-          label: const Text('Về Events'),
+          label: const Text(AppStrings.backToEventsButton),
         ),
       ],
     );
@@ -779,19 +746,19 @@ class SessionRequired extends StatelessWidget {
         ),
         child: SafeArea(
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSizes.paddingMedium),
             children: [
               const HackCommandTopBar(),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSizes.paddingLarge),
               const SealSectionHeader(
-                title: 'Vui lòng đăng nhập',
-                subtitle: 'Đăng nhập để tiếp tục sử dụng SEAL Hackathon.',
+                title: AppStrings.loginRequiredTitle,
+                subtitle: AppStrings.loginRequiredSubtitle,
                 icon: Icons.lock_outline,
               ),
               FilledButton.icon(
                 onPressed: () => context.go(AppRoutes.login),
                 icon: const Icon(Icons.login),
-                label: const Text('Đến màn hình đăng nhập'),
+                label: const Text(AppStrings.goToLoginButton),
               ),
             ],
           ),
@@ -826,7 +793,7 @@ class SupabaseRequiredScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(AppSizes.paddingLarge),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -838,7 +805,7 @@ class SupabaseRequiredScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 16),
                         Text(
-                          'Cần kết nối Supabase',
+                          AppStrings.supabaseRequiredTitle,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 24,
@@ -847,7 +814,7 @@ class SupabaseRequiredScreen extends StatelessWidget {
                         ),
                         SizedBox(height: 8),
                         Text(
-                          'Chạy app với SUPABASE_URL và SUPABASE_ANON_KEY. App không còn chạy bằng dữ liệu mock.',
+                          AppStrings.supabaseRequiredBody,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: SealPalette.onSurfaceVariant,
