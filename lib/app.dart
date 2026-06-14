@@ -5,7 +5,7 @@ import 'features/auth/screens/login_screen.dart';
 import 'features/chat/screens/chat_screen.dart';
 import 'features/events/screens/event_detail_screen.dart';
 import 'features/events/screens/event_list_screen.dart';
-import 'views/judge/judge_screen.dart';
+import 'features/judge/screens/judge_screen.dart';
 import 'features/map/screens/map_screen.dart';
 import 'features/notifications/screens/notification_screen.dart';
 import 'features/organizer/screens/organizer_dashboard_screen.dart';

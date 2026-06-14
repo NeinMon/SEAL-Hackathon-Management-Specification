@@ -12,6 +12,12 @@ class ScoreProvider extends ChangeNotifier {
   String? error;
 
   Future<void> loadScores() async {
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      notifyListeners();
+      return;
+    }
     isLoading = true;
     error = null;
     notifyListeners();
@@ -29,10 +35,31 @@ class ScoreProvider extends ChangeNotifier {
     error = null;
     message = null;
     notifyListeners();
+    final validationError = AppValidators.judgeScore(
+      submissionId: score.submissionId,
+      judgeId: score.judgeId,
+      technical: score.technicalScore,
+      ui: score.uiScore,
+      innovation: score.innovationScore,
+      feedback: score.feedback,
+    );
+    if (validationError != null) {
+      error = validationError;
+      isLoading = false;
+      notifyListeners();
+      return;
+    }
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      isLoading = false;
+      notifyListeners();
+      return;
+    }
     try {
       await _service.createScore(score);
       await loadScores();
-      message = 'Đã lưu điểm.';
+      message = AppStrings.scoreSavedSuccess;
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }
