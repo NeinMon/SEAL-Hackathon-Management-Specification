@@ -10,28 +10,57 @@ class EventProvider extends ChangeNotifier {
 
   bool isLoading = false;
   String search = '';
-  String filter = 'all';
+  String filter = EventCatalog.filterAll;
+  String sort = EventCatalog.sortStartAsc;
   String? message;
   String? error;
+  String? searchError;
+
+  bool get hasActiveFilters =>
+      search.trim().isNotEmpty ||
+      filter != EventCatalog.filterAll ||
+      sort != EventCatalog.sortStartAsc;
 
   List<HackathonEvent> get filteredEvents {
     final keyword = search.toLowerCase();
-    return events.where((event) {
+    final now = DateTime.now();
+    final filtered = events.where((event) {
       final matchesSearch =
           keyword.trim().isEmpty ||
           event.title.toLowerCase().contains(keyword) ||
           event.location.toLowerCase().contains(keyword) ||
           event.description.toLowerCase().contains(keyword);
-      final now = DateTime.now();
-      final matchesFilter =
-          filter == 'all' ||
-          (filter == 'upcoming' && event.startDate.isAfter(now)) ||
-          (filter == 'active' &&
-              event.startDate.isBefore(now) &&
-              event.endDate.isAfter(now)) ||
-          (filter == 'closed' && event.endDate.isBefore(now));
+      final matchesFilter = switch (filter) {
+        EventCatalog.filterUpcoming => event.startDate.isAfter(now),
+        EventCatalog.filterActive =>
+          event.startDate.isBefore(now) && event.endDate.isAfter(now),
+        EventCatalog.filterClosed => event.endDate.isBefore(now),
+        EventCatalog.filterRegistrationOpen =>
+          event.registrationDeadline.isAfter(now) &&
+              event.endDate.isAfter(now),
+        _ => true,
+      };
       return matchesSearch && matchesFilter;
     }).toList();
+
+    filtered.sort((a, b) {
+      return switch (sort) {
+        EventCatalog.sortStartDesc =>
+          b.startDate.compareTo(a.startDate),
+        EventCatalog.sortTitleAsc =>
+          a.title.toLowerCase().compareTo(b.title.toLowerCase()),
+        EventCatalog.sortTitleDesc =>
+          b.title.toLowerCase().compareTo(a.title.toLowerCase()),
+        EventCatalog.sortDeadlineAsc =>
+          a.registrationDeadline.compareTo(b.registrationDeadline),
+        EventCatalog.sortDeadlineDesc =>
+          b.registrationDeadline.compareTo(a.registrationDeadline),
+        EventCatalog.sortStartAsc ||
+        _ =>
+          a.startDate.compareTo(b.startDate),
+      };
+    });
+    return filtered;
   }
 
   HackathonEvent byId(String id) =>
@@ -45,6 +74,12 @@ class EventProvider extends ChangeNotifier {
   }
 
   Future<void> loadEvents() async {
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      notifyListeners();
+      return;
+    }
     isLoading = true;
     error = null;
     notifyListeners();
@@ -65,12 +100,36 @@ class EventProvider extends ChangeNotifier {
     error = null;
     message = null;
     notifyListeners();
+    final validationError = AppValidators.eventPayload(
+      title: event.title,
+      location: event.location,
+      bannerUrl: event.bannerUrl,
+      startDate: event.startDate,
+      endDate: event.endDate,
+      registrationDeadline: event.registrationDeadline,
+      maxTeamSize: event.maxTeamSize,
+      latitude: event.latitude,
+      longitude: event.longitude,
+    );
+    if (validationError != null) {
+      error = validationError;
+      isLoading = false;
+      notifyListeners();
+      return;
+    }
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      isLoading = false;
+      notifyListeners();
+      return;
+    }
     try {
       await _service.saveEvent(event, existingEventId: existingEventId);
       await loadEvents();
       message = existingEventId == null
-          ? 'Đã tạo event.'
-          : 'Đã cập nhật event.';
+          ? AppStrings.eventCreatedSuccess
+          : AppStrings.eventUpdatedSuccess;
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }
@@ -79,7 +138,11 @@ class EventProvider extends ChangeNotifier {
   }
 
   void updateSearch(String value) {
-    search = value;
+    final queryError = AppValidators.eventSearchQuery(value);
+    searchError = queryError;
+    search = queryError == null
+        ? value
+        : value.substring(0, AppValidators.maxEventSearchLength);
     notifyListeners();
   }
 
@@ -88,12 +151,27 @@ class EventProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void updateSort(String value) {
+    sort = value;
+    notifyListeners();
+  }
+
+  void resetFilters() {
+    search = '';
+    filter = EventCatalog.filterAll;
+    sort = EventCatalog.sortStartAsc;
+    searchError = null;
+    notifyListeners();
+  }
+
   void clear() {
     events = [];
     search = '';
-    filter = 'all';
+    filter = EventCatalog.filterAll;
+    sort = EventCatalog.sortStartAsc;
     message = null;
     error = null;
+    searchError = null;
     isLoading = false;
     notifyListeners();
   }

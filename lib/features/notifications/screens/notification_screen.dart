@@ -1,0 +1,106 @@
+﻿import '../../../shared.dart';
+import '../widgets/notification_list.dart';
+
+class NotificationScreen extends StatefulWidget {
+  const NotificationScreen({super.key});
+
+  @override
+  State<NotificationScreen> createState() => _NotificationScreenState();
+}
+
+class _NotificationScreenState extends State<NotificationScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = context.read<AuthProvider>().user;
+      if (user != null) {
+        context.read<NotificationProvider>().watchForUser(user.id);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final notifications = context.watch<NotificationProvider>().notifications;
+    final provider = context.watch<NotificationProvider>();
+    final user = context.watch<AuthProvider>().user;
+    if (provider.error != null) {
+      return ListView(
+        padding: const EdgeInsets.all(AppSizes.paddingMedium),
+        children: [
+          const SealSectionHeader(
+            title: AppStrings.inboxTitle,
+            subtitle: AppStrings.inboxSubtitle,
+            icon: Icons.notifications_outlined,
+          ),
+          ErrorState(
+            message: provider.error!,
+            onRetry: user == null ? null : () => provider.watchForUser(user.id),
+          ),
+        ],
+      );
+    }
+    if (provider.isLoading) {
+      return ListView(
+        padding: const EdgeInsets.all(AppSizes.paddingMedium),
+        children: const [
+          SealSectionHeader(
+            title: AppStrings.inboxTitle,
+            subtitle: AppStrings.inboxSubtitle,
+            icon: Icons.notifications_outlined,
+          ),
+          LoadingCardList(itemCount: 3),
+        ],
+      );
+    }
+    if (notifications.isEmpty) {
+      return ListView(
+        padding: const EdgeInsets.all(AppSizes.paddingMedium),
+        children: [
+          const SealSectionHeader(
+            title: AppStrings.inboxTitle,
+            subtitle: AppStrings.inboxSubtitle,
+            icon: Icons.notifications_outlined,
+          ),
+          EmptyState(
+            message: AppStrings.inboxEmpty,
+            icon: Icons.mark_email_read_outlined,
+            actionLabel: user == null ? null : AppStrings.reloadInboxAction,
+            onAction: user == null ? null : () => provider.watchForUser(user.id),
+          ),
+        ],
+      );
+    }
+    final unread = notifications
+        .where((notification) => !notification.isRead)
+        .toList();
+    final read = notifications
+        .where((notification) => notification.isRead)
+        .toList();
+    return ListView(
+      padding: const EdgeInsets.all(AppSizes.paddingMedium),
+      children: [
+        const SealSectionHeader(
+          title: AppStrings.inboxTitle,
+          subtitle: AppStrings.inboxSubtitle,
+          icon: Icons.notifications_outlined,
+        ),
+        if (unread.isNotEmpty) ...[
+          NotificationGroupTitle(
+            label: AppStrings.unreadGroup,
+            count: unread.length,
+          ),
+          NotificationList(notifications: unread),
+        ],
+        if (read.isNotEmpty) ...[
+          NotificationGroupTitle(
+            label: AppStrings.readGroup,
+            count: read.length,
+          ),
+          NotificationList(notifications: read),
+        ],
+      ],
+    );
+  }
+}

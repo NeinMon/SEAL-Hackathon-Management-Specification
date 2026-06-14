@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/app_helpers.dart';
+import '../core/supabase_config.dart';
 import '../models/app_user.dart';
 import '../models/chat_message.dart';
 import '../services/supabase_services.dart';
@@ -13,8 +17,17 @@ class ChatProvider extends ChangeNotifier {
   bool isLoading = false;
   bool isSending = false;
   String? error;
+  RealtimeChannel? _conversationChannel;
+  String? _watchedUserId;
+  String? _watchedContactId;
 
   Future<void> loadContacts(AppUser currentUser) async {
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      notifyListeners();
+      return;
+    }
     isLoading = true;
     error = null;
     notifyListeners();
@@ -49,6 +62,55 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void watchConversation(String userId, String receiverId) {
+    if (!SupabaseGateway.isReady) {
+      unawaited(load(userId, receiverId));
+      return;
+    }
+    if (_watchedUserId == userId &&
+        _watchedContactId == receiverId &&
+        _conversationChannel != null) {
+      return;
+    }
+    _stopConversationRealtime();
+    _watchedUserId = userId;
+    _watchedContactId = receiverId;
+    _conversationChannel = SupabaseGateway.client
+        .channel('messages-$userId-$receiverId')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'messages',
+          callback: (payload) {
+            final record = payload.newRecord.isNotEmpty
+                ? payload.newRecord
+                : payload.oldRecord;
+            final senderId = record['sender_id']?.toString();
+            final recordReceiverId = record['receiver_id']?.toString();
+            final inConversation =
+                (senderId == userId && recordReceiverId == receiverId) ||
+                (senderId == receiverId && recordReceiverId == userId);
+            if (!inConversation) return;
+            unawaited(_refreshConversationSilently(userId, receiverId));
+          },
+        )
+        .subscribe();
+    unawaited(load(userId, receiverId));
+  }
+
+  Future<void> _refreshConversationSilently(
+    String userId,
+    String receiverId,
+  ) async {
+    try {
+      messages = await _service.fetchConversation(userId, receiverId);
+      error = null;
+    } catch (exception) {
+      error = FriendlyErrorMapper.message(exception);
+    }
+    notifyListeners();
+  }
+
   Future<void> send(
     String sender,
     String message, {
@@ -56,14 +118,21 @@ class ChatProvider extends ChangeNotifier {
     String? receiverId,
   }) async {
     if (isSending) return;
-    if (message.trim().isEmpty) {
-      error = 'Tin nhắn không được để trống.';
+    final messageError = AppValidators.chatMessage(message);
+    if (messageError != null) {
+      error = messageError;
       notifyListeners();
       return;
     }
     error = null;
     if (senderId == null || receiverId == null) {
-      error = 'Chọn cuộc trò chuyện trước khi gửi tin nhắn.';
+      error = AppStrings.selectConversationBeforeSend;
+      notifyListeners();
+      return;
+    }
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
       notifyListeners();
       return;
     }
@@ -94,7 +163,18 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _stopConversationRealtime() {
+    final channel = _conversationChannel;
+    _conversationChannel = null;
+    _watchedUserId = null;
+    _watchedContactId = null;
+    if (channel != null) {
+      unawaited(SupabaseGateway.client.removeChannel(channel));
+    }
+  }
+
   void clear() {
+    _stopConversationRealtime();
     contacts = [];
     selectedContact = null;
     messages = [];

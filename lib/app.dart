@@ -2,12 +2,12 @@ import 'core/auth_deep_link.dart';
 import 'shared.dart';
 import 'views/app_shell.dart';
 import 'features/auth/screens/login_screen.dart';
-import 'views/chat/chat_screen.dart';
-import 'views/events/event_detail_screen.dart';
-import 'views/events/event_list_screen.dart';
+import 'features/chat/screens/chat_screen.dart';
+import 'features/events/screens/event_detail_screen.dart';
+import 'features/events/screens/event_list_screen.dart';
 import 'views/judge/judge_screen.dart';
 import 'views/map/map_screen.dart';
-import 'views/notifications/notification_screen.dart';
+import 'features/notifications/screens/notification_screen.dart';
 import 'views/organizer/organizer_dashboard_screen.dart';
 import 'features/profile/screens/profile_screen.dart';
 import 'views/submissions/submission_screen.dart';
@@ -292,4 +292,5 @@ ThemeData buildSealTheme() {
 extension _InputBorderLet on OutlineInputBorder {
   T let<T>(T Function(OutlineInputBorder border) builder) => builder(this);
 }
+
 
