@@ -144,7 +144,7 @@ class _OrganizerDashboardContentState
         if (section == 'operations')
           OrganizerOperationsSection(
             unscored: unscored,
-            onCreateEvent: () => OrganizerEventDialog.show(context),
+            onCreateEvent: () => _openEventDialog(context),
             onSendAnnouncement: () => OrganizerAnnouncementDialog.show(context),
             onExportLeaderboard: () => _copyLeaderboardCsv(
               context,
@@ -152,17 +152,14 @@ class _OrganizerDashboardContentState
               scores,
               scopedTeams,
             ),
-            onOpenJudge: () => focusEventId == null
-                ? context.go(AppRoutes.judge)
-                : context.go(RouteQuery.judgeForEvent(focusEventId)),
+            onOpenJudge: () => setState(() => section = 'submissions'),
             onManageRoles: () => OrganizerUserRolesDialog.show(context),
           ),
         if (section == 'events')
           OrganizerEventsSection(
             events: events,
-            onCreateEvent: () => OrganizerEventDialog.show(context),
-            onEditEvent: (event) =>
-                OrganizerEventDialog.show(context, existing: event),
+            onCreateEvent: () => _openEventDialog(context),
+            onEditEvent: (event) => _openEventDialog(context, existing: event),
             onCloseRegistration: (event) => _closeRegistration(context, event),
           ),
         if (section == 'submissions')
@@ -209,6 +206,25 @@ class _OrganizerDashboardContentState
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text(AppStrings.leaderboardCopiedSuccess)),
     );
+  }
+
+  Future<void> _openEventDialog(
+    BuildContext context, {
+    HackathonEvent? existing,
+  }) async {
+    final event = await OrganizerEventDialog.show(context, existing: existing);
+    if (event == null || !context.mounted) return;
+    await context.read<EventProvider>().saveEvent(
+      event,
+      existingEventId: existing?.id,
+    );
+    if (!context.mounted) return;
+    final eventProvider = context.read<EventProvider>();
+    if (eventProvider.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(eventProvider.error!)),
+      );
+    }
   }
 
   Future<void> _closeRegistration(
