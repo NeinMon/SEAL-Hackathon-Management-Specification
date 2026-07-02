@@ -8,6 +8,15 @@ class TeamInviteFlow {
     required Team team,
     required HackathonEvent? event,
   }) async {
+    if (event != null) {
+      final blockReason = event.registrationBlockReason();
+      if (blockReason != null) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(blockReason)));
+        return;
+      }
+    }
     final controller = TextEditingController();
     final email = await showDialog<String>(
       context: context,

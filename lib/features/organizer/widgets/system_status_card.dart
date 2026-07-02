@@ -51,7 +51,7 @@ class SystemStatusCard extends StatelessWidget {
                 runSpacing: 8,
                 children: [
                   StatusPill(
-                    label: SupabaseConfig.displayName,
+                    label: AppStrings.operationsDataLabel,
                     icon: Icons.dns_outlined,
                   ),
                   StatusPill(

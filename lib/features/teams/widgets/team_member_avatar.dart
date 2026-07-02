@@ -19,9 +19,7 @@ class MemberAvatarStack extends StatelessWidget {
             for (var index = 0; index < visible.length; index++)
               Positioned(
                 left: index * 16,
-                child: MemberAvatar(
-                  label: _initials(visible[index].fullName),
-                ),
+                child: MemberAvatar(label: _initials(visible[index].fullName)),
               ),
         ],
       ),

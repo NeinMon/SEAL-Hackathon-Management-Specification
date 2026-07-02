@@ -49,26 +49,7 @@ class NotificationTile extends StatelessWidget {
       child: Card(
         margin: const EdgeInsets.only(bottom: 12),
         child: ListTile(
-          onTap: () async {
-            await context.read<NotificationProvider>().markRead(
-              notification.id,
-            );
-            if (!context.mounted) return;
-            switch (notification.type) {
-              case 'invitation':
-                context.go('/teams');
-                break;
-              case 'score':
-                context.go('/events');
-                break;
-              case 'reminder':
-                context.go('/map');
-                break;
-              case 'system':
-              default:
-                context.go('/events');
-            }
-          },
+          onTap: () => _handleTap(context),
           leading: Container(
             width: 42,
             height: 42,
@@ -86,7 +67,7 @@ class NotificationTile extends StatelessWidget {
             style: const TextStyle(fontWeight: FontWeight.w800),
           ),
           subtitle: Text(
-            '${notification.content}\n${DateFormat('dd/MM HH:mm').format(notification.createdAt)}',
+            '${NotificationLink.displayContent(notification.content)}\n${DateFormat('dd/MM HH:mm').format(notification.createdAt)}',
           ),
           isThreeLine: true,
           trailing: PopupMenuButton<String>(
@@ -120,6 +101,103 @@ class NotificationTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _handleTap(BuildContext context) async {
+    await context.read<NotificationProvider>().markRead(notification.id);
+    if (!context.mounted) return;
+    final role =
+        context.read<AuthProvider>().user?.role ?? AppRoles.participant;
+    switch (notification.type) {
+      case 'score':
+        await _showDetailDialog(
+          context,
+          title: AppStrings.scoreNotificationDialogTitle,
+          actionLabel: role == AppRoles.participant
+              ? AppStrings.viewSubmissionButton
+              : AppStrings.detailsButton,
+          destination: AppValidators.notificationRoute(
+            type: notification.type,
+            role: role,
+          ),
+          body: NotificationLink.displayContent(notification.content),
+        );
+        return;
+      case 'announcement':
+        final linkedEventId = NotificationLink.eventId(notification.content);
+        await _showDetailDialog(
+          context,
+          title: AppStrings.announcementNotificationDialogTitle,
+          actionLabel: linkedEventId == null
+              ? AppStrings.closeDialogButton
+              : AppStrings.viewEventFromAnnouncementButton,
+          destination: linkedEventId == null ? null : '/events/$linkedEventId',
+          body: NotificationLink.displayContent(notification.content),
+        );
+        return;
+      default:
+        final destination = AppValidators.notificationRoute(
+          type: notification.type,
+          role: role,
+        );
+        if (destination != null) {
+          context.go(destination);
+        }
+    }
+  }
+
+  Future<void> _showDetailDialog(
+    BuildContext context, {
+    required String title,
+    required String actionLabel,
+    String? destination,
+    String? body,
+  }) async {
+    final message =
+        body ?? NotificationLink.displayContent(notification.content);
+    final shouldNavigate = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(title),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              notification.title,
+              style: const TextStyle(fontWeight: FontWeight.w800),
+            ),
+            const SizedBox(height: 10),
+            Text(message),
+            const SizedBox(height: 8),
+            Text(
+              DateFormat('dd/MM/yyyy HH:mm').format(notification.createdAt),
+              style: const TextStyle(color: SealPalette.onSurfaceVariant),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text(AppStrings.closeDialogButton),
+          ),
+          if (destination != null)
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text(actionLabel),
+            )
+          else
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text(actionLabel),
+            ),
+        ],
+      ),
+    );
+    if (!context.mounted || shouldNavigate != true || destination == null) {
+      return;
+    }
+    context.go(destination);
   }
 
   Future<void> _confirmDelete(BuildContext context) async {

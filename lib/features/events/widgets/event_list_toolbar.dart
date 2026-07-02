@@ -79,10 +79,10 @@ class EventSortDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        const Icon(
+        Icon(
           Icons.sort_outlined,
           size: 20,
-          color: SealPalette.onSurfaceVariant,
+          color: context.sealTheme.onSurfaceVariant,
         ),
         const SizedBox(width: AppSizes.paddingSmall),
         Expanded(
@@ -99,14 +99,13 @@ class EventSortDropdown extends StatelessWidget {
             ),
             items: [
               for (final entry in EventCatalog.sortLabels.entries)
-                DropdownMenuItem(
-                  value: entry.key,
-                  child: Text(entry.value),
-                ),
+                DropdownMenuItem(value: entry.key, child: Text(entry.value)),
             ],
-            onChanged: isLoading ? null : (sort) {
-              if (sort != null) onChanged(sort);
-            },
+            onChanged: isLoading
+                ? null
+                : (sort) {
+                    if (sort != null) onChanged(sort);
+                  },
           ),
         ),
       ],
@@ -150,12 +149,18 @@ class EventListBody extends StatelessWidget {
         onAction: hasActiveQuery ? onResetFilters : provider.loadEvents,
       );
     }
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: provider.filteredEvents.length,
-      itemBuilder: (context, index) =>
-          EventCard(event: provider.filteredEvents[index]),
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: provider.visibleFilteredEvents.length,
+          itemBuilder: (context, index) =>
+              EventCard(event: provider.visibleFilteredEvents[index]),
+        ),
+        if (provider.hasMoreEvents)
+          LoadMoreButton(onPressed: provider.loadMoreEvents),
+      ],
     );
   }
 }

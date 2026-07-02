@@ -12,6 +12,7 @@ class EventCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final formatter = DateFormat('dd/MM/yyyy');
     final phase = eventPhaseFor(event);
+    final registrationOpen = eventRegistrationOpen(event);
     return Semantics(
       button: true,
       label: AppStrings.openEventSemanticLabel(event.title),
@@ -91,11 +92,17 @@ class EventCard extends StatelessWidget {
                     const SizedBox(height: AppSizes.paddingMedium),
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: StatusPill(
-                            label: AppStrings.registerTeamPill,
-                            color: SealPalette.secondary,
-                            icon: Icons.groups_2_outlined,
+                            label: registrationOpen
+                                ? AppStrings.registerTeamPill
+                                : AppStrings.registrationClosedPill,
+                            color: registrationOpen
+                                ? SealPalette.secondary
+                                : SealPalette.onSurfaceVariant,
+                            icon: registrationOpen
+                                ? Icons.groups_2_outlined
+                                : Icons.lock_clock_outlined,
                           ),
                         ),
                         TextButton.icon(

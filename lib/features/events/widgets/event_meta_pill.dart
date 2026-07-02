@@ -8,12 +8,13 @@ class EventMetaPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
-        color: SealPalette.surfaceContainerHigh,
+        color: seal.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
-        border: Border.all(color: SealPalette.outlineVariant),
+        border: Border.all(color: seal.outlineVariant),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -24,8 +25,8 @@ class EventMetaPill extends StatelessWidget {
             child: Text(
               value,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: SealPalette.onSurface,
+              style: TextStyle(
+                color: context.onSurfaceColor,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),

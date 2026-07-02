@@ -7,15 +7,27 @@ class OrganizerSubmissionsSection extends StatelessWidget {
     required this.scores,
     required this.teams,
     required this.onTapSubmission,
+    this.focusEventId,
   });
 
   final SubmissionProvider submissions;
   final ScoreProvider scores;
   final TeamProvider teams;
   final void Function(ProjectSubmission submission) onTapSubmission;
+  final String? focusEventId;
+
+  List<ProjectSubmission> get _visibleSubmissions {
+    if (focusEventId == null) return submissions.submissions;
+    return EventScope.submissionsForEvent(
+      submissions: submissions.submissions,
+      teams: teams.teams,
+      eventId: focusEventId!,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final visible = _visibleSubmissions;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -24,7 +36,7 @@ class OrganizerSubmissionsSection extends StatelessWidget {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 8),
-        if (submissions.submissions.isEmpty)
+        if (visible.isEmpty)
           EmptyState(
             message: AppStrings.noSubmissionsYet,
             icon: Icons.assignment_outlined,
@@ -35,9 +47,9 @@ class OrganizerSubmissionsSection extends StatelessWidget {
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: submissions.submissions.take(5).length,
+            itemCount: visible.take(5).length,
             itemBuilder: (context, index) {
-              final submission = submissions.submissions[index];
+              final submission = visible[index];
               return Card(
                 margin: const EdgeInsets.only(bottom: 10),
                 child: ListTile(

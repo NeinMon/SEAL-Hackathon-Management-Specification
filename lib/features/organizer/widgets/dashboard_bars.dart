@@ -33,7 +33,7 @@ class DashboardBarRow extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: value / maxValue,
                 minHeight: 12,
-                backgroundColor: SealPalette.surfaceContainerLow,
+                backgroundColor: context.sealTheme.surfaceContainerLow,
                 color: color,
               ),
             ),

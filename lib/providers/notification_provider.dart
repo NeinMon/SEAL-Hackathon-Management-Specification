@@ -3,18 +3,49 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../core/notification_link.dart';
 import '../core/app_helpers.dart';
 import '../core/supabase_config.dart';
 import '../models/app_notification.dart';
+import '../services/push_notification_service.dart';
 import '../services/supabase_services.dart';
 
 class NotificationProvider extends ChangeNotifier {
   final NotificationService _service = const NotificationService();
+  static const int pageSize = 20;
   List<AppNotification> notifications = [];
+  int _visibleCount = pageSize;
   bool isLoading = false;
   String? error;
   RealtimeChannel? _realtimeChannel;
   String? _watchedUserId;
+  bool bellHighlight = false;
+  AppNotification? pendingScoreAlert;
+
+  void clearScoreAlert() {
+    if (!bellHighlight && pendingScoreAlert == null) return;
+    bellHighlight = false;
+    pendingScoreAlert = null;
+    notifyListeners();
+  }
+
+  List<AppNotification> get visibleNotifications =>
+      notifications.take(_visibleCount).toList();
+
+  bool get hasMoreNotifications => notifications.length > _visibleCount;
+
+  int get unreadCount =>
+      notifications.where((notification) => !notification.isRead).length;
+
+  void loadMoreNotifications() {
+    if (!hasMoreNotifications) return;
+    _visibleCount += pageSize;
+    notifyListeners();
+  }
+
+  void _resetVisibleCount() {
+    _visibleCount = pageSize;
+  }
 
   Future<void> loadForUser(String userId) async {
     final userError = AppValidators.requireUserId(userId);
@@ -34,6 +65,7 @@ class NotificationProvider extends ChangeNotifier {
     notifyListeners();
     try {
       notifications = await _service.fetchForUser(userId);
+      _resetVisibleCount();
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }
@@ -68,8 +100,32 @@ class NotificationProvider extends ChangeNotifier {
 
   Future<void> _refreshSilently(String userId) async {
     try {
+      final previousIds = notifications.map((item) => item.id).toSet();
+      final previousUnread = unreadCount;
       notifications = await _service.fetchForUser(userId);
+      _resetVisibleCount();
       error = null;
+      final latestUnread = notifications
+          .where((notification) => !notification.isRead)
+          .toList();
+      final newUnread = notifications
+          .where((notification) => !previousIds.contains(notification.id))
+          .where((notification) => !notification.isRead)
+          .toList();
+      if (latestUnread.length > previousUnread && latestUnread.isNotEmpty) {
+        final latest = latestUnread.first;
+        await PushNotificationService.instance.showInAppAlert(
+          title: latest.title,
+          body: NotificationLink.displayContent(latest.content),
+        );
+      }
+      final newScore = newUnread
+          .where((notification) => notification.type == 'score')
+          .toList();
+      if (newScore.isNotEmpty) {
+        pendingScoreAlert = newScore.first;
+        bellHighlight = true;
+      }
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }
@@ -154,6 +210,9 @@ class NotificationProvider extends ChangeNotifier {
     notifications = [];
     error = null;
     isLoading = false;
+    bellHighlight = false;
+    pendingScoreAlert = null;
+    _resetVisibleCount();
     notifyListeners();
   }
 }

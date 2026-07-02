@@ -9,6 +9,7 @@ import '../models/hackathon_event.dart';
 import '../models/project_score.dart';
 import '../models/project_submission.dart';
 import '../models/team.dart';
+import '../models/team_invitation.dart';
 
 class RegisterResult {
   const RegisterResult({
@@ -29,7 +30,7 @@ class AuthService {
     return AppOperation.run('auth.current_profile', () async {
       final authUser = SupabaseGateway.client.auth.currentUser;
       if (authUser == null) return null;
-      return _fetchProfile(authUser.id);
+      return _profileForAuthUser(authUser);
     });
   }
 
@@ -43,7 +44,7 @@ class AuthService {
       if (authUser == null) {
         throw const AuthException('Unable to create a user session.');
       }
-      return _fetchProfile(authUser.id);
+      return _profileForAuthUser(authUser);
     });
   }
 
@@ -61,6 +62,27 @@ class AuthService {
     return AppUser.fromJson(profile);
   }
 
+  Future<AppUser> _profileForAuthUser(User authUser) async {
+    try {
+      return await _fetchProfile(authUser.id);
+    } on AuthException {
+      await _backfillProfile(authUser);
+      return _fetchProfile(authUser.id);
+    }
+  }
+
+  Future<void> _backfillProfile(User authUser) async {
+    final metadata = authUser.userMetadata ?? {};
+    final email = authUser.email ?? '';
+    await SupabaseGateway.client.from('users').upsert({
+      'id': authUser.id,
+      'full_name': metadata['full_name'] ?? email.split('@').first,
+      'email': email,
+      'role': 'participant',
+      'university': metadata['university'],
+    }, onConflict: 'id');
+  }
+
   Future<RegisterResult> register({
     required String fullName,
     required String email,
@@ -72,10 +94,7 @@ class AuthService {
         email: email,
         password: password,
         emailRedirectTo: SupabaseConfig.authRedirectUrl,
-        data: {
-          'full_name': fullName,
-          'university': university,
-        },
+        data: {'full_name': fullName, 'university': university},
       );
       final authUser = response.user;
       if (authUser == null) {
@@ -88,12 +107,9 @@ class AuthService {
             'Email này đã được đăng ký. Hãy đăng nhập hoặc dùng "Quên mật khẩu".',
           );
         }
-        return RegisterResult(
-          requiresEmailVerification: true,
-          email: email,
-        );
+        return RegisterResult(requiresEmailVerification: true, email: email);
       }
-      final profile = await _fetchProfile(authUser.id);
+      final profile = await _profileForAuthUser(authUser);
       return RegisterResult(user: profile, email: email);
     });
   }
@@ -112,7 +128,7 @@ class AuthService {
       if (authUser == null) {
         throw const AuthException('Mã OTP không hợp lệ hoặc đã hết hạn.');
       }
-      return _fetchProfile(authUser.id);
+      return _profileForAuthUser(authUser);
     });
   }
 
@@ -202,37 +218,8 @@ class UserDirectoryService {
   }
 }
 
-class AdminService {
-  const AdminService();
-
-  Future<String> resetDemoData() {
-    AppLogger.action('admin.reset_demo');
-    return AppOperation.run('admin.reset_demo', () async {
-      final response = await SupabaseGateway.client.functions.invoke(
-        'admin-reset-demo',
-        body: {'source': 'organizer_app'},
-      );
-      final data = response.data;
-      if (response.status < 200 || response.status >= 300) {
-        if (data is Map && data['error'] != null) {
-          throw Exception(data['error']);
-        }
-        if (SupabaseConfig.isLocal) {
-          throw Exception(
-            'Edge Function chưa deploy trên local. Chạy: '
-            'npx supabase functions serve admin-reset-demo '
-            'hoặc dùng scripts\\reset_demo_database.ps1 rồi seed_demo_users.ps1.',
-          );
-        }
-        throw Exception('Không thể reset dữ liệu demo.');
-      }
-      if (data is Map && data['message'] is String) {
-        return data['message'] as String;
-      }
-      return 'Đã reset dữ liệu demo.';
-    });
-  }
-}
+// Admin demo reset functionality removed. If you need to re-enable,
+// restore `AdminService.resetDemoData()` and related edge function.
 
 class EventService {
   const EventService();
@@ -324,12 +311,61 @@ class TeamService {
           .eq('email', email)
           .maybeSingle();
       if (user == null) {
-        throw Exception('No user was found with email $email.');
+        throw Exception(AppStrings.inviteUserNotFound);
       }
-      await SupabaseGateway.client.from('team_members').upsert({
+      final inviterId = SupabaseGateway.client.auth.currentUser?.id;
+      if (inviterId == null) {
+        throw Exception(AppStrings.notLoggedInMessage);
+      }
+      await SupabaseGateway.client.from('team_invitations').insert({
         'team_id': teamId,
-        'user_id': user['id'],
+        'inviter_id': inviterId,
+        'invitee_id': user['id'],
       });
+    });
+  }
+
+  Future<List<TeamInvitation>> fetchInvitationsForUser(String userId) {
+    return AppOperation.run('team_invitations.fetch', () async {
+      final rows = await SupabaseGateway.client
+          .from('team_invitations')
+          .select(
+            '*,team:teams(id,name,leader_id,event_id,team_members(users(id,full_name,email,role,university))),inviter:users!team_invitations_inviter_id_fkey(id,full_name,email,role,university)',
+          )
+          .eq('invitee_id', userId)
+          .order('created_at', ascending: false);
+      return rows
+          .whereType<Map<String, dynamic>>()
+          .map(TeamInvitation.fromJson)
+          .toList();
+    });
+  }
+
+  Future<void> acceptInvitation(TeamInvitation invitation) {
+    return AppOperation.run('team_invitations.accept', () async {
+      await SupabaseGateway.client.from('team_members').upsert({
+        'team_id': invitation.teamId,
+        'user_id': invitation.inviteeId,
+      });
+      await SupabaseGateway.client
+          .from('team_invitations')
+          .update({
+            'status': 'accepted',
+            'responded_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', invitation.id);
+    });
+  }
+
+  Future<void> declineInvitation(String invitationId) {
+    return AppOperation.run('team_invitations.decline', () {
+      return SupabaseGateway.client
+          .from('team_invitations')
+          .update({
+            'status': 'declined',
+            'responded_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', invitationId);
     });
   }
 

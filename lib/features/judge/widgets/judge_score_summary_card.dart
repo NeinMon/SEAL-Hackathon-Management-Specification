@@ -21,12 +21,13 @@ class JudgeScoreSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: SealPalette.surfaceContainerLow,
+        color: seal.surfaceContainerLow,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: SealPalette.outlineVariant),
+        border: Border.all(color: seal.outlineVariant),
       ),
       child: Column(
         children: [

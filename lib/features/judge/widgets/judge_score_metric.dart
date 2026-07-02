@@ -14,20 +14,21 @@ class JudgeScoreMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: SealPalette.surfaceContainerLow,
+        color: seal.surfaceContainerLow,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: SealPalette.outlineVariant),
+        border: Border.all(color: seal.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
-            style: const TextStyle(
-              color: SealPalette.onSurfaceVariant,
+            style: TextStyle(
+              color: seal.onSurfaceVariant,
               fontSize: 12,
               fontWeight: FontWeight.w800,
             ),

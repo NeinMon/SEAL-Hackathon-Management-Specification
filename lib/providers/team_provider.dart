@@ -1,14 +1,17 @@
 import 'package:flutter/foundation.dart';
 
 import '../core/app_helpers.dart';
+import '../core/team_membership.dart';
 import '../models/app_user.dart';
 import '../models/hackathon_event.dart';
 import '../models/team.dart';
+import '../models/team_invitation.dart';
 import '../services/supabase_services.dart';
 
 class TeamProvider extends ChangeNotifier {
   final TeamService _service = const TeamService();
   List<Team> teams = [];
+  List<TeamInvitation> invitations = [];
   bool isLoading = false;
   String? message;
   String? error;
@@ -32,6 +35,36 @@ class TeamProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> loadInvitations(AppUser? user) async {
+    if (user == null) {
+      invitations = [];
+      notifyListeners();
+      return;
+    }
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      notifyListeners();
+      return;
+    }
+    isLoading = true;
+    error = null;
+    notifyListeners();
+    try {
+      invitations = await _service.fetchInvitationsForUser(user.id);
+    } catch (exception) {
+      error = FriendlyErrorMapper.message(exception);
+    }
+    isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> loadTeamWorkspace(AppUser? user) async {
+    await loadTeams();
+    if (error != null) return;
+    await loadInvitations(user);
+  }
+
   Future<void> createTeam(
     String name,
     HackathonEvent event,
@@ -43,6 +76,22 @@ class TeamProvider extends ChangeNotifier {
     final nameError = AppValidators.teamName(name);
     if (nameError != null) {
       error = nameError;
+      notifyListeners();
+      return;
+    }
+    final registrationError = event.registrationBlockReason();
+    if (registrationError != null) {
+      error = registrationError;
+      notifyListeners();
+      return;
+    }
+    final existingTeam = TeamMembership.teamForUserOnEvent(
+      teams: teams,
+      userId: leader.id,
+      eventId: event.id,
+    );
+    if (existingTeam != null) {
+      error = AppStrings.alreadyOnEventTeamNamedError(existingTeam.name);
       notifyListeners();
       return;
     }
@@ -96,6 +145,25 @@ class TeamProvider extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    if (event != null) {
+      final registrationError = event.registrationBlockReason();
+      if (registrationError != null) {
+        error = registrationError;
+        notifyListeners();
+        return;
+      }
+      final existingTeam = TeamMembership.teamForUserOnEvent(
+        teams: teams,
+        userId: user.id,
+        eventId: event.id,
+        excludeTeamId: teamId,
+      );
+      if (existingTeam != null) {
+        error = AppStrings.alreadyOnEventTeamNamedError(existingTeam.name);
+        notifyListeners();
+        return;
+      }
+    }
     final configError = AppValidators.requireSupabaseReady();
     if (configError != null) {
       error = configError;
@@ -138,6 +206,25 @@ class TeamProvider extends ChangeNotifier {
       notifyListeners();
       return;
     }
+    if (team != null && event != null) {
+      final registrationError = event.registrationBlockReason();
+      if (registrationError != null) {
+        error = registrationError;
+        notifyListeners();
+        return;
+      }
+      final normalizedEmail = email.trim().toLowerCase();
+      for (final candidate in teams) {
+        if (candidate.eventId != event.id) continue;
+        for (final member in candidate.members) {
+          if (member.email.toLowerCase() != normalizedEmail) continue;
+          if (candidate.id == teamId) continue;
+          error = AppStrings.alreadyOnEventTeamNamedError(candidate.name);
+          notifyListeners();
+          return;
+        }
+      }
+    }
     final configError = AppValidators.requireSupabaseReady();
     if (configError != null) {
       error = configError;
@@ -148,8 +235,89 @@ class TeamProvider extends ChangeNotifier {
     notifyListeners();
     try {
       await _service.inviteMemberByEmail(teamId, email.trim());
-      await loadTeams();
       message = AppStrings.invitationSentSuccess;
+    } catch (exception) {
+      error = FriendlyErrorMapper.message(exception);
+      isLoading = false;
+    }
+    notifyListeners();
+  }
+
+  Future<void> acceptInvitation(
+    TeamInvitation invitation,
+    AppUser user, {
+    HackathonEvent? event,
+  }) async {
+    if (isLoading) return;
+    error = null;
+    message = null;
+    final team = invitation.team ?? _teamById(invitation.teamId);
+    if (team != null && team.members.any((member) => member.id == user.id)) {
+      error = AppStrings.alreadyTeamMemberError;
+      notifyListeners();
+      return;
+    }
+    if (event != null) {
+      final registrationError = event.registrationBlockReason();
+      if (registrationError != null) {
+        error = registrationError;
+        notifyListeners();
+        return;
+      }
+      if (team != null &&
+          event.maxTeamSize > 0 &&
+          team.members.length >= event.maxTeamSize) {
+        error = AppStrings.teamFullForEventError(team.name);
+        notifyListeners();
+        return;
+      }
+      final existingTeam = TeamMembership.teamForUserOnEvent(
+        teams: teams,
+        userId: user.id,
+        eventId: event.id,
+        excludeTeamId: invitation.teamId,
+      );
+      if (existingTeam != null) {
+        error = AppStrings.alreadyOnEventTeamNamedError(existingTeam.name);
+        notifyListeners();
+        return;
+      }
+    }
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      notifyListeners();
+      return;
+    }
+    isLoading = true;
+    notifyListeners();
+    try {
+      await _service.acceptInvitation(invitation);
+      await loadTeamWorkspace(user);
+      message = AppStrings.invitationAcceptedSuccess;
+    } catch (exception) {
+      error = FriendlyErrorMapper.message(exception);
+      isLoading = false;
+    }
+    notifyListeners();
+  }
+
+  Future<void> declineInvitation(String invitationId, AppUser user) async {
+    if (isLoading) return;
+    error = null;
+    message = null;
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      notifyListeners();
+      return;
+    }
+    isLoading = true;
+    notifyListeners();
+    try {
+      await _service.declineInvitation(invitationId);
+      await loadInvitations(user);
+      message = AppStrings.invitationDeclinedSuccess;
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
       isLoading = false;
@@ -223,6 +391,7 @@ class TeamProvider extends ChangeNotifier {
 
   void clear() {
     teams = [];
+    invitations = [];
     error = null;
     message = null;
     isLoading = false;

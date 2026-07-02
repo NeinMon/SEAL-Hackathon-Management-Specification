@@ -6,6 +6,8 @@ class JudgeSubmissionCard extends StatefulWidget {
   const JudgeSubmissionCard({
     super.key,
     required this.submission,
+    required this.event,
+    required this.events,
     required this.scores,
     required this.teams,
     required this.judge,
@@ -13,6 +15,8 @@ class JudgeSubmissionCard extends StatefulWidget {
   });
 
   final ProjectSubmission submission;
+  final HackathonEvent? event;
+  final List<HackathonEvent> events;
   final ScoreProvider scores;
   final List<Team> teams;
   final AppUser? judge;
@@ -60,11 +64,22 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
   Widget build(BuildContext context) {
     final submission = widget.submission;
     final judgeId = widget.judge?.id;
+    final eventTitle =
+        widget.event?.title ??
+        EventScope.eventTitleForSubmission(
+          submission: submission,
+          teams: widget.teams,
+          events: widget.events,
+        );
     final existingScore = judgeId == null
         ? null
         : widget.scores.scoreFor(submission.id, judgeId);
     final scoreCount = widget.scores.scoreCountFor(submission.id);
     final currentAverage = (technical + ui + innovation) / 3;
+    final judgingBlockReason = widget.event?.judgingBlockReason();
+    final canSubmitScore =
+        widget.canSubmit &&
+        (widget.event == null || widget.event!.judgingOpen());
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       child: Padding(
@@ -107,16 +122,25 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
                   const SizedBox(height: 10),
                   Text(
                     submission.projectName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w900,
+                      color: context.onSurfaceColor,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${_teamName(submission.teamId)} • ${eventTitle ?? AppStrings.eventNotLoadedYet}',
+                    style: TextStyle(
+                      color: context.sealTheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     submission.description,
-                    style: const TextStyle(
-                      color: SealPalette.onSurfaceVariant,
+                    style: TextStyle(
+                      color: context.sealTheme.onSurfaceVariant,
                       height: 1.4,
                     ),
                   ),
@@ -142,6 +166,10 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
             ),
             const SizedBox(height: 14),
             const StatusBanner(message: AppStrings.judgeReviewReminder),
+            if (judgingBlockReason != null) ...[
+              const SizedBox(height: 8),
+              StatusBanner(message: judgingBlockReason, isError: true),
+            ],
             const Text(
               AppStrings.rubricEvaluationTitle,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
@@ -196,7 +224,7 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
               feedbackReady: feedback.text.trim().isNotEmpty,
               existingScore: existingScore,
               isSubmitting: isSubmitting,
-              canSubmit: widget.canSubmit,
+              canSubmit: canSubmitScore,
               onSubmit: _submitScore,
             ),
           ],
@@ -205,8 +233,22 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
     );
   }
 
+  String _teamName(String teamId) {
+    for (final team in widget.teams) {
+      if (team.id == teamId) return team.name;
+    }
+    return AppStrings.unknownTeamLabel;
+  }
+
   Future<void> _openUrl(String value) async {
-    await ExternalLauncher.openUrl(value);
+    final opened = await ExternalLauncher.openUrl(value);
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Không thể mở liên kết trên thiết bị này.'),
+        ),
+      );
+    }
   }
 
   Future<void> _submitScore() async {
@@ -249,16 +291,15 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
     }
     setState(() => inlineError = null);
     setState(() => isSubmitting = true);
-    await widget.scores.addScore(
-      ProjectScore(
-        submissionId: widget.submission.id,
-        judgeId: judge.id,
-        technicalScore: technical,
-        uiScore: ui,
-        innovationScore: innovation,
-        feedback: feedback.text.trim(),
-      ),
+    final score = ProjectScore(
+      submissionId: widget.submission.id,
+      judgeId: judge.id,
+      technicalScore: technical,
+      uiScore: ui,
+      innovationScore: innovation,
+      feedback: feedback.text.trim(),
     );
+    await widget.scores.addScore(score, event: widget.event);
     if (!mounted) return;
     setState(() => isSubmitting = false);
     if (widget.scores.error != null) return;
@@ -269,21 +310,55 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
         break;
       }
     }
-    final recipients =
-        team?.members.map((member) => member.id).toSet() ?? {judge.id};
+    if (team == null || team.members.isEmpty) {
+      try {
+        final freshTeams = await const TeamService().fetchTeams();
+        for (final item in freshTeams) {
+          if (item.id == widget.submission.teamId) {
+            team = item;
+            break;
+          }
+        }
+      } catch (_) {
+        // Keep the in-memory team if the refresh fails.
+      }
+    }
+    if (!mounted) return;
+    final recipients = <String>{};
+    if (team != null) {
+      recipients.addAll(team.members.map((member) => member.id));
+      recipients.add(team.leaderId);
+    }
+    recipients.removeWhere((id) => id.isEmpty);
+    if (recipients.isEmpty) {
+      recipients.add(judge.id);
+    }
+    if (!mounted) return;
+    final notifications = context.read<NotificationProvider>();
     for (final recipientId in recipients) {
-      await context.read<NotificationProvider>().push(
+      await notifications.push(
         AppStrings.scorePublishedNotificationTitle,
         AppStrings.scorePublishedNotificationBody(
           widget.submission.projectName,
+          average: score.average,
+          feedback: score.feedback,
         ),
         'score',
         userId: recipientId,
       );
     }
     if (!mounted) return;
+    if (notifications.error != null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(notifications.error!)));
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text(AppStrings.scorePublishedSnackBar)),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(AppStrings.judgeScoreParticipantHint)),
     );
   }
 

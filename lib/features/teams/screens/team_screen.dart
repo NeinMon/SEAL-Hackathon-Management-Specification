@@ -1,7 +1,8 @@
-﻿import '../../../shared.dart';
+import '../../../shared.dart';
 import '../widgets/team_card.dart';
 import '../widgets/team_create_form.dart';
 import '../widgets/team_group_title.dart';
+import '../widgets/team_invitation_card.dart';
 
 class TeamScreen extends StatefulWidget {
   const TeamScreen({super.key});
@@ -21,9 +22,20 @@ class _TeamScreenState extends State<TeamScreen> {
     super.initState();
     name.addListener(_refreshCreateForm);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _applyRouteQuery();
       context.read<EventProvider>().loadEvents();
-      context.read<TeamProvider>().loadTeams();
+      context.read<TeamProvider>().loadTeamWorkspace(
+        context.read<AuthProvider>().user,
+      );
     });
+  }
+
+  void _applyRouteQuery() {
+    if (!mounted) return;
+    final eventId = RouteQuery.eventIdFrom(context);
+    if (eventId != null && eventId != selectedEventId) {
+      setState(() => selectedEventId = eventId);
+    }
   }
 
   @override
@@ -54,10 +66,7 @@ class _TeamScreenState extends State<TeamScreen> {
       });
       await context.read<NotificationProvider>().push(
         AppStrings.teamCreatedNotificationTitle,
-        AppStrings.teamCreatedNotificationBody(
-          teamName,
-          selectedEvent.title,
-        ),
+        AppStrings.teamCreatedNotificationBody(teamName, selectedEvent.title),
         'invitation',
         userId: user.id,
       );
@@ -87,17 +96,44 @@ class _TeamScreenState extends State<TeamScreen> {
                 (team) => team.members.any((member) => member.id == user.id),
               )
               .toList();
-    final otherTeams = user == null
+    final pendingInvitations = user == null
+        ? <TeamInvitation>[]
+        : teams.invitations
+              .where(
+                (invitation) =>
+                    invitation.isPending && invitation.inviteeId == user.id,
+              )
+              .toList();
+    final routeEventId = RouteQuery.eventIdFrom(context);
+    final filterEventId = selectedEvent?.id ?? routeEventId;
+    final scopedTeams = filterEventId == null
         ? teams.teams
-        : teams.teams
+        : teams.teams.where((team) => team.eventId == filterEventId).toList();
+    final myTeamForSelectedEvent = user == null || selectedEvent == null
+        ? null
+        : TeamMembership.teamForUserOnEvent(
+            teams: teams.teams,
+            userId: user.id,
+            eventId: selectedEvent.id,
+          );
+    final otherTeams = user == null
+        ? scopedTeams
+        : scopedTeams
               .where(
                 (team) => !team.members.any((member) => member.id == user.id),
               )
               .toList();
+    final visibleMyTeams = filterEventId == null
+        ? myTeams
+        : myTeams.where((team) => team.eventId == filterEventId).toList();
     final canCreateTeamRole =
         user != null && AppRoles.participantCreators.contains(user.role);
     final canCreateTeam =
-        canCreateTeamRole && selectedEvent != null && !loading;
+        canCreateTeamRole &&
+        selectedEvent != null &&
+        selectedEvent.registrationOpen() &&
+        myTeamForSelectedEvent == null &&
+        !loading;
     return ListView(
       padding: const EdgeInsets.all(AppSizes.paddingMedium),
       children: [
@@ -111,7 +147,7 @@ class _TeamScreenState extends State<TeamScreen> {
                 ? null
                 : () => Future.wait([
                     context.read<EventProvider>().loadEvents(),
-                    context.read<TeamProvider>().loadTeams(),
+                    context.read<TeamProvider>().loadTeamWorkspace(user),
                   ]),
             icon: const Icon(Icons.refresh),
           ),
@@ -205,26 +241,20 @@ class _TeamScreenState extends State<TeamScreen> {
           ],
         ),
         const SizedBox(height: AppSizes.paddingCompact),
-        if (myTeams.isNotEmpty) ...[
+        if (myTeamForSelectedEvent != null) ...[
           FilledButton.icon(
-            onPressed: loading ? null : () => context.go(AppRoutes.submit),
+            onPressed: loading
+                ? null
+                : () => context.go(
+                    RouteQuery.submitForTeam(myTeamForSelectedEvent.id),
+                  ),
             icon: const Icon(Icons.upload_file_outlined),
             label: const Text(AppStrings.submitProjectButton),
           ),
           const SizedBox(height: AppSizes.paddingMedium),
-        ] else if (canCreateTeamRole &&
-            teams.teams.isNotEmpty &&
-            !showCreateTeam) ...[
-          FilledButton.icon(
-            onPressed: loading
-                ? null
-                : () => setState(() => showCreateTeam = true),
-            icon: const Icon(Icons.add),
-            label: const Text(AppStrings.createTeamButton),
-          ),
-          const SizedBox(height: AppSizes.paddingMedium),
         ],
-        if (showCreateTeam || teams.teams.isEmpty)
+        if (showCreateTeam ||
+            (teams.teams.isEmpty && myTeamForSelectedEvent == null))
           TeamCreateForm(
             formKey: _createFormKey,
             nameController: name,
@@ -240,40 +270,62 @@ class _TeamScreenState extends State<TeamScreen> {
                 ? () {}
                 : () => _createTeam(teams, selectedEvent, user),
           )
-        else if (canCreateTeamRole)
-          OutlinedButton.icon(
-            onPressed: loading
+        else if (canCreateTeamRole && myTeamForSelectedEvent == null) ...[
+          FilledButton.icon(
+            onPressed: loading || !canCreateTeam
                 ? null
                 : () => setState(() => showCreateTeam = true),
             icon: const Icon(Icons.add),
             label: const Text(AppStrings.createTeamButton),
           ),
+          if (!loading &&
+              selectedEvent != null &&
+              !selectedEvent.registrationOpen()) ...[
+            const SizedBox(height: 8),
+            Text(
+              selectedEvent.registrationBlockReason() ??
+                  AppStrings.errorRegistrationDeadlinePassed,
+              style: TextStyle(color: context.sealTheme.onSurfaceVariant),
+            ),
+          ],
+        ],
         const SizedBox(height: AppSizes.paddingMedium),
         if (teams.error != null && teams.teams.isEmpty)
           ErrorState(
             message: teams.error!,
-            onRetry: () => context.read<TeamProvider>().loadTeams(),
+            onRetry: () => context.read<TeamProvider>().loadTeamWorkspace(user),
           )
         else if (teams.error != null)
           StatusBanner(message: teams.error!, isError: true),
         if (teams.message != null) StatusBanner(message: teams.message!),
+        if (pendingInvitations.isNotEmpty) ...[
+          const TeamGroupTitle(title: AppStrings.pendingInvitationsTitle),
+          for (final invitation in pendingInvitations)
+            TeamInvitationCard(
+              invitation: invitation,
+              currentUser: user!,
+              event: _eventFor(invitation.team?.eventId ?? '', events.events),
+            ),
+          const SizedBox(height: AppSizes.paddingCompact),
+        ],
         if (loading)
           const LoadingCardList(itemCount: 2)
         else if (teams.teams.isEmpty)
           const EmptyState(message: AppStrings.emptyTeamsMessage)
         else ...[
-          if (myTeams.isNotEmpty) ...[
+          if (visibleMyTeams.isNotEmpty) ...[
             const TeamGroupTitle(title: AppStrings.myTeamsGroup),
             ListView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: myTeams.length,
+              itemCount: visibleMyTeams.length,
               itemBuilder: (context, index) {
-                final team = myTeams[index];
+                final team = visibleMyTeams[index];
                 return TeamCard(
                   team: team,
                   currentUser: user,
                   event: _eventFor(team.eventId, events.events),
+                  allTeams: teams.teams,
                   highlighted: true,
                 );
               },
@@ -291,6 +343,7 @@ class _TeamScreenState extends State<TeamScreen> {
                   team: team,
                   currentUser: user,
                   event: _eventFor(team.eventId, events.events),
+                  allTeams: teams.teams,
                 );
               },
             ),

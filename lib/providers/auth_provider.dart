@@ -101,7 +101,10 @@ class AuthProvider extends ChangeNotifier {
       if (passwordError != null) {
         throw AuthException(passwordError);
       }
-      final confirmError = AppValidators.confirmPassword(password, confirmPassword);
+      final confirmError = AppValidators.confirmPassword(
+        password,
+        confirmPassword,
+      );
       if (confirmError != null) {
         throw AuthException(confirmError);
       }
@@ -221,7 +224,7 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return true;
     } on AuthException catch (exception) {
-      error = exception.message;
+      error = FriendlyErrorMapper.message(exception);
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }
@@ -261,7 +264,7 @@ class AuthProvider extends ChangeNotifier {
         university: university.trim(),
       );
     } on AuthException catch (exception) {
-      error = exception.message;
+      error = FriendlyErrorMapper.message(exception);
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }

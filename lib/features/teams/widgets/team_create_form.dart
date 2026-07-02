@@ -55,10 +55,7 @@ class TeamCreateForm extends StatelessWidget {
                 ),
                 items: [
                   for (final event in events)
-                    DropdownMenuItem(
-                      value: event.id,
-                      child: Text(event.title),
-                    ),
+                    DropdownMenuItem(value: event.id, child: Text(event.title)),
                 ],
                 onChanged: events.isEmpty ? null : onEventChanged,
               ),
@@ -99,6 +96,15 @@ class TeamCreateForm extends StatelessWidget {
                   ),
                 ],
               ),
+              if (selectedEvent != null &&
+                  !selectedEvent!.registrationOpen()) ...[
+                const SizedBox(height: 10),
+                Text(
+                  selectedEvent!.registrationBlockReason() ??
+                      AppStrings.registrationClosedPill,
+                  style: const TextStyle(color: SealPalette.error),
+                ),
+              ],
               if (events.isEmpty) ...[
                 const SizedBox(height: 10),
                 const Text(

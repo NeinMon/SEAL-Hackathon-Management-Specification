@@ -11,6 +11,9 @@ class OrganizerOverviewSection extends StatelessWidget {
     required this.teams,
     required this.submissions,
     required this.scores,
+    this.focusEvent,
+    this.teamCount,
+    this.submissionCount,
   });
 
   final int activeEvents;
@@ -19,18 +22,38 @@ class OrganizerOverviewSection extends StatelessWidget {
   final TeamProvider teams;
   final SubmissionProvider submissions;
   final ScoreProvider scores;
+  final HackathonEvent? focusEvent;
+  final int? teamCount;
+  final int? submissionCount;
 
   @override
   Widget build(BuildContext context) {
+    final teamsTotal = teamCount ?? teams.teams.length;
+    final submissionsTotal = submissionCount ?? submissions.submissions.length;
+    final scored = submissionsTotal - unscored;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (focusEvent != null) ...[
+          StatusBanner(
+            message: AppStrings.organizerFocusEventSubtitle(focusEvent!.title),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: () => context.go(AppRoutes.organizer),
+              icon: const Icon(Icons.filter_alt_off_outlined),
+              label: const Text(AppStrings.organizerShowAllEventsButton),
+            ),
+          ),
+          const SizedBox(height: AppSizes.paddingCompact),
+        ],
         Row(
           children: [
             Expanded(
               child: MetricCard(
                 label: AppStrings.eventsTitle,
-                value: '${events.events.length}',
+                value: focusEvent == null ? '${events.events.length}' : '1',
               ),
             ),
             const SizedBox(width: AppSizes.paddingSmall + 2),
@@ -49,7 +72,7 @@ class OrganizerOverviewSection extends StatelessWidget {
             Expanded(
               child: MetricCard(
                 label: AppStrings.teamTitle,
-                value: '${teams.teams.length}',
+                value: '$teamsTotal',
               ),
             ),
             const SizedBox(width: AppSizes.paddingSmall + 2),
@@ -66,9 +89,9 @@ class OrganizerOverviewSection extends StatelessWidget {
         ),
         const SizedBox(height: AppSizes.paddingMedium),
         DashboardBars(
-          teams: teams.teams.length,
-          submissions: submissions.submissions.length,
-          scored: submissions.submissions.length - unscored,
+          teams: teamsTotal,
+          submissions: submissionsTotal,
+          scored: scored,
           unscored: unscored,
         ),
         const SizedBox(height: AppSizes.paddingMedium),

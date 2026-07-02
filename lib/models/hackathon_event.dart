@@ -1,3 +1,5 @@
+import '../core/constants/app_strings.dart';
+
 class HackathonEvent {
   const HackathonEvent({
     required this.id,
@@ -68,5 +70,47 @@ class HackathonEvent {
       'latitude': latitude,
       'longitude': longitude,
     };
+  }
+
+  bool registrationOpen([DateTime? at]) {
+    final now = at ?? DateTime.now();
+    return !endDate.isBefore(now) && !registrationDeadline.isBefore(now);
+  }
+
+  String? registrationBlockReason([DateTime? at]) {
+    final now = at ?? DateTime.now();
+    if (endDate.isBefore(now)) {
+      return AppStrings.errorEventEnded;
+    }
+    if (registrationDeadline.isBefore(now)) {
+      return AppStrings.errorRegistrationDeadlinePassed;
+    }
+    return null;
+  }
+
+  bool submissionOpen([DateTime? at]) {
+    final now = at ?? DateTime.now();
+    return !endDate.isBefore(now);
+  }
+
+  String? submissionBlockReason([DateTime? at]) {
+    final now = at ?? DateTime.now();
+    if (endDate.isBefore(now)) {
+      return AppStrings.errorSubmissionClosed;
+    }
+    return null;
+  }
+
+  bool judgingOpen([DateTime? at]) {
+    final now = at ?? DateTime.now();
+    return !startDate.isAfter(now);
+  }
+
+  String? judgingBlockReason([DateTime? at]) {
+    final now = at ?? DateTime.now();
+    if (startDate.isAfter(now)) {
+      return AppStrings.errorJudgingNotStarted;
+    }
+    return null;
   }
 }

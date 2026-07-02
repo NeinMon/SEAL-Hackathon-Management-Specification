@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../core/app_helpers.dart';
+import '../models/hackathon_event.dart';
 import '../models/project_submission.dart';
 import '../services/supabase_services.dart';
 
@@ -35,11 +36,21 @@ class SubmissionProvider extends ChangeNotifier {
   Future<void> submit(
     ProjectSubmission submission, {
     String? existingSubmissionId,
+    HackathonEvent? event,
   }) async {
     isLoading = true;
     error = null;
     message = null;
     notifyListeners();
+    if (event != null) {
+      final lifecycleError = event.submissionBlockReason();
+      if (lifecycleError != null) {
+        error = lifecycleError;
+        isLoading = false;
+        notifyListeners();
+        return;
+      }
+    }
     final validationError = AppValidators.submissionPayload(
       teamId: submission.teamId,
       name: submission.projectName,

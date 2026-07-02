@@ -8,8 +8,8 @@ class EventPhase {
   final IconData icon;
 }
 
-EventPhase eventPhaseFor(HackathonEvent event) {
-  final now = DateTime.now();
+EventPhase eventPhaseFor(HackathonEvent event, [DateTime? at]) {
+  final now = at ?? DateTime.now();
   if (event.endDate.isBefore(now)) {
     return const EventPhase(
       AppStrings.statusClosed,
@@ -30,3 +30,9 @@ EventPhase eventPhaseFor(HackathonEvent event) {
     Icons.bolt_outlined,
   );
 }
+
+bool eventRegistrationOpen(HackathonEvent event, [DateTime? at]) =>
+    event.registrationOpen(at);
+
+String? eventRegistrationBlockReason(HackathonEvent event, [DateTime? at]) =>
+    event.registrationBlockReason(at);

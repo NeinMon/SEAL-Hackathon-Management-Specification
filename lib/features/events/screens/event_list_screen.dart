@@ -37,12 +37,16 @@ class _EventListScreenState extends State<EventListScreen> {
     provider.resetFilters();
   }
 
+  Future<void> _refresh(EventProvider provider) async {
+    await provider.loadEvents();
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<EventProvider>();
     final hasActiveQuery = provider.hasActiveFilters;
-    return ListView(
-      padding: const EdgeInsets.all(AppSizes.paddingMedium),
+    return RefreshableListView(
+      onRefresh: () => _refresh(provider),
       children: [
         SealSectionHeader(
           title: AppStrings.eventsTitle,

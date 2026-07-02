@@ -1,4 +1,4 @@
-﻿import '../../../shared.dart';
+import '../../../shared.dart';
 import '../widgets/venue_info_tile.dart';
 
 class MapScreen extends StatefulWidget {
@@ -62,7 +62,10 @@ class _MapScreenState extends State<MapScreen> {
         ],
       );
     }
-    final event = eventProvider.events.first;
+    final eventId = RouteQuery.eventIdFrom(context);
+    final event = eventId == null
+        ? eventProvider.events.first
+        : eventProvider.byIdOrNull(eventId) ?? eventProvider.events.first;
     final position = LatLng(event.latitude, event.longitude);
     return ListView(
       padding: const EdgeInsets.all(AppSizes.paddingMedium),
@@ -194,7 +197,12 @@ class _MapScreenState extends State<MapScreen> {
     if (shouldOpen != true) return;
     final url =
         'https://www.google.com/maps/search/?api=1&query=${event.latitude},${event.longitude}';
-    await ExternalLauncher.openUrl(url);
+    final opened = await ExternalLauncher.openUrl(url);
+    if (!opened && context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Không thể mở Maps trên thiết bị này.')),
+      );
+    }
   }
 
   Future<void> _copyAddress(BuildContext context, String location) async {

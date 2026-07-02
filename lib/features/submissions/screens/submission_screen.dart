@@ -1,4 +1,4 @@
-﻿import '../../../shared.dart';
+import '../../../shared.dart';
 import '../widgets/submission_content.dart';
 
 class SubmissionScreen extends StatefulWidget {
@@ -22,9 +22,14 @@ class _SubmissionScreenState extends State<SubmissionScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final teamId = RouteQuery.teamIdFrom(context);
+      if (teamId != null && teamId.isNotEmpty) {
+        setState(() => selectedTeamId = teamId);
+      }
       context.read<TeamProvider>().loadTeams();
       context.read<SubmissionProvider>().loadSubmissions();
       context.read<ScoreProvider>().loadScores();
+      context.read<EventProvider>().loadEvents();
     });
   }
 

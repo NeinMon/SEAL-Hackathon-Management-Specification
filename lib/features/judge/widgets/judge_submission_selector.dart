@@ -6,15 +6,19 @@ class JudgeSubmissionSelector extends StatelessWidget {
     required this.submissions,
     required this.scores,
     required this.teams,
+    required this.events,
     required this.value,
     required this.onChanged,
+    this.showEventContext = true,
   });
 
   final List<ProjectSubmission> submissions;
   final ScoreProvider scores;
   final List<Team> teams;
+  final List<HackathonEvent> events;
   final String? value;
   final ValueChanged<String?> onChanged;
+  final bool showEventContext;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +52,7 @@ class JudgeSubmissionSelector extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               AppStrings.submissionQueueCountLabel(submissions.length),
-              style: const TextStyle(color: SealPalette.onSurfaceVariant),
+              style: TextStyle(color: context.sealTheme.onSurfaceVariant),
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
@@ -63,7 +67,7 @@ class JudgeSubmissionSelector extends StatelessWidget {
                   DropdownMenuItem(
                     value: submission.id,
                     child: Text(
-                      '${submission.projectName} - ${_teamName(submission.teamId)}',
+                      _submissionLabel(submission),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -99,6 +103,22 @@ class JudgeSubmissionSelector extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _submissionLabel(ProjectSubmission submission) {
+    final teamName = _teamName(submission.teamId);
+    if (!showEventContext) {
+      return '${submission.projectName} • $teamName';
+    }
+    final eventTitle = EventScope.eventTitleForSubmission(
+      submission: submission,
+      teams: teams,
+      events: events,
+    );
+    if (eventTitle == null) {
+      return '${submission.projectName} • $teamName';
+    }
+    return '${submission.projectName} • $teamName • $eventTitle';
   }
 
   String _teamName(String teamId) {

@@ -4,7 +4,9 @@ import 'judge_submission_card.dart';
 import 'judge_submission_selector.dart';
 
 class JudgeContent extends StatefulWidget {
-  const JudgeContent({super.key});
+  const JudgeContent({super.key, this.eventId});
+
+  final String? eventId;
 
   @override
   State<JudgeContent> createState() => _JudgeContentState();
@@ -40,14 +42,19 @@ class _JudgeContentState extends State<JudgeContent> {
     final submissionProvider = context.watch<SubmissionProvider>();
     final scores = context.watch<ScoreProvider>();
     final teamsProvider = context.watch<TeamProvider>();
+    final events = context.watch<EventProvider>();
     final teams = teamsProvider.teams;
-    final submissions = _visibleSubmissions(
+    final filteredEvent = widget.eventId == null
+        ? null
+        : events.byIdOrNull(widget.eventId!);
+    final queueSource = _submissionsForEvent(
       submissionProvider.submissions,
-      scores,
       teams,
+      widget.eventId,
     );
-    final total = submissionProvider.submissions.length;
-    final scored = submissionProvider.submissions
+    final submissions = _visibleSubmissions(queueSource, scores, teams);
+    final total = queueSource.length;
+    final scored = queueSource
         .where((submission) => scores.scoreCountFor(submission.id) > 0)
         .length;
     final unscored = total - scored;
@@ -57,12 +64,19 @@ class _JudgeContentState extends State<JudgeContent> {
         scores.isLoading ||
         teamsProvider.isLoading;
     final selectedSubmission = _selectedSubmission(submissions);
+    final selectedEvent = selectedSubmission == null
+        ? null
+        : _eventForSubmission(selectedSubmission, teams, events);
     return ListView(
       padding: const EdgeInsets.all(AppSizes.paddingMedium),
       children: [
         SealSectionHeader(
-          title: AppStrings.judgeTitle,
-          subtitle: AppStrings.judgeSubtitle,
+          title: filteredEvent == null
+              ? AppStrings.judgeTitle
+              : AppStrings.judgeQueueForEventTitle(filteredEvent.title),
+          subtitle: filteredEvent == null
+              ? AppStrings.judgeSubtitle
+              : AppStrings.judgeQueueFilteredSubtitle,
           icon: Icons.rate_review_outlined,
           trailing: IconButton.filledTonal(
             tooltip: AppStrings.reloadJudgeQueueTooltip,
@@ -167,7 +181,9 @@ class _JudgeContentState extends State<JudgeContent> {
                   submissions: submissions,
                   scores: scores,
                   teams: teams,
+                  events: events.events,
                   value: selectedSubmission?.id,
+                  showEventContext: widget.eventId == null,
                   onChanged: (value) =>
                       setState(() => selectedSubmissionId = value),
                 ),
@@ -175,11 +191,7 @@ class _JudgeContentState extends State<JudgeContent> {
                 OutlinedButton.icon(
                   onPressed: unscored == 0
                       ? null
-                      : () => _selectNextUnscored(
-                          submissionProvider.submissions,
-                          scores,
-                          teams,
-                        ),
+                      : () => _selectNextUnscored(queueSource, scores, teams),
                   icon: const Icon(Icons.skip_next_outlined),
                   label: const Text(AppStrings.nextUnscoredButton),
                 ),
@@ -190,6 +202,8 @@ class _JudgeContentState extends State<JudgeContent> {
                 : JudgeSubmissionCard(
                     key: ValueKey('judge-card-${selectedSubmission.id}'),
                     submission: selectedSubmission,
+                    event: selectedEvent,
+                    events: events.events,
                     scores: scores,
                     teams: teams,
                     judge: auth.user,
@@ -206,6 +220,7 @@ class _JudgeContentState extends State<JudgeContent> {
       context.read<SubmissionProvider>().loadSubmissions(),
       context.read<ScoreProvider>().loadScores(),
       context.read<TeamProvider>().loadTeams(),
+      context.read<EventProvider>().loadEvents(),
     ]);
   }
 
@@ -232,16 +247,37 @@ class _JudgeContentState extends State<JudgeContent> {
     switch (sort) {
       case 'project':
         filtered.sort((a, b) => a.projectName.compareTo(b.projectName));
+        break;
       case 'team':
         filtered.sort((a, b) => a.teamId.compareTo(b.teamId));
+        break;
       case 'score':
         filtered.sort(
           (a, b) => scores.averageFor(b.id).compareTo(scores.averageFor(a.id)),
         );
+        break;
       default:
         filtered.sort((a, b) => b.submittedAt.compareTo(a.submittedAt));
     }
     return filtered;
+  }
+
+  List<ProjectSubmission> _submissionsForEvent(
+    List<ProjectSubmission> all,
+    List<Team> teams,
+    String? eventId,
+  ) {
+    if (eventId == null) return all;
+    return all
+        .where((submission) => _submissionEventId(submission, teams) == eventId)
+        .toList();
+  }
+
+  String? _submissionEventId(ProjectSubmission submission, List<Team> teams) {
+    for (final team in teams) {
+      if (team.id == submission.teamId) return team.eventId;
+    }
+    return null;
   }
 
   ProjectSubmission? _selectedSubmission(List<ProjectSubmission> submissions) {
@@ -271,5 +307,18 @@ class _JudgeContentState extends State<JudgeContent> {
       if (team.id == teamId) return team.name;
     }
     return AppStrings.unknownTeamLabel;
+  }
+
+  HackathonEvent? _eventForSubmission(
+    ProjectSubmission submission,
+    List<Team> teams,
+    EventProvider events,
+  ) {
+    for (final team in teams) {
+      if (team.id == submission.teamId) {
+        return events.byIdOrNull(team.eventId);
+      }
+    }
+    return null;
   }
 }

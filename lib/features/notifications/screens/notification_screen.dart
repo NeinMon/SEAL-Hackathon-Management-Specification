@@ -1,4 +1,4 @@
-﻿import '../../../shared.dart';
+import '../../../shared.dart';
 import '../widgets/notification_list.dart';
 
 class NotificationScreen extends StatefulWidget {
@@ -16,18 +16,24 @@ class _NotificationScreenState extends State<NotificationScreen> {
       final user = context.read<AuthProvider>().user;
       if (user != null) {
         context.read<NotificationProvider>().watchForUser(user.id);
+        context.read<NotificationProvider>().clearScoreAlert();
       }
     });
   }
 
+  Future<void> _refresh(String userId) async {
+    await context.read<NotificationProvider>().loadForUser(userId);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final notifications = context.watch<NotificationProvider>().notifications;
     final provider = context.watch<NotificationProvider>();
+    final notifications = provider.visibleNotifications;
     final user = context.watch<AuthProvider>().user;
-    if (provider.error != null) {
-      return ListView(
-        padding: const EdgeInsets.all(AppSizes.paddingMedium),
+
+    if (provider.error != null && provider.notifications.isEmpty) {
+      return RefreshableListView(
+        onRefresh: user == null ? () async {} : () => _refresh(user.id),
         children: [
           const SealSectionHeader(
             title: AppStrings.inboxTitle,
@@ -41,9 +47,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
         ],
       );
     }
-    if (provider.isLoading) {
-      return ListView(
-        padding: const EdgeInsets.all(AppSizes.paddingMedium),
+
+    if (provider.isLoading && provider.notifications.isEmpty) {
+      return RefreshableListView(
+        onRefresh: user == null ? () async {} : () => _refresh(user.id),
         children: const [
           SealSectionHeader(
             title: AppStrings.inboxTitle,
@@ -54,9 +61,10 @@ class _NotificationScreenState extends State<NotificationScreen> {
         ],
       );
     }
-    if (notifications.isEmpty) {
-      return ListView(
-        padding: const EdgeInsets.all(AppSizes.paddingMedium),
+
+    if (provider.notifications.isEmpty) {
+      return RefreshableListView(
+        onRefresh: user == null ? () async {} : () => _refresh(user.id),
         children: [
           const SealSectionHeader(
             title: AppStrings.inboxTitle,
@@ -67,19 +75,23 @@ class _NotificationScreenState extends State<NotificationScreen> {
             message: AppStrings.inboxEmpty,
             icon: Icons.mark_email_read_outlined,
             actionLabel: user == null ? null : AppStrings.reloadInboxAction,
-            onAction: user == null ? null : () => provider.watchForUser(user.id),
+            onAction: user == null
+                ? null
+                : () => provider.watchForUser(user.id),
           ),
         ],
       );
     }
+
     final unread = notifications
         .where((notification) => !notification.isRead)
         .toList();
     final read = notifications
         .where((notification) => notification.isRead)
         .toList();
-    return ListView(
-      padding: const EdgeInsets.all(AppSizes.paddingMedium),
+
+    return RefreshableListView(
+      onRefresh: user == null ? () async {} : () => _refresh(user.id),
       children: [
         const SealSectionHeader(
           title: AppStrings.inboxTitle,
@@ -100,6 +112,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
           ),
           NotificationList(notifications: read),
         ],
+        if (provider.hasMoreNotifications)
+          LoadMoreButton(onPressed: provider.loadMoreNotifications),
       ],
     );
   }

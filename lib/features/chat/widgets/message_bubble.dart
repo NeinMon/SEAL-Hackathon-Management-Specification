@@ -13,8 +13,8 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mine = message.senderId == currentUser?.id;
-    final senderLabel =
-        mine ? AppStrings.yourMessageSemantic : message.sender;
+    final seal = context.sealTheme;
+    final senderLabel = mine ? AppStrings.yourMessageSemantic : message.sender;
     return Semantics(
       label: AppStrings.messageTimestampSemantic(
         senderLabel,
@@ -34,7 +34,7 @@ class MessageBubble extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: 8),
               color: mine
                   ? SealPalette.primaryContainer.withValues(alpha: 0.95)
-                  : SealPalette.surfaceContainerHigh,
+                  : seal.surfaceContainerHigh,
               child: Padding(
                 padding: const EdgeInsets.all(AppSizes.paddingCompact),
                 child: Column(
@@ -49,9 +49,9 @@ class MessageBubble extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       DateFormat('HH:mm').format(message.createdAt),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
-                        color: SealPalette.onSurfaceVariant,
+                        color: seal.onSurfaceVariant,
                       ),
                     ),
                   ],

@@ -71,44 +71,40 @@ class OrganizerUserRolesDialog {
                                       if (value == null || value == user.role) {
                                         return;
                                       }
-                                      final confirmed =
-                                          await showDialog<bool>(
-                                            context: dialogContext,
-                                            builder: (confirmContext) =>
-                                                AlertDialog(
-                                                  title: const Text(
-                                                    AppStrings
-                                                        .changeRoleDialogTitle,
-                                                  ),
-                                                  content: Text(
-                                                    AppStrings
-                                                        .changeRoleDialogBody(
-                                                      user.fullName,
-                                                      AppRoles.label(value),
-                                                    ),
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () =>
-                                                          Navigator.of(
-                                                            confirmContext,
-                                                          ).pop(false),
-                                                      child: const Text(
-                                                        AppStrings.cancelButton,
-                                                      ),
-                                                    ),
-                                                    FilledButton(
-                                                      onPressed: () =>
-                                                          Navigator.of(
-                                                            confirmContext,
-                                                          ).pop(true),
-                                                      child: const Text(
-                                                        AppStrings.saveButton,
-                                                      ),
-                                                    ),
-                                                  ],
+                                      final confirmed = await showDialog<bool>(
+                                        context: dialogContext,
+                                        builder: (confirmContext) =>
+                                            AlertDialog(
+                                              title: const Text(
+                                                AppStrings
+                                                    .changeRoleDialogTitle,
+                                              ),
+                                              content: Text(
+                                                AppStrings.changeRoleDialogBody(
+                                                  user.fullName,
+                                                  AppRoles.label(value),
                                                 ),
-                                          );
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(
+                                                    confirmContext,
+                                                  ).pop(false),
+                                                  child: const Text(
+                                                    AppStrings.cancelButton,
+                                                  ),
+                                                ),
+                                                FilledButton(
+                                                  onPressed: () => Navigator.of(
+                                                    confirmContext,
+                                                  ).pop(true),
+                                                  child: const Text(
+                                                    AppStrings.saveButton,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                      );
                                       if (confirmed != true ||
                                           !dialogContext.mounted) {
                                         return;

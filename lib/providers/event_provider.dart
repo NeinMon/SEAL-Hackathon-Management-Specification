@@ -6,7 +6,9 @@ import '../services/supabase_services.dart';
 
 class EventProvider extends ChangeNotifier {
   final EventService _service = const EventService();
+  static const int pageSize = 20;
   List<HackathonEvent> events = [];
+  int _visibleCount = pageSize;
 
   bool isLoading = false;
   String search = '';
@@ -36,8 +38,7 @@ class EventProvider extends ChangeNotifier {
           event.startDate.isBefore(now) && event.endDate.isAfter(now),
         EventCatalog.filterClosed => event.endDate.isBefore(now),
         EventCatalog.filterRegistrationOpen =>
-          event.registrationDeadline.isAfter(now) &&
-              event.endDate.isAfter(now),
+          event.registrationDeadline.isAfter(now) && event.endDate.isAfter(now),
         _ => true,
       };
       return matchesSearch && matchesFilter;
@@ -45,22 +46,38 @@ class EventProvider extends ChangeNotifier {
 
     filtered.sort((a, b) {
       return switch (sort) {
-        EventCatalog.sortStartDesc =>
-          b.startDate.compareTo(a.startDate),
-        EventCatalog.sortTitleAsc =>
-          a.title.toLowerCase().compareTo(b.title.toLowerCase()),
-        EventCatalog.sortTitleDesc =>
-          b.title.toLowerCase().compareTo(a.title.toLowerCase()),
-        EventCatalog.sortDeadlineAsc =>
-          a.registrationDeadline.compareTo(b.registrationDeadline),
-        EventCatalog.sortDeadlineDesc =>
-          b.registrationDeadline.compareTo(a.registrationDeadline),
-        EventCatalog.sortStartAsc ||
-        _ =>
-          a.startDate.compareTo(b.startDate),
+        EventCatalog.sortStartDesc => b.startDate.compareTo(a.startDate),
+        EventCatalog.sortTitleAsc => a.title.toLowerCase().compareTo(
+          b.title.toLowerCase(),
+        ),
+        EventCatalog.sortTitleDesc => b.title.toLowerCase().compareTo(
+          a.title.toLowerCase(),
+        ),
+        EventCatalog.sortDeadlineAsc => a.registrationDeadline.compareTo(
+          b.registrationDeadline,
+        ),
+        EventCatalog.sortDeadlineDesc => b.registrationDeadline.compareTo(
+          a.registrationDeadline,
+        ),
+        EventCatalog.sortStartAsc || _ => a.startDate.compareTo(b.startDate),
       };
     });
     return filtered;
+  }
+
+  List<HackathonEvent> get visibleFilteredEvents =>
+      filteredEvents.take(_visibleCount).toList();
+
+  bool get hasMoreEvents => filteredEvents.length > _visibleCount;
+
+  void loadMoreEvents() {
+    if (!hasMoreEvents) return;
+    _visibleCount += pageSize;
+    notifyListeners();
+  }
+
+  void _resetVisibleCount() {
+    _visibleCount = pageSize;
   }
 
   HackathonEvent byId(String id) =>
@@ -85,6 +102,7 @@ class EventProvider extends ChangeNotifier {
     notifyListeners();
     try {
       events = await _service.fetchEvents();
+      _resetVisibleCount();
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }
@@ -143,16 +161,19 @@ class EventProvider extends ChangeNotifier {
     search = queryError == null
         ? value
         : value.substring(0, AppValidators.maxEventSearchLength);
+    _resetVisibleCount();
     notifyListeners();
   }
 
   void updateFilter(String value) {
     filter = value;
+    _resetVisibleCount();
     notifyListeners();
   }
 
   void updateSort(String value) {
     sort = value;
+    _resetVisibleCount();
     notifyListeners();
   }
 
@@ -161,6 +182,7 @@ class EventProvider extends ChangeNotifier {
     filter = EventCatalog.filterAll;
     sort = EventCatalog.sortStartAsc;
     searchError = null;
+    _resetVisibleCount();
     notifyListeners();
   }
 
@@ -173,6 +195,7 @@ class EventProvider extends ChangeNotifier {
     error = null;
     searchError = null;
     isLoading = false;
+    _resetVisibleCount();
     notifyListeners();
   }
 }

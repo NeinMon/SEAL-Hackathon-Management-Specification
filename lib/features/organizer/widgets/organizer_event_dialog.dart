@@ -226,9 +226,9 @@ class OrganizerEventDialog {
       longitude: parsedLongitude,
     );
     if (payloadError != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(payloadError)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(payloadError)));
       return;
     }
 
@@ -253,9 +253,9 @@ class OrganizerEventDialog {
     );
     if (!context.mounted) return;
     if (eventProvider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(eventProvider.error!)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(eventProvider.error!)));
     }
   }
 

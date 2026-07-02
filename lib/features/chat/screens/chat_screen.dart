@@ -1,4 +1,4 @@
-﻿import '../../../shared.dart';
+import '../../../shared.dart';
 import '../widgets/chat_composer.dart';
 import '../widgets/empty_chat_state.dart';
 import '../widgets/message_bubble.dart';
@@ -200,9 +200,7 @@ class _ChatScreenState extends State<ChatScreen> {
             error: composerError,
             isSending: chat.isSending,
             canSend:
-                user != null &&
-                chat.selectedContact != null &&
-                !chat.isLoading,
+                user != null && chat.selectedContact != null && !chat.isLoading,
             onSend: _sendMessage,
           ),
         ],

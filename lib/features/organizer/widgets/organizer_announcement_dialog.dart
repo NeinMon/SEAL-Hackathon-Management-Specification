@@ -8,6 +8,8 @@ class OrganizerAnnouncementDialog {
     final content = TextEditingController();
     final formKey = GlobalKey<FormState>();
     var role = 'all';
+    String? linkedEventId;
+    final events = context.read<EventProvider>().events;
     final sent = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
@@ -20,6 +22,35 @@ class OrganizerAnnouncementDialog {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      AppStrings.announcementTemplatesLabel,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        color: context.onSurfaceColor,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSizes.paddingSmall),
+                  Wrap(
+                    spacing: AppSizes.paddingSmall,
+                    runSpacing: AppSizes.paddingSmall,
+                    children: [
+                      for (final template in AnnouncementTemplates.demo)
+                        ActionChip(
+                          label: Text(template.label),
+                          onPressed: () {
+                            setDialogState(() {
+                              role = template.role;
+                              title.text = template.title;
+                              content.text = template.content;
+                            });
+                          },
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSizes.paddingCompact),
                   DropdownButtonFormField<String>(
                     initialValue: role,
                     decoration: const InputDecoration(
@@ -46,6 +77,27 @@ class OrganizerAnnouncementDialog {
                     ],
                     onChanged: (value) =>
                         setDialogState(() => role = value ?? 'all'),
+                  ),
+                  const SizedBox(height: AppSizes.paddingCompact),
+                  DropdownButtonFormField<String?>(
+                    initialValue: linkedEventId,
+                    decoration: const InputDecoration(
+                      labelText: AppStrings.announcementEventLabel,
+                      prefixIcon: Icon(Icons.event_outlined),
+                    ),
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text(AppStrings.announcementNoEvent),
+                      ),
+                      for (final event in events)
+                        DropdownMenuItem<String?>(
+                          value: event.id,
+                          child: Text(event.title),
+                        ),
+                    ],
+                    onChanged: (value) =>
+                        setDialogState(() => linkedEventId = value),
                   ),
                   const SizedBox(height: AppSizes.paddingCompact),
                   TextFormField(
@@ -90,6 +142,12 @@ class OrganizerAnnouncementDialog {
 
     final cleanTitle = title.text.trim();
     final cleanContent = content.text.trim();
+    final encodedContent = linkedEventId == null || linkedEventId!.isEmpty
+        ? cleanContent
+        : NotificationLink.encodeEvent(
+            eventId: linkedEventId!,
+            content: cleanContent,
+          );
     title.dispose();
     content.dispose();
 
@@ -103,7 +161,7 @@ class OrganizerAnnouncementDialog {
     for (final user in recipients) {
       await notifications.push(
         cleanTitle,
-        cleanContent,
+        encodedContent,
         'announcement',
         userId: user.id,
       );

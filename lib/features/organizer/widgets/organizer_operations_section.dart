@@ -10,7 +10,6 @@ class OrganizerOperationsSection extends StatelessWidget {
     required this.onExportLeaderboard,
     required this.onOpenJudge,
     required this.onManageRoles,
-    required this.onResetDemo,
   });
 
   final int unscored;
@@ -19,7 +18,6 @@ class OrganizerOperationsSection extends StatelessWidget {
   final VoidCallback onExportLeaderboard;
   final VoidCallback onOpenJudge;
   final VoidCallback onManageRoles;
-  final VoidCallback onResetDemo;
 
   @override
   Widget build(BuildContext context) {
@@ -76,12 +74,6 @@ class OrganizerOperationsSection extends StatelessWidget {
                   title: AppStrings.userRolesTitle,
                   value: AppStrings.userRolesDescription,
                   onTap: onManageRoles,
-                ),
-                OrganizerAction(
-                  icon: Icons.restore_page_outlined,
-                  title: AppStrings.resetDemoTitle,
-                  value: AppStrings.resetDemoDescription,
-                  onTap: onResetDemo,
                 ),
               ],
             ),

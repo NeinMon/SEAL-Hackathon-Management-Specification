@@ -18,6 +18,7 @@ class JudgeScoreSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Semantics(
       label: AppStrings.scoreSliderSemantic(
         label,
@@ -27,9 +28,9 @@ class JudgeScoreSlider extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: SealPalette.surfaceContainerLow,
+          color: seal.surfaceContainerLow,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: SealPalette.outlineVariant),
+          border: Border.all(color: seal.outlineVariant),
         ),
         child: Column(
           children: [
@@ -58,8 +59,8 @@ class JudgeScoreSlider extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 description,
-                style: const TextStyle(
-                  color: SealPalette.onSurfaceVariant,
+                style: TextStyle(
+                  color: seal.onSurfaceVariant,
                   fontSize: 12,
                   height: 1.25,
                 ),

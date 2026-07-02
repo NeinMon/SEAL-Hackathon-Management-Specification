@@ -39,9 +39,9 @@ class EventTimeline extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: SealPalette.surfaceContainerLow,
+        color: context.sealTheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: SealPalette.outlineVariant),
+        border: Border.all(color: context.sealTheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,8 +66,8 @@ class EventTimeline extends StatelessWidget {
                   ),
                   Text(
                     DateFormat('dd/MM/yyyy').format(item.date),
-                    style: const TextStyle(
-                      color: SealPalette.onSurfaceVariant,
+                    style: TextStyle(
+                      color: context.sealTheme.onSurfaceVariant,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

@@ -28,9 +28,9 @@ class ChatComposer extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppSizes.paddingSmall),
         decoration: BoxDecoration(
-          color: SealPalette.surfaceContainerLow,
+          color: context.sealTheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: SealPalette.outlineVariant),
+          border: Border.all(color: context.sealTheme.outlineVariant),
         ),
         child: Row(
           children: [

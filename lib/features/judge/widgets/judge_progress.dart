@@ -15,14 +15,15 @@ class JudgeProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final progress = total == 0 ? 0.0 : scored / total;
+    final seal = context.sealTheme;
     return Semantics(
       label: AppStrings.scoringProgressSemantic(scored, unscored),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: SealPalette.surfaceContainerLow,
+          color: seal.surfaceContainerLow,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: SealPalette.outlineVariant),
+          border: Border.all(color: seal.outlineVariant),
         ),
         child: Row(
           children: [
@@ -42,7 +43,7 @@ class JudgeProgress extends StatelessWidget {
                     color: unscored == 0
                         ? SealPalette.secondary
                         : SealPalette.primary,
-                    backgroundColor: SealPalette.surfaceContainerHighest,
+                    backgroundColor: seal.surfaceContainerHighest,
                   ),
                 ],
               ),

@@ -6,6 +6,8 @@ class TeamActions extends StatelessWidget {
     required this.isLeader,
     required this.isMember,
     required this.teamIsFull,
+    required this.registrationClosed,
+    required this.alreadyOnEventTeam,
     required this.user,
     required this.onSubmit,
     required this.onJoin,
@@ -17,6 +19,8 @@ class TeamActions extends StatelessWidget {
   final bool isLeader;
   final bool isMember;
   final bool teamIsFull;
+  final bool registrationClosed;
+  final bool alreadyOnEventTeam;
   final AppUser? user;
   final VoidCallback onSubmit;
   final VoidCallback? onJoin;
@@ -33,7 +37,7 @@ class TeamActions extends StatelessWidget {
         runSpacing: 8,
         children: [
           FilledButton.icon(
-            onPressed: teamIsFull ? null : onInvite,
+            onPressed: teamIsFull || registrationClosed ? null : onInvite,
             icon: const Icon(Icons.person_add_alt_outlined),
             label: const Text(AppStrings.inviteButton),
           ),
@@ -73,6 +77,20 @@ class TeamActions extends StatelessWidget {
         label: AppStrings.teamFullBadge,
         color: SealPalette.tertiary,
         icon: Icons.lock_outline,
+      );
+    }
+    if (registrationClosed) {
+      return const StatusPill(
+        label: AppStrings.registrationClosedPill,
+        color: SealPalette.onSurfaceVariant,
+        icon: Icons.lock_clock_outlined,
+      );
+    }
+    if (alreadyOnEventTeam) {
+      return const StatusPill(
+        label: AppStrings.oneTeamPerEventBadge,
+        color: SealPalette.tertiary,
+        icon: Icons.info_outline,
       );
     }
     return FilledButton.icon(

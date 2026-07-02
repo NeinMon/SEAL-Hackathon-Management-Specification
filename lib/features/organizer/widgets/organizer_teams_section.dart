@@ -5,13 +5,21 @@ class OrganizerTeamsSection extends StatelessWidget {
     super.key,
     required this.teams,
     required this.onTapTeam,
+    this.focusEventId,
   });
 
   final TeamProvider teams;
   final void Function(Team team) onTapTeam;
+  final String? focusEventId;
+
+  List<Team> get _visibleTeams {
+    if (focusEventId == null) return teams.teams;
+    return EventScope.teamsForEvent(teams.teams, focusEventId!);
+  }
 
   @override
   Widget build(BuildContext context) {
+    final visible = _visibleTeams;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -20,15 +28,15 @@ class OrganizerTeamsSection extends StatelessWidget {
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 8),
-        if (teams.teams.isEmpty)
+        if (visible.isEmpty)
           const EmptyState(message: AppStrings.noTeamsToView)
         else
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: teams.teams.take(5).length,
+            itemCount: visible.take(5).length,
             itemBuilder: (context, index) {
-              final team = teams.teams[index];
+              final team = visible[index];
               return Card(
                 margin: const EdgeInsets.only(bottom: 10),
                 child: ListTile(

@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../core/app_helpers.dart';
+import '../models/hackathon_event.dart';
 import '../models/project_score.dart';
 import '../services/supabase_services.dart';
 
@@ -30,11 +31,20 @@ class ScoreProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> addScore(ProjectScore score) async {
+  Future<void> addScore(ProjectScore score, {HackathonEvent? event}) async {
     isLoading = true;
     error = null;
     message = null;
     notifyListeners();
+    if (event != null) {
+      final lifecycleError = event.judgingBlockReason();
+      if (lifecycleError != null) {
+        error = lifecycleError;
+        isLoading = false;
+        notifyListeners();
+        return;
+      }
+    }
     final validationError = AppValidators.judgeScore(
       submissionId: score.submissionId,
       judgeId: score.judgeId,

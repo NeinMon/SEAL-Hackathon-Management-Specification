@@ -9,12 +9,14 @@ class TeamCard extends StatelessWidget {
     required this.team,
     required this.currentUser,
     required this.event,
+    required this.allTeams,
     this.highlighted = false,
   });
 
   final Team team;
   final AppUser? currentUser;
   final HackathonEvent? event;
+  final List<Team> allTeams;
   final bool highlighted;
 
   @override
@@ -27,6 +29,15 @@ class TeamCard extends StatelessWidget {
     final eventTitle = event?.title ?? AppStrings.eventNotLoadedYet;
     final memberLimit = event?.maxTeamSize ?? 0;
     final teamIsFull = memberLimit > 0 && team.members.length >= memberLimit;
+    final registrationClosed = event != null && !event!.registrationOpen();
+    final alreadyOnEventTeam = user != null && event != null
+        ? TeamMembership.hasTeamOnEvent(
+            teams: allTeams,
+            userId: user.id,
+            eventId: event!.id,
+            excludeTeamId: team.id,
+          )
+        : false;
     return Semantics(
       label:
           'Team ${team.name}, ${AppStrings.memberCountLabel(team.members.length)}, ${AppStrings.leaderPrefix(leaderName)}',
@@ -107,9 +118,11 @@ class TeamCard extends StatelessWidget {
                 isLeader: isLeader,
                 isMember: isMember,
                 teamIsFull: teamIsFull,
+                registrationClosed: registrationClosed,
+                alreadyOnEventTeam: alreadyOnEventTeam,
                 user: user,
                 onSubmit: () => context.go(AppRoutes.submit),
-                onJoin: user == null
+                onJoin: user == null || registrationClosed || alreadyOnEventTeam
                     ? null
                     : () => context.read<TeamProvider>().joinTeam(
                         team.id,
@@ -120,7 +133,13 @@ class TeamCard extends StatelessWidget {
                     ? null
                     : () => _confirmLeaveTeam(context, team, user),
                 onEdit: () => _showEditTeamDialog(context, team),
-                onInvite: () => TeamInviteFlow.show(context, team: team, event: event),
+                onInvite: registrationClosed
+                    ? () {}
+                    : () => TeamInviteFlow.show(
+                        context,
+                        team: team,
+                        event: event,
+                      ),
               ),
             ],
           ),
@@ -144,7 +163,9 @@ class TeamCard extends StatelessWidget {
         title: const Text(AppStrings.updateTeamDialogTitle),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(labelText: AppStrings.teamNameLabel),
+          decoration: const InputDecoration(
+            labelText: AppStrings.teamNameLabel,
+          ),
         ),
         actions: [
           TextButton(

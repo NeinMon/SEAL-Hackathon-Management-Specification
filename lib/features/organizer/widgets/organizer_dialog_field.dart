@@ -28,10 +28,7 @@ class OrganizerDialogField extends StatelessWidget {
         minLines: lines,
         maxLines: lines == 1 ? 1 : lines + 1,
         validator: validator,
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hintText,
-        ),
+        decoration: InputDecoration(labelText: label, hintText: hintText),
       ),
     );
   }

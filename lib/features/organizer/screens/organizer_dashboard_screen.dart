@@ -1,4 +1,4 @@
-﻿import '../../../shared.dart';
+import '../../../shared.dart';
 import '../widgets/organizer_announcement_dialog.dart';
 import '../widgets/organizer_event_dialog.dart';
 import '../widgets/organizer_events_section.dart';
@@ -65,13 +65,34 @@ class _OrganizerDashboardContentState
     final teams = context.watch<TeamProvider>();
     final submissions = context.watch<SubmissionProvider>();
     final scores = context.watch<ScoreProvider>();
-    final unscored = submissions.submissions
+    final focusEventId = RouteQuery.eventIdFrom(context);
+    HackathonEvent? focusEvent;
+    if (focusEventId != null) {
+      focusEvent = events.byIdOrNull(focusEventId);
+    }
+    final scopedTeams = focusEventId == null
+        ? teams.teams
+        : EventScope.teamsForEvent(teams.teams, focusEventId);
+    final scopedSubmissions = focusEventId == null
+        ? submissions.submissions
+        : EventScope.submissionsForEvent(
+            submissions: submissions.submissions,
+            teams: teams.teams,
+            eventId: focusEventId,
+          );
+    final unscored = scopedSubmissions
         .where((submission) => scores.scoreCountFor(submission.id) == 0)
         .length;
     final activeEvents = events.events.where((event) {
       final now = DateTime.now();
       return event.startDate.isBefore(now) && event.endDate.isAfter(now);
     }).length;
+    final overviewActiveEvents = focusEvent == null
+        ? activeEvents
+        : (focusEvent.startDate.isBefore(DateTime.now()) &&
+                  focusEvent.endDate.isAfter(DateTime.now())
+              ? 1
+              : 0);
     final loading =
         events.isLoading ||
         teams.isLoading ||
@@ -83,7 +104,9 @@ class _OrganizerDashboardContentState
       children: [
         SealSectionHeader(
           title: AppStrings.organizerTitle,
-          subtitle: AppStrings.organizerSubtitle,
+          subtitle: focusEvent == null
+              ? AppStrings.organizerSubtitle
+              : AppStrings.organizerFocusEventSubtitle(focusEvent.title),
           icon: Icons.dashboard_customize_outlined,
           trailing: IconButton.filledTonal(
             tooltip: AppStrings.reloadDashboardTooltip,
@@ -108,28 +131,31 @@ class _OrganizerDashboardContentState
         if (loading) const DashboardMetricSkeleton(),
         if (section == 'overview')
           OrganizerOverviewSection(
-            activeEvents: activeEvents,
+            activeEvents: overviewActiveEvents,
             unscored: unscored,
             events: events,
             teams: teams,
             submissions: submissions,
             scores: scores,
+            focusEvent: focusEvent,
+            teamCount: scopedTeams.length,
+            submissionCount: scopedSubmissions.length,
           ),
         if (section == 'operations')
           OrganizerOperationsSection(
             unscored: unscored,
             onCreateEvent: () => OrganizerEventDialog.show(context),
-            onSendAnnouncement: () =>
-                OrganizerAnnouncementDialog.show(context),
+            onSendAnnouncement: () => OrganizerAnnouncementDialog.show(context),
             onExportLeaderboard: () => _copyLeaderboardCsv(
               context,
-              submissions.submissions,
+              scopedSubmissions,
               scores,
-              teams.teams,
+              scopedTeams,
             ),
-            onOpenJudge: () => context.go(AppRoutes.judge),
+            onOpenJudge: () => focusEventId == null
+                ? context.go(AppRoutes.judge)
+                : context.go(RouteQuery.judgeForEvent(focusEventId)),
             onManageRoles: () => OrganizerUserRolesDialog.show(context),
-            onResetDemo: () => _resetDemoData(context),
           ),
         if (section == 'events')
           OrganizerEventsSection(
@@ -144,6 +170,7 @@ class _OrganizerDashboardContentState
             submissions: submissions,
             scores: scores,
             teams: teams,
+            focusEventId: focusEventId,
             onTapSubmission: (submission) =>
                 OrganizerSubmissionDetailsDialog.show(
                   context,
@@ -155,8 +182,8 @@ class _OrganizerDashboardContentState
         if (section == 'teams')
           OrganizerTeamsSection(
             teams: teams,
-            onTapTeam: (team) =>
-                OrganizerTeamDetailsDialog.show(context, team),
+            focusEventId: focusEventId,
+            onTapTeam: (team) => OrganizerTeamDetailsDialog.show(context, team),
           ),
       ],
     );
@@ -229,43 +256,5 @@ class _OrganizerDashboardContentState
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text(AppStrings.closeRegistrationSuccess)),
     );
-  }
-
-  Future<void> _resetDemoData(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text(AppStrings.resetDemoTitle),
-        content: const Text(AppStrings.resetDemoBody),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text(AppStrings.cancelButton),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text(AppStrings.resetButton),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !context.mounted) return;
-    try {
-      final message = await const AdminService().resetDemoData();
-      if (!context.mounted) return;
-      await widget.onRefresh();
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message)),
-      );
-    } catch (error) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(FriendlyErrorMapper.message(error)),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
-    }
   }
 }
