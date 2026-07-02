@@ -1,5 +1,5 @@
 param(
-  [string]$ProjectUrl = "http://127.0.0.1:54321",
+  [string]$ProjectUrl = "http://127.0.0.1:55321",
   [string]$ServiceRoleKey = $env:SUPABASE_SERVICE_ROLE_KEY
 )
 
@@ -37,6 +37,7 @@ Invoke-DeleteAll "notifications" "all notifications"
 Invoke-DeleteAll "messages" "all messages"
 Invoke-DeleteAll "submission_history" "all submission history"
 Invoke-DeleteAll "submissions" "all submissions"
+Invoke-DeleteAll "team_invitations" "all team invitations"
 Invoke-DemoDelete "team_members" "team_id=not.is.null" "all team members"
 Invoke-DeleteAll "teams" "all teams"
 Invoke-DeleteAll "events" "all events"
@@ -54,6 +55,7 @@ Invoke-DemoDelete "messages" "message=$(Enc 'like.Smoke mentor question*')" "smo
 Invoke-DemoDelete "submissions" "id=eq.22222222-2222-4222-8222-222222222222" "seed submission"
 Invoke-DemoDelete "submissions" "project_name=$(Enc 'like.Smoke Project*')" "smoke submissions"
 Invoke-DemoDelete "submissions" "project_name=$(Enc 'like.Negative Project*')" "negative smoke submissions"
+Invoke-DemoDelete "team_invitations" "team_id=not.is.null" "seed team invitations"
 Invoke-DemoDelete "team_members" "team_id=eq.11111111-1111-4111-8111-111111111111" "seed team members"
 Invoke-DemoDelete "team_members" "team_id=eq.11111111-1111-4111-8111-111111111112" "seed other team members"
 Invoke-DemoDelete "teams" "id=eq.11111111-1111-4111-8111-111111111111" "seed team"
@@ -62,4 +64,5 @@ Invoke-DemoDelete "teams" "name=$(Enc 'like.Smoke Team*')" "smoke teams"
 Invoke-DemoDelete "teams" "name=$(Enc 'like.Negative Team*')" "negative smoke teams"
 Invoke-DemoDelete "events" "id=eq.00000000-0000-4000-8000-000000000001" "seed event"
 
-Write-Output "Demo reset finished. Run .\scripts\seed_demo_users.ps1 to recreate the clean demo workspace."
+Write-Output "Demo reset finished. Run .\scripts\seed_demo_users.ps1 to recreate the minimal demo flow (1 event)."
+Write-Output "Note: auth accounts created outside seed are kept. Use demo accounts or re-register after reset."

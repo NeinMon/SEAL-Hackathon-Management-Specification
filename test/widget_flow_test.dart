@@ -42,7 +42,9 @@ void main() {
     expect(find.text('Nhập mật khẩu.'), findsOneWidget);
   });
 
-  testWidgets('Register form validates required profile fields', (tester) async {
+  testWidgets('Register form validates required profile fields', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -68,7 +70,9 @@ void main() {
     expect(find.text('Nhập lại mật khẩu.'), findsOneWidget);
   });
 
-  testWidgets('Register form rejects mismatched confirm password', (tester) async {
+  testWidgets('Register form rejects mismatched confirm password', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -153,7 +157,10 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.bySemanticsLabel('Mở event Campus Innovation'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel('Mở sự kiện Campus Innovation'),
+      findsOneWidget,
+    );
   });
 
   testWidgets('RoleGate blocks users without allowed role', (tester) async {
@@ -209,16 +216,28 @@ void main() {
           description: 'Demo project',
         ),
       ];
+    final teams = TestTeamProvider()
+      ..teams = [
+        _team(
+          id: 'team-id',
+          eventId: 'event-id',
+          leaderId: 'leader-id',
+          name: 'Seal Builders',
+        ),
+      ];
 
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           ChangeNotifierProvider<AuthProvider>.value(value: auth),
+          ChangeNotifierProvider<EventProvider>.value(
+            value: _activeEventProvider(),
+          ),
           ChangeNotifierProvider<SubmissionProvider>.value(value: submissions),
           ChangeNotifierProvider<ScoreProvider>.value(
             value: TestScoreProvider(),
           ),
-          ChangeNotifierProvider<TeamProvider>.value(value: TestTeamProvider()),
+          ChangeNotifierProvider<TeamProvider>.value(value: teams),
           ChangeNotifierProvider<NotificationProvider>.value(
             value: NotificationProvider(),
           ),
@@ -238,7 +257,7 @@ void main() {
     await tester.tap(find.text('Gửi điểm'));
     await tester.pump();
 
-    expect(find.text('Cần nhập feedback trước khi gửi điểm.'), findsOneWidget);
+    expect(find.text('Cần nhập nhận xét trước khi gửi điểm.'), findsOneWidget);
   });
 
   testWidgets('Submission screen shows submitted lifecycle and history', (
@@ -302,6 +321,9 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider<AuthProvider>.value(value: auth),
+          ChangeNotifierProvider<EventProvider>.value(
+            value: _activeEventProvider(),
+          ),
           ChangeNotifierProvider<TeamProvider>.value(value: teams),
           ChangeNotifierProvider<SubmissionProvider>.value(value: submissions),
           ChangeNotifierProvider<ScoreProvider>.value(
@@ -374,9 +396,79 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Team của tôi'), findsOneWidget);
+    expect(find.text('Đội của tôi'), findsOneWidget);
     expect(find.text('Mời'), findsOneWidget);
     expect(find.text('Mời thành viên'), findsNothing);
+  });
+
+  testWidgets('Team screen shows pending invitations with response actions', (
+    tester,
+  ) async {
+    final auth = AuthProvider(restoreSession: false)
+      ..user = const AppUser(
+        id: 'invitee-id',
+        fullName: 'Invitee',
+        email: 'invitee@seal.test',
+        role: AppRoles.participant,
+        university: 'FPT University',
+      );
+    final event = _event(
+      id: 'event-id',
+      title: 'SEAL Hackathon',
+      location: 'HCMC',
+    );
+    final team = const Team(
+      id: 'team-id',
+      name: 'Seal Builders',
+      leaderId: 'leader-id',
+      eventId: 'event-id',
+      members: [
+        AppUser(
+          id: 'leader-id',
+          fullName: 'Leader',
+          email: 'leader@seal.test',
+          role: AppRoles.participant,
+          university: 'FPT University',
+        ),
+      ],
+    );
+    final events = TestEventProvider()..events = [event];
+    final teams = TestTeamProvider()
+      ..teams = [team]
+      ..invitations = [
+        TeamInvitation(
+          id: 'invitation-id',
+          teamId: 'team-id',
+          inviterId: 'leader-id',
+          inviteeId: 'invitee-id',
+          status: 'pending',
+          createdAt: DateTime(2026, 7),
+          team: team,
+          inviter: const AppUser(
+            id: 'leader-id',
+            fullName: 'Leader',
+            email: 'leader@seal.test',
+            role: AppRoles.participant,
+            university: 'FPT University',
+          ),
+        ),
+      ];
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthProvider>.value(value: auth),
+          ChangeNotifierProvider<EventProvider>.value(value: events),
+          ChangeNotifierProvider<TeamProvider>.value(value: teams),
+        ],
+        child: const MaterialApp(home: Scaffold(body: TeamScreen())),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text(AppStrings.pendingInvitationsTitle), findsOneWidget);
+    expect(find.text(AppStrings.acceptInvitationButton), findsOneWidget);
+    expect(find.text(AppStrings.declineInvitationButton), findsOneWidget);
   });
 
   testWidgets('Chat screen renders empty conversation without overflow', (
@@ -418,7 +510,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('Mentor Chat'), findsOneWidget);
+    expect(find.text('Chat mentor'), findsOneWidget);
     expect(find.text('Chưa có tin nhắn.'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
@@ -435,7 +527,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Địa điểm'), findsOneWidget);
-    expect(find.text('Chưa có địa điểm event.'), findsOneWidget);
+    expect(find.text('Chưa có địa điểm sự kiện.'), findsOneWidget);
     expect(find.text('Reload venue'), findsNothing);
   });
 
@@ -487,11 +579,11 @@ void main() {
 
     await tester.tap(find.text('Vận hành'));
     await tester.pump();
-    expect(find.text('Tạo event'), findsOneWidget);
+    expect(find.text('Tạo sự kiện'), findsOneWidget);
 
-    await tester.tap(find.text('Team'));
+    await tester.tap(find.text('Đội'));
     await tester.pump();
-    expect(find.text('Chi tiết team'), findsOneWidget);
+    expect(find.text('Chi tiết đội'), findsOneWidget);
   });
 
   testWidgets('Judge search filters queue and exposes next unscored action', (
@@ -535,14 +627,32 @@ void main() {
           feedback: 'Good.',
         ),
       ];
+    final teams = TestTeamProvider()
+      ..teams = [
+        _team(
+          id: 'team-a',
+          eventId: 'event-id',
+          leaderId: 'leader-a',
+          name: 'Team A',
+        ),
+        _team(
+          id: 'team-b',
+          eventId: 'event-id',
+          leaderId: 'leader-b',
+          name: 'Team B',
+        ),
+      ];
 
     await tester.pumpWidget(
       MultiProvider(
         providers: [
           ChangeNotifierProvider<AuthProvider>.value(value: auth),
+          ChangeNotifierProvider<EventProvider>.value(
+            value: _activeEventProvider(),
+          ),
           ChangeNotifierProvider<SubmissionProvider>.value(value: submissions),
           ChangeNotifierProvider<ScoreProvider>.value(value: scores),
-          ChangeNotifierProvider<TeamProvider>.value(value: TestTeamProvider()),
+          ChangeNotifierProvider<TeamProvider>.value(value: teams),
           ChangeNotifierProvider<NotificationProvider>.value(
             value: NotificationProvider(),
           ),
@@ -625,8 +735,11 @@ void main() {
       );
 
     await tester.pumpWidget(
-      ChangeNotifierProvider<AuthProvider>.value(
-        value: auth,
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthProvider>.value(value: auth),
+          ChangeNotifierProvider<ThemeProvider>.value(value: ThemeProvider()),
+        ],
         child: const MaterialApp(home: Scaffold(body: ProfileScreen())),
       ),
     );
@@ -660,6 +773,9 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider<AuthProvider>.value(value: auth),
+          ChangeNotifierProvider<EventProvider>.value(
+            value: _activeEventProvider(),
+          ),
           ChangeNotifierProvider<TeamProvider>.value(value: TestTeamProvider()),
           ChangeNotifierProvider<SubmissionProvider>.value(
             value: TestSubmissionProvider(),
@@ -679,8 +795,11 @@ void main() {
     expect(tester.takeException(), isNull);
 
     await tester.pumpWidget(
-      ChangeNotifierProvider<AuthProvider>.value(
-        value: auth,
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<AuthProvider>.value(value: auth),
+          ChangeNotifierProvider<ThemeProvider>.value(value: ThemeProvider()),
+        ],
         child: const MaterialApp(home: Scaffold(body: ProfileScreen())),
       ),
     );
@@ -708,6 +827,12 @@ class TestScoreProvider extends ScoreProvider {
 class TestTeamProvider extends TeamProvider {
   @override
   Future<void> loadTeams() async {}
+
+  @override
+  Future<void> loadInvitations(AppUser? user) async {}
+
+  @override
+  Future<void> loadTeamWorkspace(AppUser? user) async {}
 }
 
 class TestChatProvider extends ChatProvider {
@@ -728,19 +853,50 @@ HackathonEvent _event({
   required String title,
   required String location,
 }) {
+  final now = DateTime.now();
   return HackathonEvent(
     id: id,
     title: title,
     description: 'Build practical products.',
-    startDate: DateTime(2026, 6, 12),
-    endDate: DateTime(2026, 6, 14),
+    startDate: now.subtract(const Duration(days: 2)),
+    endDate: now.add(const Duration(days: 30)),
     location: location,
     bannerUrl: 'https://example.com/banner.jpg',
-    registrationDeadline: DateTime(2026, 6, 5),
+    registrationDeadline: now.add(const Duration(days: 20)),
     maxTeamSize: 5,
     rules: 'Submit repository and demo video.',
     prize: 'Mentorship.',
     latitude: 10,
     longitude: 106,
   );
+}
+
+Team _team({
+  required String id,
+  required String eventId,
+  required String leaderId,
+  required String name,
+}) {
+  return Team(
+    id: id,
+    name: name,
+    leaderId: leaderId,
+    eventId: eventId,
+    members: [
+      AppUser(
+        id: leaderId,
+        fullName: 'Member',
+        email: 'member@seal.test',
+        role: AppRoles.participant,
+        university: 'FPT University',
+      ),
+    ],
+  );
+}
+
+TestEventProvider _activeEventProvider() {
+  return TestEventProvider()
+    ..events = [
+      _event(id: 'event-id', title: 'SEAL Hackathon', location: 'HCMC'),
+    ];
 }

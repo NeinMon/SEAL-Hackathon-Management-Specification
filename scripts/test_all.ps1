@@ -1,6 +1,6 @@
 param(
   [switch]$SkipSupabase,
-  [string]$ProjectUrl = "http://127.0.0.1:54321",
+  [string]$ProjectUrl = "http://127.0.0.1:55321",
   [string]$AnonKey = "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH"
 )
 

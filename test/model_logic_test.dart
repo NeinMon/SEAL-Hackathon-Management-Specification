@@ -63,6 +63,35 @@ void main() {
     expect(team.members.single.fullName, 'Team Leader');
   });
 
+  test('TeamInvitation parses nested team and inviter profiles', () {
+    final invitation = TeamInvitation.fromJson({
+      'id': 'invitation-id',
+      'team_id': 'team-id',
+      'inviter_id': 'leader-id',
+      'invitee_id': 'user-id',
+      'status': 'pending',
+      'created_at': '2026-07-01T08:30:00',
+      'team': {
+        'id': 'team-id',
+        'name': 'Seal Builders',
+        'leader_id': 'leader-id',
+        'event_id': 'event-id',
+        'team_members': const [],
+      },
+      'inviter': {
+        'id': 'leader-id',
+        'full_name': 'Team Leader',
+        'email': 'leader@example.com',
+        'role': 'participant',
+        'university': 'FPT University',
+      },
+    });
+
+    expect(invitation.isPending, isTrue);
+    expect(invitation.team?.name, 'Seal Builders');
+    expect(invitation.inviter?.fullName, 'Team Leader');
+  });
+
   test('ProjectScore calculates average score', () {
     const score = ProjectScore(
       submissionId: 'submission-id',
@@ -111,6 +140,109 @@ void main() {
     expect(AppValidators.scoreError(0, 5, 10), isNull);
     expect(AppValidators.scoreError(11, 5, 10), contains('0 đến 10'));
   });
+
+  test('AppValidators returns field-specific auth and search errors', () {
+    expect(AppValidators.loginEmail(''), 'Nhập email.');
+    expect(AppValidators.loginEmail('bad'), 'Nhập email hợp lệ.');
+    expect(AppValidators.loginPassword(''), 'Nhập mật khẩu.');
+    expect(AppValidators.loginPassword('12345'), contains('6 ký tự'));
+    expect(AppValidators.registerName(''), 'Nhập họ tên.');
+    expect(AppValidators.registerUniversity(''), 'Nhập trường.');
+    expect(AppValidators.eventSearchQuery('x' * 81), contains('80 ký tự'));
+    expect(AppValidators.requireSupabaseReady(), contains('kết nối hệ thống'));
+  });
+
+  test(
+    'AuthProvider rejects login and logout validation before service',
+    () async {
+      final provider = AuthProvider(restoreSession: false);
+
+      await provider.login('', '');
+      expect(provider.error, 'Nhập email.');
+      expect(provider.user, isNull);
+
+      await provider.logout();
+      expect(provider.error, 'Bạn chưa đăng nhập.');
+    },
+  );
+
+  test('AuthProvider rejects incomplete register input', () async {
+    final provider = AuthProvider(restoreSession: false);
+
+    await provider.register('', '', '', '', '');
+    expect(provider.error, 'Nhập họ tên.');
+    expect(provider.user, isNull);
+  });
+
+  test('AppValidators rejects mismatched confirm password', () {
+    expect(
+      AppValidators.confirmPassword('123456', '654321'),
+      'Mật khẩu nhập lại không khớp.',
+    );
+    expect(AppValidators.signupOtp('12345'), contains('6 chữ số'));
+  });
+
+  test('EventProvider sorts events by title and deadline', () {
+    final now = DateTime.now();
+    final provider = EventProvider()
+      ..events = [
+        HackathonEvent(
+          id: 'b',
+          title: 'Beta Event',
+          description: 'B',
+          startDate: now.add(const Duration(days: 5)),
+          endDate: now.add(const Duration(days: 7)),
+          location: 'HN',
+          bannerUrl: 'https://example.com/b.jpg',
+          registrationDeadline: now.add(const Duration(days: 10)),
+          maxTeamSize: 4,
+          rules: 'Rules',
+          prize: 'Prize',
+          latitude: 10,
+          longitude: 106,
+        ),
+        HackathonEvent(
+          id: 'a',
+          title: 'Alpha Event',
+          description: 'A',
+          startDate: now.add(const Duration(days: 1)),
+          endDate: now.add(const Duration(days: 3)),
+          location: 'HCM',
+          bannerUrl: 'https://example.com/a.jpg',
+          registrationDeadline: now.add(const Duration(days: 2)),
+          maxTeamSize: 4,
+          rules: 'Rules',
+          prize: 'Prize',
+          latitude: 10,
+          longitude: 106,
+        ),
+      ];
+
+    provider.updateSort(EventCatalog.sortTitleAsc);
+    expect(provider.filteredEvents.first.title, 'Alpha Event');
+
+    provider.updateSort(EventCatalog.sortDeadlineAsc);
+    expect(provider.filteredEvents.first.id, 'a');
+  });
+
+  test('EventProvider validates long search queries', () {
+    final provider = EventProvider()..updateSearch('a' * 81);
+
+    expect(provider.searchError, contains('80 ký tự'));
+    expect(provider.search.length, 80);
+  });
+
+  test(
+    'EventProvider reports missing Supabase config before loading',
+    () async {
+      final provider = EventProvider();
+
+      await provider.loadEvents();
+
+      expect(provider.error, contains('kết nối hệ thống'));
+      expect(provider.isLoading, isFalse);
+    },
+  );
 
   test('FriendlyErrorMapper hides raw PostgrestException details', () {
     final message = FriendlyErrorMapper.message(
@@ -168,7 +300,276 @@ void main() {
 
     await provider.joinTeam('team-id', user, event: event);
 
-    expect(provider.error, contains('đủ thành viên'));
+    expect(provider.error, AppStrings.teamFullForEventError('Full Team'));
+  });
+
+  test('TeamProvider blocks joining second team on same event', () async {
+    const user = AppUser(
+      id: 'user-id',
+      fullName: 'Member',
+      email: 'member@example.com',
+      role: AppRoles.participant,
+      university: 'FPT University',
+    );
+    final event = HackathonEvent(
+      id: 'event-id',
+      title: 'SEAL Hackathon',
+      description: 'Build useful products.',
+      startDate: DateTime(2027, 6, 12),
+      endDate: DateTime(2027, 6, 14),
+      location: 'HCMC',
+      bannerUrl: 'https://example.com/banner.jpg',
+      registrationDeadline: DateTime(2027, 6, 5),
+      maxTeamSize: 5,
+      rules: 'Rules',
+      prize: 'Prize',
+      latitude: 10,
+      longitude: 106,
+    );
+    final provider = TeamProvider()
+      ..teams = const [
+        Team(
+          id: 'team-a',
+          name: 'Seal Builders',
+          leaderId: 'leader-id',
+          eventId: 'event-id',
+          members: [
+            AppUser(
+              id: 'user-id',
+              fullName: 'Member',
+              email: 'member@example.com',
+              role: AppRoles.participant,
+              university: 'FPT University',
+            ),
+          ],
+        ),
+        Team(
+          id: 'team-b',
+          name: 'Other Team',
+          leaderId: 'leader-2',
+          eventId: 'event-id',
+          members: [
+            AppUser(
+              id: 'leader-2',
+              fullName: 'Leader 2',
+              email: 'leader2@example.com',
+              role: AppRoles.participant,
+              university: 'FPT University',
+            ),
+          ],
+        ),
+      ];
+
+    await provider.joinTeam('team-b', user, event: event);
+
+    expect(
+      provider.error,
+      AppStrings.alreadyOnEventTeamNamedError('Seal Builders'),
+    );
+  });
+
+  test('TeamProvider blocks creating second team on same event', () async {
+    const user = AppUser(
+      id: 'leader-id',
+      fullName: 'Leader',
+      email: 'leader@example.com',
+      role: AppRoles.participant,
+      university: 'FPT University',
+    );
+    final event = HackathonEvent(
+      id: 'event-id',
+      title: 'SEAL Hackathon',
+      description: 'Build useful products.',
+      startDate: DateTime(2027, 6, 12),
+      endDate: DateTime(2027, 6, 14),
+      location: 'HCMC',
+      bannerUrl: 'https://example.com/banner.jpg',
+      registrationDeadline: DateTime(2027, 6, 5),
+      maxTeamSize: 5,
+      rules: 'Rules',
+      prize: 'Prize',
+      latitude: 10,
+      longitude: 106,
+    );
+    final provider = TeamProvider()
+      ..teams = const [
+        Team(
+          id: 'team-a',
+          name: 'Seal Builders',
+          leaderId: 'leader-id',
+          eventId: 'event-id',
+          members: [
+            AppUser(
+              id: 'leader-id',
+              fullName: 'Leader',
+              email: 'leader@example.com',
+              role: AppRoles.participant,
+              university: 'FPT University',
+            ),
+          ],
+        ),
+      ];
+
+    await provider.createTeam('Second Team', event, user);
+
+    expect(
+      provider.error,
+      AppStrings.alreadyOnEventTeamNamedError('Seal Builders'),
+    );
+  });
+
+  test('TeamMembership allows separate teams on different events', () {
+    const teams = [
+      Team(
+        id: 'team-a',
+        name: 'Team A',
+        leaderId: 'user-id',
+        eventId: 'event-a',
+        members: [
+          AppUser(
+            id: 'user-id',
+            fullName: 'User',
+            email: 'user@example.com',
+            role: AppRoles.participant,
+            university: 'FPT University',
+          ),
+        ],
+      ),
+    ];
+
+    expect(
+      TeamMembership.hasTeamOnEvent(
+        teams: teams,
+        userId: 'user-id',
+        eventId: 'event-b',
+      ),
+      isFalse,
+    );
+  });
+
+  test(
+    'TeamProvider blocks team creation when event registration closed',
+    () async {
+      const user = AppUser(
+        id: 'leader-id',
+        fullName: 'Leader',
+        email: 'leader@example.com',
+        role: AppRoles.participant,
+        university: 'FPT University',
+      );
+      final event = HackathonEvent(
+        id: 'event-id',
+        title: 'Closed Event',
+        description: 'Finished hackathon.',
+        startDate: DateTime(2020, 6, 12),
+        endDate: DateTime(2020, 6, 14),
+        location: 'HCMC',
+        bannerUrl: 'https://example.com/banner.jpg',
+        registrationDeadline: DateTime(2020, 6, 5),
+        maxTeamSize: 5,
+        rules: 'Rules',
+        prize: 'Prize',
+        latitude: 10,
+        longitude: 106,
+      );
+      final provider = TeamProvider();
+      final at = DateTime(2026, 6, 20);
+
+      expect(event.registrationOpen(at), isFalse);
+      expect(event.registrationBlockReason(at), AppStrings.errorEventEnded);
+
+      await provider.createTeam('Late Team', event, user);
+
+      expect(provider.error, AppStrings.errorEventEnded);
+    },
+  );
+
+  test(
+    'HackathonEvent registration stays open before deadline and end date',
+    () {
+      final event = HackathonEvent(
+        id: 'event-id',
+        title: 'Open Event',
+        description: 'Active hackathon.',
+        startDate: DateTime(2026, 7, 10),
+        endDate: DateTime(2026, 7, 12),
+        location: 'HCMC',
+        bannerUrl: 'https://example.com/banner.jpg',
+        registrationDeadline: DateTime(2026, 7, 5),
+        maxTeamSize: 5,
+        rules: 'Rules',
+        prize: 'Prize',
+        latitude: 10,
+        longitude: 106,
+      );
+      final at = DateTime(2026, 7, 1);
+
+      expect(event.registrationOpen(at), isTrue);
+      expect(event.registrationBlockReason(at), isNull);
+    },
+  );
+
+  test('SubmissionProvider blocks submit when event ended', () async {
+    final event = HackathonEvent(
+      id: 'event-id',
+      title: 'Closed Event',
+      description: 'Finished.',
+      startDate: DateTime(2020, 6, 1),
+      endDate: DateTime(2020, 6, 3),
+      location: 'HCMC',
+      bannerUrl: 'https://example.com/banner.jpg',
+      registrationDeadline: DateTime(2020, 6, 1),
+      maxTeamSize: 5,
+      rules: 'Rules',
+      prize: 'Prize',
+      latitude: 10,
+      longitude: 106,
+    );
+    final provider = SubmissionProvider();
+    await provider.submit(
+      ProjectSubmission(
+        id: 'submission-1',
+        teamId: 'team-1',
+        projectName: 'Demo Project',
+        githubUrl: 'https://github.com/demo/repo',
+        videoUrl: 'https://youtube.com/watch?v=demo',
+        description: 'Demo description long enough.',
+        status: 'submitted',
+      ),
+      event: event,
+    );
+    expect(provider.error, AppStrings.errorSubmissionClosed);
+  });
+
+  test('ScoreProvider blocks judging before event starts', () async {
+    final event = HackathonEvent(
+      id: 'event-id',
+      title: 'Upcoming Event',
+      description: 'Not started.',
+      startDate: DateTime(2030, 6, 12),
+      endDate: DateTime(2030, 6, 14),
+      location: 'HCMC',
+      bannerUrl: 'https://example.com/banner.jpg',
+      registrationDeadline: DateTime(2030, 6, 5),
+      maxTeamSize: 5,
+      rules: 'Rules',
+      prize: 'Prize',
+      latitude: 10,
+      longitude: 106,
+    );
+    final provider = ScoreProvider();
+    await provider.addScore(
+      ProjectScore(
+        submissionId: 'submission-1',
+        judgeId: 'judge-1',
+        technicalScore: 8,
+        uiScore: 8,
+        innovationScore: 8,
+        feedback: 'Good work overall.',
+      ),
+      event: event,
+    );
+    expect(provider.error, AppStrings.errorJudgingNotStarted);
   });
 
   test('EventProvider filters by phase and search keyword', () {
@@ -215,6 +616,33 @@ void main() {
     expect(provider.filteredEvents.single.id, 'closed');
   });
 
+  test('RouteQuery builds event-scoped navigation paths', () {
+    expect(
+      RouteQuery.teamsForEvent('event-1'),
+      '${AppRoutes.teams}?event=event-1',
+    );
+    expect(
+      RouteQuery.judgeForEvent('event-1'),
+      '${AppRoutes.judge}?event=event-1',
+    );
+    expect(
+      RouteQuery.submitForTeam('team-1'),
+      '${AppRoutes.submit}?team=team-1',
+    );
+  });
+
+  test('NotificationLink encodes and decodes event deep links', () {
+    final encoded = NotificationLink.encodeEvent(
+      eventId: 'event-1',
+      content: 'Final judging starts soon.',
+    );
+    expect(NotificationLink.eventId(encoded), 'event-1');
+    expect(
+      NotificationLink.displayContent(encoded),
+      'Final judging starts soon.',
+    );
+  });
+
   test('AppNotification parses read state and timestamp', () {
     final notification = AppNotification.fromJson({
       'id': 'notification-id',
@@ -258,4 +686,107 @@ void main() {
       expect(provider.error, 'Tin nhắn không được để trống.');
     },
   );
+
+  test(
+    'AppValidators covers team, submission, score, event and notification',
+    () {
+      expect(AppValidators.teamName(''), 'Nhập tên đội.');
+      expect(
+        AppValidators.eventDateTimeField('bad-date', label: 'Ngày bắt đầu'),
+        contains('yyyy-MM-dd HH:mm'),
+      );
+      expect(
+        AppValidators.parseEventDateTime('2026-06-15 09:00'),
+        DateTime(2026, 6, 15, 9),
+      );
+      expect(AppValidators.parseEventDateTime('15/06/2026'), isNull);
+      expect(
+        AppValidators.submissionPayload(
+          teamId: '',
+          name: 'App',
+          githubUrl: 'https://github.com/a/b',
+          videoUrl: 'https://youtu.be/demo',
+          description: '1234567890',
+        ),
+        contains('đội'),
+      );
+      expect(
+        AppValidators.judgeScore(
+          submissionId: 'sub',
+          judgeId: 'judge',
+          technical: 11,
+          ui: 5,
+          innovation: 5,
+          feedback: 'Good',
+        ),
+        contains('0 đến 10'),
+      );
+      expect(
+        AppValidators.eventPayload(
+          title: 'Hack',
+          location: 'HCMC',
+          bannerUrl: '',
+          startDate: DateTime(2026, 6, 14),
+          endDate: DateTime(2026, 6, 12),
+          registrationDeadline: DateTime(2026, 6, 10),
+          maxTeamSize: 4,
+          latitude: 10,
+          longitude: 106,
+        ),
+        contains('kết thúc'),
+      );
+      expect(
+        AppValidators.notificationContent(
+          title: '',
+          content: 'Hello',
+          type: 'announcement',
+        ),
+        contains('tiêu đề'),
+      );
+      expect(AppValidators.userRole('invalid'), contains('Vai trò'));
+    },
+  );
+
+  test(
+    'SubmissionProvider rejects invalid payload before service call',
+    () async {
+      final provider = SubmissionProvider();
+      await provider.submit(
+        ProjectSubmission(
+          id: 'submission-1',
+          teamId: 'team-1',
+          projectName: 'My App',
+          githubUrl: 'bad-url',
+          videoUrl: 'https://youtu.be/demo',
+          description: 'A valid project description.',
+        ),
+      );
+      expect(provider.error, isNotNull);
+      expect(provider.error, contains('GitHub'));
+    },
+  );
+
+  test(
+    'ScoreProvider rejects invalid judge score before service call',
+    () async {
+      final provider = ScoreProvider();
+      await provider.addScore(
+        const ProjectScore(
+          submissionId: 'submission-1',
+          judgeId: 'judge-1',
+          technicalScore: 8,
+          uiScore: 8,
+          innovationScore: 8,
+          feedback: '',
+        ),
+      );
+      expect(provider.error, contains('nhận xét'));
+    },
+  );
+
+  test('NotificationProvider rejects invalid announcement payload', () async {
+    final provider = NotificationProvider();
+    await provider.push('', 'content', 'announcement', userId: 'user-1');
+    expect(provider.error, contains('tiêu đề'));
+  });
 }

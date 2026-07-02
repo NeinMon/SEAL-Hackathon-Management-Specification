@@ -1,5 +1,5 @@
 param(
-  [string]$ProjectUrl = "http://127.0.0.1:54321",
+  [string]$ProjectUrl = "http://127.0.0.1:55321",
   [string]$AnonKey = "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH",
   [string]$ParticipantEmail = "participant@seal.test",
   [string]$JudgeEmail = "judge@seal.test",
@@ -62,24 +62,33 @@ $mentor = First-Item `
 
 $runId = Get-Date -Format "yyyyMMddHHmmss"
 
-$teamBody = @{
-  name = "Smoke Team $runId"
-  leader_id = $participant.user.id
-  event_id = $event.id
-} | ConvertTo-Json
-$team = First-Item `
-  (Invoke-RestMethod -Method Post -Uri "$ProjectUrl/rest/v1/teams?select=*" -Headers $returnHeaders -Body $teamBody) `
-  "team"
+$existingMembership = Invoke-RestMethod `
+  -Method Get `
+  -Uri "$ProjectUrl/rest/v1/team_members?user_id=eq.$($participant.user.id)&select=team_id,teams(*)&limit=1" `
+  -Headers $participantHeaders
 
-$memberBody = @{
-  team_id = $team.id
-  user_id = $participant.user.id
-} | ConvertTo-Json
-Invoke-RestMethod `
-  -Method Post `
-  -Uri "$ProjectUrl/rest/v1/team_members" `
-  -Headers (New-AuthHeaders $participant.access_token "resolution=merge-duplicates") `
-  -Body $memberBody | Out-Null
+if (@($existingMembership).Count -gt 0) {
+  $team = (First-Item $existingMembership "existing team membership").teams
+} else {
+  $teamBody = @{
+    name = "Smoke Team $runId"
+    leader_id = $participant.user.id
+    event_id = $event.id
+  } | ConvertTo-Json
+  $team = First-Item `
+    (Invoke-RestMethod -Method Post -Uri "$ProjectUrl/rest/v1/teams?select=*" -Headers $returnHeaders -Body $teamBody) `
+    "team"
+
+  $memberBody = @{
+    team_id = $team.id
+    user_id = $participant.user.id
+  } | ConvertTo-Json
+  Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ProjectUrl/rest/v1/team_members" `
+    -Headers (New-AuthHeaders $participant.access_token "resolution=merge-duplicates") `
+    -Body $memberBody | Out-Null
+}
 
 $submissionBody = @{
   team_id = $team.id

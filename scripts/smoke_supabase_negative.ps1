@@ -1,5 +1,5 @@
 param(
-  [string]$ProjectUrl = "http://127.0.0.1:54321",
+  [string]$ProjectUrl = "http://127.0.0.1:55321",
   [string]$AnonKey = "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH",
   [string]$ServiceRoleKey = $env:SUPABASE_SERVICE_ROLE_KEY,
   [string]$ParticipantEmail = "participant@seal.test",
@@ -73,24 +73,33 @@ $event = First-Item `
   "event"
 
 $runId = Get-Date -Format "yyyyMMddHHmmss"
-$teamBody = @{
-  name = "Negative Team $runId"
-  leader_id = $participant.user.id
-  event_id = $event.id
-} | ConvertTo-Json
-$team = First-Item `
-  (Invoke-RestMethod -Method Post -Uri "$ProjectUrl/rest/v1/teams?select=*" -Headers $participantReturnHeaders -Body $teamBody) `
-  "team"
+$existingMembership = Invoke-RestMethod `
+  -Method Get `
+  -Uri "$ProjectUrl/rest/v1/team_members?user_id=eq.$($participant.user.id)&select=team_id,teams(*)&limit=1" `
+  -Headers $participantHeaders
 
-$memberBody = @{
-  team_id = $team.id
-  user_id = $participant.user.id
-} | ConvertTo-Json
-Invoke-RestMethod `
-  -Method Post `
-  -Uri "$ProjectUrl/rest/v1/team_members" `
-  -Headers (New-AuthHeaders $participant.access_token "resolution=merge-duplicates") `
-  -Body $memberBody | Out-Null
+if (@($existingMembership).Count -gt 0) {
+  $team = (First-Item $existingMembership "existing team membership").teams
+} else {
+  $teamBody = @{
+    name = "Negative Team $runId"
+    leader_id = $participant.user.id
+    event_id = $event.id
+  } | ConvertTo-Json
+  $team = First-Item `
+    (Invoke-RestMethod -Method Post -Uri "$ProjectUrl/rest/v1/teams?select=*" -Headers $participantReturnHeaders -Body $teamBody) `
+    "team"
+
+  $memberBody = @{
+    team_id = $team.id
+    user_id = $participant.user.id
+  } | ConvertTo-Json
+  Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ProjectUrl/rest/v1/team_members" `
+    -Headers (New-AuthHeaders $participant.access_token "resolution=merge-duplicates") `
+    -Body $memberBody | Out-Null
+}
 
 $submissionBody = @{
   team_id = $team.id
@@ -268,6 +277,127 @@ if ($ServiceRoleKey) {
       -Uri "$ProjectUrl/rest/v1/messages?select=*" `
       -Headers $mentorReturnHeaders `
       -Body $blockedMentorMessageBody
+  }
+
+  Assert-Blocked -Name "participant cannot promote own role to organizer" -Action {
+    Invoke-RestMethod `
+      -Method Patch `
+      -Uri "$ProjectUrl/rest/v1/users?id=eq.$($participant.user.id)&select=*" `
+      -Headers $participantReturnHeaders `
+      -Body (@{ role = "organizer" } | ConvertTo-Json)
+  }
+
+  $closedEventId = "00000000-0000-4000-8000-000000009999"
+  $closedEventBody = @{
+    id = $closedEventId
+    title = "Closed Lifecycle Event $runId"
+    description = "Closed event for lifecycle negative smoke."
+    start_date = "2020-06-01T08:00:00"
+    end_date = "2020-06-03T18:00:00"
+    location = "HCMC"
+    banner_url = "https://example.com/closed.jpg"
+    registration_deadline = "2020-06-01T23:59:00"
+    max_team_size = 5
+    rules = "Closed"
+    prize = "Closed"
+    latitude = 10.8411
+    longitude = 106.8100
+  } | ConvertTo-Json -Depth 4
+  Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ProjectUrl/rest/v1/events" `
+    -Headers $serviceHeaders `
+    -Body $closedEventBody | Out-Null
+
+  Assert-Blocked -Name "participant cannot create team when registration closed" -Action {
+    Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/teams?select=*" `
+      -Headers $participantReturnHeaders `
+      -Body (@{
+        name = "Closed Registration Team $runId"
+        leader_id = $participant.user.id
+        event_id = $closedEventId
+      } | ConvertTo-Json)
+  }
+
+  $upcomingEventId = "00000000-0000-4000-8000-000000009998"
+  $upcomingStart = (Get-Date).AddDays(30).ToString("yyyy-MM-ddTHH:mm:ss")
+  $upcomingEnd = (Get-Date).AddDays(32).ToString("yyyy-MM-ddTHH:mm:ss")
+  $upcomingDeadline = (Get-Date).AddDays(29).ToString("yyyy-MM-ddTHH:mm:ss")
+  $upcomingEventBody = @{
+    id = $upcomingEventId
+    title = "Upcoming Lifecycle Event $runId"
+    description = "Upcoming event for judging negative smoke."
+    start_date = $upcomingStart
+    end_date = $upcomingEnd
+    location = "HCMC"
+    banner_url = "https://example.com/upcoming.jpg"
+    registration_deadline = $upcomingDeadline
+    max_team_size = 5
+    rules = "Upcoming"
+    prize = "Upcoming"
+    latitude = 10.8411
+    longitude = 106.8100
+  } | ConvertTo-Json -Depth 4
+  Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ProjectUrl/rest/v1/events" `
+    -Headers $serviceHeaders `
+    -Body $upcomingEventBody | Out-Null
+
+  $upcomingTeamBody = @{
+    name = "Upcoming Team $runId"
+    leader_id = $participant.user.id
+    event_id = $upcomingEventId
+  } | ConvertTo-Json
+  $upcomingTeam = First-Item `
+    (Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/teams?select=*" `
+      -Headers $serviceHeaders `
+      -Body $upcomingTeamBody) `
+    "upcoming team"
+
+  Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ProjectUrl/rest/v1/team_members" `
+    -Headers $serviceHeaders `
+    -Body (@{
+      team_id = $upcomingTeam.id
+      user_id = $participant.user.id
+    } | ConvertTo-Json) | Out-Null
+
+  $upcomingSubmissionBody = @{
+    team_id = $upcomingTeam.id
+    project_name = "Upcoming Project $runId"
+    github_url = "https://github.com/seal-demo/upcoming"
+    video_url = "https://example.com/upcoming-demo"
+    description = "Submission for upcoming judging negative smoke."
+    status = "submitted"
+  } | ConvertTo-Json
+  $upcomingSubmission = First-Item `
+    (Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/submissions?select=*" `
+      -Headers $serviceHeaders `
+      -Body $upcomingSubmissionBody) `
+    "upcoming submission"
+
+  Assert-Blocked -Name "judge cannot score before event starts" -Action {
+    Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/scores?select=*" `
+      -Headers $judgeReturnHeaders `
+      -Body (@{
+        submission_id = $upcomingSubmission.id
+        judge_id = $judge.user.id
+        technical_score = 8
+        ui_score = 8
+        innovation_score = 8
+        feedback = "Too early to score."
+        average_score = 8
+      } | ConvertTo-Json)
   }
 } else {
   Write-Output "SKIP: judge update negative case requires SUPABASE_SERVICE_ROLE_KEY."
