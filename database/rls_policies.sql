@@ -2,6 +2,7 @@ alter table users enable row level security;
 alter table events enable row level security;
 alter table teams enable row level security;
 alter table team_members enable row level security;
+alter table team_invitations enable row level security;
 alter table submissions enable row level security;
 alter table submission_history enable row level security;
 alter table scores enable row level security;
@@ -51,6 +52,83 @@ as $$
   end
 $$;
 
+create or replace function public.event_registration_open(p_event_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.events e
+    where e.id = p_event_id
+      and e.end_date is not null
+      and e.registration_deadline is not null
+      and e.end_date >= now()
+      and e.registration_deadline >= now()
+  );
+$$;
+
+create or replace function public.event_submission_open(p_event_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.events e
+    where e.id = p_event_id
+      and e.end_date is not null
+      and e.end_date >= now()
+  );
+$$;
+
+create or replace function public.event_judging_open(p_event_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.events e
+    where e.id = p_event_id
+      and e.start_date is not null
+      and e.start_date <= now()
+  );
+$$;
+
+create or replace function public.team_event_id(p_team_id uuid)
+returns uuid
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select t.event_id
+  from public.teams t
+  where t.id = p_team_id
+  limit 1;
+$$;
+
+create or replace function public.submission_event_id(p_submission_id uuid)
+returns uuid
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select t.event_id
+  from public.submissions s
+  join public.teams t on t.id = s.team_id
+  where s.id = p_submission_id
+  limit 1;
+$$;
+
 drop policy if exists "Users can create own profile" on users;
 create policy "Users can create own profile"
 on users for insert
@@ -96,7 +174,10 @@ drop policy if exists "Users can create led teams" on teams;
 create policy "Users can create led teams"
 on teams for insert
 to authenticated
-with check (leader_id = auth.uid());
+with check (
+  leader_id = auth.uid()
+  and public.event_registration_open(event_id)
+);
 
 drop policy if exists "Team leaders can update teams" on teams;
 create policy "Team leaders can update teams"
@@ -116,12 +197,20 @@ create policy "Users can join teams as themselves"
 on team_members for insert
 to authenticated
 with check (
-  user_id = auth.uid()
-  or exists (
+  (
+    user_id = auth.uid()
+    or exists (
+      select 1
+      from teams
+      where teams.id = team_members.team_id
+        and teams.leader_id = auth.uid()
+    )
+  )
+  and exists (
     select 1
     from teams
     where teams.id = team_members.team_id
-      and teams.leader_id = auth.uid()
+      and public.event_registration_open(teams.event_id)
   )
 );
 
@@ -130,6 +219,47 @@ create policy "Users can leave teams as themselves"
 on team_members for delete
 to authenticated
 using (user_id = auth.uid());
+
+drop policy if exists "Team leaders can view sent invitations" on team_invitations;
+create policy "Team leaders can view sent invitations"
+on team_invitations for select
+to authenticated
+using (
+  invitee_id = auth.uid()
+  or public.current_user_role() = 'organizer'
+  or exists (
+    select 1
+    from teams
+    where teams.id = team_invitations.team_id
+      and teams.leader_id = auth.uid()
+  )
+);
+
+drop policy if exists "Team leaders can create invitations" on team_invitations;
+create policy "Team leaders can create invitations"
+on team_invitations for insert
+to authenticated
+with check (
+  inviter_id = auth.uid()
+  and status = 'pending'
+  and exists (
+    select 1
+    from teams
+    where teams.id = team_invitations.team_id
+      and teams.leader_id = auth.uid()
+  )
+);
+
+drop policy if exists "Invitees can respond to own invitations" on team_invitations;
+create policy "Invitees can respond to own invitations"
+on team_invitations for update
+to authenticated
+using (invitee_id = auth.uid() and status = 'pending')
+with check (
+  invitee_id = auth.uid()
+  and status in ('accepted', 'declined')
+  and responded_at is not null
+);
 
 drop policy if exists "Authenticated users can view submissions" on submissions;
 create policy "Authenticated users can view submissions"
@@ -144,9 +274,11 @@ to authenticated
 with check (
   exists (
     select 1
-    from team_members
-    where team_members.team_id = submissions.team_id
-      and team_members.user_id = auth.uid()
+    from team_members tm
+    join teams t on t.id = tm.team_id
+    where tm.team_id = submissions.team_id
+      and tm.user_id = auth.uid()
+      and public.event_submission_open(t.event_id)
   )
 );
 
@@ -157,17 +289,21 @@ to authenticated
 using (
   exists (
     select 1
-    from team_members
-    where team_members.team_id = submissions.team_id
-      and team_members.user_id = auth.uid()
+    from team_members tm
+    join teams t on t.id = tm.team_id
+    where tm.team_id = submissions.team_id
+      and tm.user_id = auth.uid()
+      and public.event_submission_open(t.event_id)
   )
 )
 with check (
   exists (
     select 1
-    from team_members
-    where team_members.team_id = submissions.team_id
-      and team_members.user_id = auth.uid()
+    from team_members tm
+    join teams t on t.id = tm.team_id
+    where tm.team_id = submissions.team_id
+      and tm.user_id = auth.uid()
+      and public.event_submission_open(t.event_id)
   )
 );
 
@@ -190,6 +326,7 @@ to authenticated
 with check (
   judge_id = auth.uid()
   and public.current_user_role() = 'judge'
+  and public.event_judging_open(public.submission_event_id(submission_id))
 );
 
 drop policy if exists "Judges can update own scores" on scores;
@@ -199,10 +336,12 @@ to authenticated
 using (
   judge_id = auth.uid()
   and public.current_user_role() = 'judge'
+  and public.event_judging_open(public.submission_event_id(submission_id))
 )
 with check (
   judge_id = auth.uid()
   and public.current_user_role() = 'judge'
+  and public.event_judging_open(public.submission_event_id(submission_id))
 );
 
 drop policy if exists "Users can view own notifications" on notifications;

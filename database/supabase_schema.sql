@@ -39,6 +39,17 @@ create table if not exists team_members (
   primary key (team_id, user_id)
 );
 
+create table if not exists team_invitations (
+  id uuid primary key default gen_random_uuid(),
+  team_id uuid not null references teams(id) on delete cascade,
+  inviter_id uuid not null references users(id) on delete cascade,
+  invitee_id uuid not null references users(id) on delete cascade,
+  status text not null default 'pending' check (status in ('pending', 'accepted', 'declined')),
+  created_at timestamp default now(),
+  responded_at timestamp,
+  constraint team_invitations_no_self_invite check (inviter_id <> invitee_id)
+);
+
 create table if not exists submissions (
   id uuid primary key default gen_random_uuid(),
   team_id uuid references teams(id),
@@ -98,6 +109,8 @@ create table if not exists messages (
 create index if not exists teams_event_id_idx on teams(event_id);
 create index if not exists teams_leader_id_idx on teams(leader_id);
 create index if not exists team_members_user_id_idx on team_members(user_id);
+create unique index if not exists team_invitations_one_pending_idx on team_invitations(team_id, invitee_id) where status = 'pending';
+create index if not exists team_invitations_invitee_status_idx on team_invitations(invitee_id, status, created_at desc);
 create index if not exists submissions_team_id_idx on submissions(team_id);
 create index if not exists submissions_submitted_at_idx on submissions(submitted_at desc);
 create index if not exists submission_history_submission_id_idx on submission_history(submission_id, changed_at desc);
