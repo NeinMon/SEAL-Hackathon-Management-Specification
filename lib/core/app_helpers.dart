@@ -20,7 +20,7 @@ class AppRoles {
   static const organizer = 'organizer';
 
   static const participantCreators = {participant, organizer};
-  static const scorers = {judge, organizer};
+  static const scorers = {judge};
 
   static String label(String role) {
     return switch (role) {
@@ -301,7 +301,8 @@ class AppValidators {
     switch (type) {
       case 'score':
         if (role == AppRoles.participant) return AppRoutes.submit;
-        if (AppRoles.scorers.contains(role)) return AppRoutes.judge;
+        if (role == AppRoles.judge) return AppRoutes.judge;
+        if (role == AppRoles.organizer) return AppRoutes.organizer;
         return AppRoutes.teams;
       case 'invitation':
         return AppRoutes.teams;
@@ -590,7 +591,9 @@ class FriendlyErrorMapper {
       if (text.contains('email not confirmed')) {
         return AppStrings.errorEmailNotConfirmed;
       }
-      if (text.contains('otp') || text.contains('token')) {
+      if (text.contains('otp') ||
+          text.contains('verification token') ||
+          text.contains('signup token')) {
         return AppStrings.errorInvalidOtp;
       }
       return _isTechnicalError(exception.message)

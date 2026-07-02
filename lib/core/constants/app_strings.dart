@@ -149,15 +149,15 @@ class AppStrings {
   static const String eventDetailSubtitle =
       'Timeline, luật thi, địa điểm và bảng xếp hạng.';
   static const String eventDetailLoadingSubtitle =
-      'Đang tải thông tin hackathon từ hệ thống.';
+      'Đang nạp dữ liệu sự kiện.';
   static const String eventNotFound = 'Không tìm thấy sự kiện.';
   static const String rulesTitle = 'Luật thi';
   static const String prizeTitle = 'Giải thưởng';
-  static const String leaderboardTitle = 'Bảng xếp hạng';
+    static const String leaderboardTitle = 'Xếp hạng';
   static const String noScoredSubmissionsYet = 'Chưa có bài nào được chấm.';
   static const String noSubmissionsForEventYet =
       'Chưa có bài nộp cho sự kiện này.';
-  static const String eventDetailStatsTitle = 'Tổng quan sự kiện';
+    static const String eventDetailStatsTitle = 'Số liệu sự kiện';
   static const String eventTeamsMetric = 'Đội';
   static const String eventSubmissionsMetric = 'Bài nộp';
   static const String eventUnscoredMetric = 'Chưa chấm';
@@ -169,7 +169,7 @@ class AppStrings {
   static const String timelineRegistration = 'Đăng ký';
   static const String timelineKickoff = 'Kickoff';
   static const String timelineFinal = 'Chung kết';
-  static const String openJudgeQueueButton = 'Mở hàng chờ chấm';
+    static const String openJudgeQueueButton = 'Xem bài chưa chấm';
   static const String openOrganizerDashboardButton = 'Mở tổng quan ban tổ chức';
   static const String openMentorChatButton = 'Mở chat mentor';
   static const String manageTeamButton = 'Tạo hoặc quản lý đội';
@@ -177,10 +177,10 @@ class AppStrings {
   static const String joinOrCreateTeamButton = 'Tạo hoặc tham gia đội';
   static const String submitForEventButton = 'Nộp bài cho sự kiện này';
   static const String myTeamForEventTitle = 'Đội của bạn';
-  static const String leaderboardPendingTitle = 'Chờ chấm';
-  static const String awaitingScoreBadge = 'Chờ điểm';
+    static const String leaderboardPendingTitle = 'Bài chưa chấm';
+    static const String awaitingScoreBadge = 'Đang chờ chấm';
   static const String judgeQueueFilteredSubtitle =
-      'Hàng chờ chấm điểm cho sự kiện đang chọn.';
+      'Danh sách bài nộp chưa được chấm cho sự kiện đang chọn.';
   static String judgeQueueForEventTitle(String title) => 'Chấm điểm: $title';
   static const String viewVenueButton = 'Xem địa điểm';
   static const String eventCreatedSuccess = 'Đã tạo sự kiện.';
@@ -341,10 +341,10 @@ class AppStrings {
 
   // Judge
   static const String judgeRoleGateMessage =
-      'Chỉ giám khảo và ban tổ chức mới truy cập được chấm điểm.';
+      'Chỉ giám khảo mới truy cập được màn chấm điểm.';
   static const String judgeTitle = 'Chấm điểm';
   static const String judgeSubtitle =
-      'Chấm bài theo tiêu chí kỹ thuật, trải nghiệm người dùng và đổi mới.';
+      'Chấm bài theo kỹ thuật, trải nghiệm và đổi mới.';
   static const String filterUnscored = 'Chưa chấm';
   static const String filterScored = 'Đã chấm';
   static const String judgeSearchLabel = 'Tìm bài nộp hoặc đội';
@@ -365,11 +365,11 @@ class AppStrings {
   static const String submitScoreButton = 'Gửi điểm';
   static const String updateScoreButton = 'Cập nhật điểm';
   static const String scoringProgressTitle = 'Tiến độ chấm';
-  static const String scorePublishedNotificationTitle = 'Đã công bố điểm';
-  static const String scorePublishedSnackBar = 'Đã công bố điểm.';
+    static const String scorePublishedNotificationTitle = 'Điểm đã được công bố';
+    static const String scorePublishedSnackBar = 'Đã công bố điểm cho bài nộp.';
   static const String scoreSavedSuccess = 'Đã lưu điểm.';
   static const String judgeScoreParticipantHint =
-      'Thí sinh mở icon chuông để xem điểm và nhận xét.';
+      'Thí sinh mở thông báo để xem điểm và nhận xét.';
   static const String scoreNotificationDialogTitle = 'Kết quả chấm điểm';
   static const String announcementNotificationDialogTitle = 'Thông báo từ BTC';
   static const String viewSubmissionButton = 'Xem bài nộp';
@@ -428,7 +428,7 @@ class AppStrings {
   static const String closeRegistrationTitle = 'Đóng đăng ký?';
   static const String closeRegistrationSuccess =
       'Đã đóng đăng ký cho sự kiện này.';
-  static const String recentSubmissionsTitle = 'Bài nộp gần đây';
+    static const String recentSubmissionsTitle = 'Bài nộp mới nhất';
   static const String noSubmissionsYet = 'Chưa có bài nộp.';
   static const String openTeamAction = 'Mở đội';
   static const String teamDetailsTitle = 'Chi tiết đội';
@@ -441,7 +441,7 @@ class AppStrings {
   static const String userRolesTitle = 'Vai trò người dùng';
   static const String unscoredMetricLabel = 'Chưa chấm';
   static const String otherActionsTitle = 'Thao tác khác';
-  static const String dashboardChartTitle = 'Tổng quan';
+    static const String dashboardChartTitle = 'Tổng quan chấm';
   static const String scoredBarLabel = 'Đã chấm';
   static const String unscoredBarLabel = 'Chưa chấm';
 
@@ -468,8 +468,8 @@ class AppStrings {
   static const String announcementTemplateKickoffBody =
       'Chào mừng các đội tham gia SEAL Innovation Hackathon 2026. Kiểm tra Sự kiện để xem lịch trình và luật thi.';
   static const String newScoreSnackBar =
-      'Có điểm mới! Mở chuông để xem chi tiết.';
-  static const String openInboxAction = 'Mở thông báo';
+      'Có điểm mới. Mở thông báo để xem.';
+  static const String openInboxAction = 'Xem thông báo';
   static String changeRoleDialogBody(String name, String role) =>
       'Gán $name thành $role.';
   static String roleUpdatedSuccess(String name) => 'Đã cập nhật vai trò $name.';
@@ -479,15 +479,15 @@ class AppStrings {
   // Notifications
   static const String inboxTitle = 'Thông báo';
   static const String inboxSubtitle =
-      'Thông báo hệ thống, điểm số và lời mời vào đội.';
+      'Điểm số, lời mời vào đội và cập nhật hệ thống.';
   static const String inboxEmpty = 'Chưa có thông báo.';
-  static const String reloadInboxAction = 'Tải lại thông báo';
+    static const String reloadInboxAction = 'Nạp lại thông báo';
   static const String unreadGroup = 'Chưa đọc';
   static const String readGroup = 'Đã đọc';
   static const String markAsReadAction = 'Đánh dấu đã đọc';
-  static const String deleteNotificationTitle = 'Xóa thông báo?';
+    static const String deleteNotificationTitle = 'Xóa mục thông báo?';
   static const String deleteNotificationBody =
-      'Thông báo sẽ bị xóa khỏi danh sách.';
+      'Mục này sẽ bị xóa khỏi danh sách thông báo.';
 
   // Profile
   static const String profileTitle = 'Hồ sơ';
@@ -640,12 +640,12 @@ class AppStrings {
       '$label phải theo định dạng $format (vd: 2026-06-15 09:00).';
 
   // Misc UI
-  static const String reloadTeamsTooltip = 'Tải lại đội';
-  static const String reloadJudgeQueueTooltip = 'Tải lại hàng chờ chấm';
-  static const String reloadDashboardTooltip = 'Tải lại tổng quan';
-  static const String judgePreviewOnlyMessage =
-      'Đăng nhập bằng tài khoản Giám khảo để gửi điểm chính thức. Ban tổ chức có thể xem trước màn này.';
-  static const String judgeQueueSortLabel = 'Sắp xếp hàng chờ';
+    static const String reloadTeamsTooltip = 'Tải lại đội';
+    static const String reloadJudgeQueueTooltip = 'Tải lại bài chưa chấm';
+    static const String reloadDashboardTooltip = 'Tải lại tổng quan';
+    static const String judgePreviewOnlyMessage =
+            'Đăng nhập bằng tài khoản Giám khảo để gửi điểm chính thức.';
+    static const String judgeQueueSortLabel = 'Sắp xếp bài chưa chấm';
   static const String sortNewestFirst = 'Mới nhất trước';
   static const String sortProjectName = 'Tên project';
   static const String sortTeamName = 'Đội';
@@ -671,20 +671,20 @@ class AppStrings {
   static const String editEventMenuItem = 'Sửa sự kiện';
   static const String closeRegistrationMenuItem = 'Đóng đăng ký';
   static const String closeRegistrationConfirmButton = 'Đóng đăng ký';
-  static const String notificationActionsTooltip = 'Thao tác thông báo';
+    static const String notificationActionsTooltip = 'Tùy chọn thông báo';
   static const String eventActionsTooltip = 'Thao tác sự kiện';
   static const String submissionsMetricLabel = 'Bài nộp';
-  static const String scoresMetricLabel = 'Lượt chấm';
-  static const String systemStatusTitle = 'Tình trạng vận hành';
-  static const String systemStatusSubtitle =
-      'Theo dõi khả năng tải dữ liệu và trạng thái đồng bộ.';
+    static const String scoresMetricLabel = 'Số lượt chấm';
+    static const String systemStatusTitle = 'Trạng thái hệ thống';
+    static const String systemStatusSubtitle =
+            'Theo dõi tải dữ liệu và đồng bộ.';
   static const String chatSuggestionSubmission = 'Hỏi về bài nộp';
   static const String chatSuggestionGithub = 'Xem giúp GitHub link';
   static const String chatSuggestionChecklist = 'Checklist nộp bài';
   static const String emailPrefix = 'Email:';
   static const String averageScoreTitle = 'Điểm trung bình';
-  static const String judgeQueueTitle = 'Hàng chờ chấm';
-  static const String judgeQueueWaitingSuffix = ' bài đang chờ điểm';
+    static const String judgeQueueTitle = 'Theo dõi bài chưa chấm';
+    static const String judgeQueueWaitingSuffix = ' bài chưa chấm';
   static const String exportLeaderboardDescription =
       'Copy dữ liệu xếp hạng vào clipboard';
   static const String userRolesDescription =

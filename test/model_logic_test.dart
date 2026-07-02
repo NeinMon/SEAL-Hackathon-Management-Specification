@@ -256,6 +256,14 @@ void main() {
     expect(message, isNot(contains('PostgrestException')));
   });
 
+  test('FriendlyErrorMapper does not show OTP copy for generic auth tokens', () {
+    final message = FriendlyErrorMapper.message(
+      const AuthException('Auth session token is missing.'),
+    );
+
+    expect(message, isNot(AppStrings.errorInvalidOtp));
+  });
+
   test('TeamProvider blocks joining a full team before service call', () async {
     const user = AppUser(
       id: 'new-user',
