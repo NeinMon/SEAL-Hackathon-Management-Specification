@@ -5,13 +5,14 @@ class LoginHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Column(
       children: [
         Container(
           width: 76,
           height: 76,
           decoration: BoxDecoration(
-            color: SealPalette.surfaceContainerHigh,
+            color: seal.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: SealPalette.primary.withValues(alpha: 0.30),
@@ -30,10 +31,10 @@ class LoginHero extends StatelessWidget {
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: AppSizes.paddingSmall),
-        const Text(
+        Text(
           AppStrings.loginHeroSubtitle,
           textAlign: TextAlign.center,
-          style: TextStyle(color: SealPalette.onSurfaceVariant, height: 1.35),
+          style: TextStyle(color: seal.onSurfaceVariant, height: 1.35),
         ),
       ],
     );

@@ -25,8 +25,9 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final auth = context.read<AuthProvider>();
-      if (auth.user != null && mounted) {
+      if (auth.user != null) {
         context.go(_homeForRole(auth.user!.role));
       }
     });
@@ -50,9 +51,9 @@ class _LoginScreenState extends State<LoginScreen> {
     if (auth.user != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        final location = GoRouterState.of(context).uri.path;
-        if (location == AppRoutes.login) {
-          context.go(_homeForRole(auth.user!.role));
+        final router = GoRouter.of(context);
+        if (router.state.uri.path == AppRoutes.login) {
+          router.go(_homeForRole(auth.user!.role));
         }
       });
     }
@@ -67,14 +68,14 @@ class _LoginScreenState extends State<LoginScreen> {
       resizeToAvoidBottomInset: true,
       body: DecoratedBox(
         decoration: BoxDecoration(
-          color: SealPalette.background,
+          color: context.sealTheme.background,
           gradient: RadialGradient(
             center: const Alignment(-0.65, -0.85),
             radius: 1.1,
             colors: [
               SealPalette.primary.withValues(alpha: 0.16),
-              SealPalette.background,
-              SealPalette.surfaceContainerLowest,
+              context.sealTheme.background,
+              context.sealTheme.surfaceContainerLowest,
             ],
           ),
         ),
@@ -169,18 +170,18 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _forgotPassword(BuildContext context) async {
     final emailError = AppValidators.loginEmail(email.text);
     if (emailError != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(emailError)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(emailError)));
       return;
     }
     final auth = context.read<AuthProvider>();
     await auth.requestPasswordReset(email.text);
     if (!context.mounted) return;
     if (auth.infoMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(auth.infoMessage!)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(auth.infoMessage!)));
     }
   }
 

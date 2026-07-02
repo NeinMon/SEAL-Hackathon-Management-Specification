@@ -24,9 +24,9 @@ class OtpInput extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSizes.paddingSmall),
-        const Text(
+        Text(
           AppStrings.otpHelpText,
-          style: TextStyle(
+          style: const TextStyle(
             color: SealPalette.onSurfaceVariant,
             fontSize: 12,
             fontWeight: FontWeight.w700,

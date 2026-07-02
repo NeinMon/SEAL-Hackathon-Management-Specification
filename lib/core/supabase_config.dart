@@ -22,6 +22,15 @@ class SupabaseConfig {
   static const authRedirectHost = 'auth-callback';
   static const authRedirectUrl = '$authRedirectScheme://$authRedirectHost';
 
+  /// Mailpit port is API port + 3 in local `supabase/config.toml`.
+  static String get localMailpitUrl {
+    final parsed = Uri.tryParse(url);
+    if (parsed != null && parsed.hasPort) {
+      return 'http://127.0.0.1:${parsed.port + 3}';
+    }
+    return 'http://127.0.0.1:55324';
+  }
+
   static String get displayName {
     if (isProduction) return 'Production';
     if (isStaging) return 'Staging';

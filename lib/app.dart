@@ -22,13 +22,15 @@ class SealApp extends StatelessWidget {
       return MaterialApp(
         title: AppStrings.appName,
         debugShowCheckedModeBanner: false,
-        theme: buildSealTheme(),
+        theme: buildSealTheme(brightness: Brightness.dark),
         home: const SupabaseRequiredScreen(),
       );
     }
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()..load()),
+        ChangeNotifierProvider(create: (_) => OnboardingProvider()..load()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
         ChangeNotifierProvider(create: (_) => TeamProvider()),
@@ -37,9 +39,7 @@ class SealApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
-      child: const _AuthDeepLinkScope(
-        child: _SealRouterApp(),
-      ),
+      child: const _AuthDeepLinkScope(child: _SealRouterApp()),
     );
   }
 }
@@ -49,11 +49,14 @@ class _SealRouterApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<ThemeProvider>();
     return MaterialApp.router(
       title: AppStrings.appName,
       debugShowCheckedModeBanner: false,
       routerConfig: buildSealRouter(),
-      theme: buildSealTheme(),
+      theme: buildSealTheme(brightness: Brightness.light),
+      darkTheme: buildSealTheme(brightness: Brightness.dark),
+      themeMode: theme.mode,
     );
   }
 }
@@ -91,6 +94,7 @@ class _AuthDeepLinkScopeState extends State<_AuthDeepLinkScope> {
   @override
   Widget build(BuildContext context) => widget.child;
 }
+
 GoRouter buildSealRouter() {
   return GoRouter(
     initialLocation: AppRoutes.login,
@@ -148,5 +152,3 @@ GoRouter buildSealRouter() {
     ],
   );
 }
-
-

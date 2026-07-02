@@ -1,51 +1,80 @@
 import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
+import 'seal_theme_extension.dart';
+
+export 'seal_theme_extension.dart';
 import '../constants/app_sizes.dart';
 
-ThemeData buildSealTheme() {
-  const colors = ColorScheme.dark(
-    primary: SealPalette.primary,
-    onPrimary: SealPalette.onPrimary,
-    primaryContainer: SealPalette.primaryContainer,
-    onPrimaryContainer: SealPalette.onPrimaryContainer,
-    secondary: SealPalette.secondary,
-    onSecondary: SealPalette.onSecondary,
-    surface: SealPalette.surface,
-    onSurface: SealPalette.onSurface,
-    error: SealPalette.error,
-    errorContainer: SealPalette.errorContainer,
-    onErrorContainer: SealPalette.onErrorContainer,
-  );
+ThemeData buildSealTheme({Brightness brightness = Brightness.dark}) {
+  final isDark = brightness == Brightness.dark;
+  final colors = isDark
+      ? const ColorScheme.dark(
+          primary: SealPalette.primary,
+          onPrimary: SealPalette.onPrimary,
+          primaryContainer: SealPalette.primaryContainer,
+          onPrimaryContainer: SealPalette.onPrimaryContainer,
+          secondary: SealPalette.secondary,
+          onSecondary: SealPalette.onSecondary,
+          surface: SealPalette.surface,
+          onSurface: SealPalette.onSurface,
+          error: SealPalette.error,
+          errorContainer: SealPalette.errorContainer,
+          onErrorContainer: SealPalette.onErrorContainer,
+        )
+      : ColorScheme.light(
+          primary: SealPalette.primary,
+          onPrimary: Colors.white,
+          primaryContainer: SealPalette.primaryContainer,
+          onPrimaryContainer: Colors.white,
+          secondary: SealPalette.secondary,
+          onSecondary: Colors.white,
+          surface: const Color(0xFFF7F9FC),
+          onSurface: const Color(0xFF101828),
+          onSurfaceVariant: const Color(0xFF475467),
+          outlineVariant: const Color(0xFFD0D5DD),
+          error: SealPalette.error,
+          errorContainer: const Color(0xFFFFE4E6),
+          onErrorContainer: const Color(0xFF7F1D1D),
+        );
+  final sealExtension = isDark
+      ? SealThemeExtension.dark
+      : SealThemeExtension.light;
+  final background = sealExtension.background;
+  final surfaceLow = sealExtension.surfaceContainerLow;
+  final surfaceContainerLow = sealExtension.surfaceContainerLow;
+  final glassPanel = sealExtension.glassPanel;
+  final onSurfaceVariant = sealExtension.onSurfaceVariant;
+  final outlineVariant = sealExtension.outlineVariant;
   return ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
+    brightness: brightness,
     colorScheme: colors,
-    scaffoldBackgroundColor: SealPalette.background,
-    canvasColor: SealPalette.background,
-    dividerColor: SealPalette.outlineVariant,
-    appBarTheme: const AppBarTheme(
+    scaffoldBackgroundColor: background,
+    canvasColor: background,
+    dividerColor: outlineVariant,
+    appBarTheme: AppBarTheme(
       toolbarHeight: AppSizes.appBarHeight,
-      backgroundColor: SealPalette.surfaceContainerLow,
-      foregroundColor: SealPalette.onSurface,
+      backgroundColor: surfaceLow,
+      foregroundColor: colors.onSurface,
       elevation: 0,
       centerTitle: false,
       surfaceTintColor: Colors.transparent,
       titleTextStyle: TextStyle(
-        color: SealPalette.onSurface,
+        color: colors.onSurface,
         fontSize: 18,
         fontWeight: FontWeight.w800,
       ),
     ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: SealPalette.surfaceContainerLow,
+      backgroundColor: surfaceLow,
       indicatorColor: SealPalette.primary.withValues(alpha: 0.16),
       surfaceTintColor: Colors.transparent,
       labelTextStyle: WidgetStateProperty.resolveWith(
         (states) => TextStyle(
           color: states.contains(WidgetState.selected)
               ? SealPalette.primary
-              : SealPalette.onSurfaceVariant,
+              : onSurfaceVariant,
           fontSize: 12,
           fontWeight: FontWeight.w700,
         ),
@@ -54,7 +83,7 @@ ThemeData buildSealTheme() {
         (states) => IconThemeData(
           color: states.contains(WidgetState.selected)
               ? SealPalette.primary
-              : SealPalette.onSurfaceVariant,
+              : onSurfaceVariant,
         ),
       ),
     ),
@@ -65,17 +94,19 @@ ThemeData buildSealTheme() {
         ).let(
           (border) => InputDecorationTheme(
             filled: true,
-            fillColor: SealPalette.surfaceContainerLow,
+            fillColor: surfaceContainerLow,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: AppSizes.sectionGap,
               vertical: AppSizes.sectionGap,
             ),
-            labelStyle: const TextStyle(color: SealPalette.onSurfaceVariant),
-            hintStyle: const TextStyle(color: SealPalette.onSurfaceVariant),
-            prefixIconColor: SealPalette.onSurfaceVariant,
-            suffixIconColor: SealPalette.onSurfaceVariant,
+            labelStyle: TextStyle(color: onSurfaceVariant),
+            hintStyle: TextStyle(color: onSurfaceVariant),
+            prefixIconColor: onSurfaceVariant,
+            suffixIconColor: onSurfaceVariant,
             border: border,
-            enabledBorder: border,
+            enabledBorder: border.copyWith(
+              borderSide: BorderSide(color: outlineVariant),
+            ),
             focusedBorder: border.copyWith(
               borderSide: const BorderSide(
                 color: SealPalette.primary,
@@ -87,22 +118,26 @@ ThemeData buildSealTheme() {
             ),
           ),
         ),
-    cardTheme: const CardThemeData(
-      color: SealPalette.glassPanel,
+    cardTheme: CardThemeData(
+      color: glassPanel,
       surfaceTintColor: Colors.transparent,
-      elevation: 0,
+      elevation: isDark ? 0 : 1,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(AppSizes.radiusSmall)),
-        side: BorderSide(color: SealPalette.outlineVariant),
+        borderRadius: const BorderRadius.all(
+          Radius.circular(AppSizes.radiusSmall),
+        ),
+        side: BorderSide(color: outlineVariant),
       ),
     ),
     chipTheme: ChipThemeData(
-      backgroundColor: SealPalette.surfaceContainerHigh,
+      backgroundColor: isDark
+          ? SealPalette.surfaceContainerHigh
+          : const Color(0xFFF2F4F7),
       selectedColor: SealPalette.primaryContainer,
-      side: const BorderSide(color: SealPalette.outlineVariant),
-      labelStyle: const TextStyle(
-        color: SealPalette.onSurface,
+      side: BorderSide(color: outlineVariant),
+      labelStyle: TextStyle(
+        color: colors.onSurface,
         fontWeight: FontWeight.w600,
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
@@ -121,7 +156,7 @@ ThemeData buildSealTheme() {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: SealPalette.primary,
-        side: const BorderSide(color: SealPalette.outlineVariant),
+        side: BorderSide(color: outlineVariant),
         minimumSize: const Size.fromHeight(AppSizes.buttonHeightCompact),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
@@ -130,8 +165,10 @@ ThemeData buildSealTheme() {
       ),
     ),
     snackBarTheme: SnackBarThemeData(
-      backgroundColor: SealPalette.surfaceContainerHighest,
-      contentTextStyle: const TextStyle(color: SealPalette.onSurface),
+      backgroundColor: isDark
+          ? SealPalette.surfaceContainerHighest
+          : const Color(0xFF1D2939),
+      contentTextStyle: const TextStyle(color: Colors.white),
       behavior: SnackBarBehavior.floating,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
@@ -143,10 +180,11 @@ ThemeData buildSealTheme() {
         textStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
     ),
-    textTheme: ThemeData.dark().textTheme.apply(
-      bodyColor: SealPalette.onSurface,
-      displayColor: SealPalette.onSurface,
+    textTheme: (isDark ? ThemeData.dark() : ThemeData.light()).textTheme.apply(
+      bodyColor: colors.onSurface,
+      displayColor: colors.onSurface,
     ),
+    extensions: [sealExtension],
   );
 }
 

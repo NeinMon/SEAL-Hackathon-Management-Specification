@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../core/app_helpers.dart';
+import '../core/themes/seal_theme.dart';
 import '../providers/auth_provider.dart';
+import '../providers/onboarding_provider.dart';
 
 class InfoChip extends StatelessWidget {
   const InfoChip({super.key, required this.icon, required this.text});
@@ -80,6 +82,7 @@ class CommandChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return ActionChip(
       avatar: icon == null
           ? null
@@ -92,14 +95,12 @@ class CommandChip extends StatelessWidget {
       onPressed: onTap,
       backgroundColor: selected
           ? SealPalette.secondaryContainer
-          : SealPalette.surfaceContainerHighest,
+          : seal.surfaceContainerHighest,
       side: BorderSide(
-        color: selected
-            ? SealPalette.secondaryContainer
-            : SealPalette.outlineVariant,
+        color: selected ? SealPalette.secondaryContainer : seal.outlineVariant,
       ),
       labelStyle: TextStyle(
-        color: selected ? Colors.white : SealPalette.onSurface,
+        color: selected ? Colors.white : context.onSurfaceColor,
         fontWeight: FontWeight.w800,
       ),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -121,6 +122,7 @@ class MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
@@ -130,8 +132,8 @@ class MetricCard extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
-                color: SealPalette.onSurfaceVariant,
+              style: TextStyle(
+                color: seal.onSurfaceVariant,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -159,20 +161,18 @@ class DetailTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: ListTile(
         title: Text(
           title,
-          style: const TextStyle(
-            color: SealPalette.onSurface,
+          style: TextStyle(
+            color: context.onSurfaceColor,
             fontWeight: FontWeight.w800,
           ),
         ),
-        subtitle: Text(
-          value,
-          style: const TextStyle(color: SealPalette.onSurfaceVariant),
-        ),
+        subtitle: Text(value, style: TextStyle(color: seal.onSurfaceVariant)),
       ),
     );
   }
@@ -194,21 +194,19 @@ class EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 42, color: SealPalette.onSurfaceVariant),
+            Icon(icon, size: 42, color: seal.onSurfaceVariant),
             const SizedBox(height: 10),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 16,
-                color: SealPalette.onSurfaceVariant,
-              ),
+              style: TextStyle(fontSize: 16, color: seal.onSurfaceVariant),
             ),
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: AppSizes.sectionGap),
@@ -253,6 +251,7 @@ class LoadingCardList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Column(
       children: [
         for (var index = 0; index < count; index++) ...[
@@ -261,9 +260,9 @@ class LoadingCardList extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(AppSizes.paddingMedium),
             decoration: BoxDecoration(
-              color: SealPalette.surfaceContainerLow,
+              color: seal.surfaceContainerLow,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: SealPalette.outlineVariant),
+              border: Border.all(color: seal.outlineVariant),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,12 +286,13 @@ class EventCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Card(
       clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(height: 156, color: SealPalette.surfaceContainerHigh),
+          Container(height: 156, color: seal.surfaceContainerHigh),
           Padding(
             padding: const EdgeInsets.all(AppSizes.paddingMedium),
             child: Column(
@@ -332,13 +332,14 @@ class _MetricSkeletonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Container(
       height: 84,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: SealPalette.surfaceContainerLow,
+        color: seal.surfaceContainerLow,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: SealPalette.outlineVariant),
+        border: Border.all(color: seal.outlineVariant),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -381,6 +382,7 @@ class _ChatSkeletonBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Align(
       alignment: alignment,
       child: FractionallySizedBox(
@@ -390,7 +392,7 @@ class _ChatSkeletonBubble extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: SealPalette.surfaceContainerHigh,
+            color: seal.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Column(
@@ -430,7 +432,11 @@ class AdaptiveTwoPane extends StatelessWidget {
         if (constraints.maxWidth < breakpoint) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [leading, const SizedBox(height: AppSizes.paddingMedium), trailing],
+            children: [
+              leading,
+              const SizedBox(height: AppSizes.paddingMedium),
+              trailing,
+            ],
           );
         }
         return Row(
@@ -453,12 +459,13 @@ class _LoadingBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return FractionallySizedBox(
       widthFactor: widthFactor,
       child: Container(
         height: 12,
         decoration: BoxDecoration(
-          color: SealPalette.surfaceContainerHighest.withValues(alpha: 0.65),
+          color: seal.surfaceContainerHighest.withValues(alpha: 0.65),
           borderRadius: BorderRadius.circular(999),
         ),
       ),
@@ -471,13 +478,14 @@ class EventImageFallback extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Container(
-      color: SealPalette.surfaceContainerHigh,
-      child: const Center(
+      color: seal.surfaceContainerHigh,
+      child: Center(
         child: Icon(
           Icons.image_outlined,
           size: 56,
-          color: SealPalette.onSurfaceVariant,
+          color: seal.onSurfaceVariant,
         ),
       ),
     );
@@ -492,12 +500,13 @@ class EventNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return CachedNetworkImage(
       imageUrl: url,
       fit: fit,
       placeholder: (context, url) {
         return Container(
-          color: SealPalette.surfaceContainerHigh,
+          color: seal.surfaceContainerHigh,
           child: const Center(
             child: SizedBox.square(
               dimension: 28,
@@ -562,6 +571,7 @@ class SealSectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -574,7 +584,7 @@ class SealSectionHeader extends StatelessWidget {
               decoration: BoxDecoration(
                 color: SealPalette.primary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: SealPalette.outlineVariant),
+                border: Border.all(color: seal.outlineVariant),
               ),
               child: Icon(icon, color: SealPalette.primary),
             ),
@@ -586,18 +596,18 @@ class SealSectionHeader extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 23,
                     fontWeight: FontWeight.w800,
-                    color: SealPalette.onSurface,
+                    color: context.onSurfaceColor,
                   ),
                 ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 4),
                   Text(
                     subtitle!,
-                    style: const TextStyle(
-                      color: SealPalette.onSurfaceVariant,
+                    style: TextStyle(
+                      color: seal.onSurfaceVariant,
                       height: 1.35,
                     ),
                   ),
@@ -605,7 +615,10 @@ class SealSectionHeader extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) ...[const SizedBox(width: AppSizes.paddingSmall + 2), trailing!],
+          if (trailing != null) ...[
+            const SizedBox(width: AppSizes.paddingSmall + 2),
+            trailing!,
+          ],
         ],
       ),
     );
@@ -620,15 +633,14 @@ class HackCommandTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seal = context.sealTheme;
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: SealPalette.surfaceContainerLow,
+        color: seal.surfaceContainerLow,
         border: Border(
-          bottom: BorderSide(
-            color: SealPalette.outlineVariant.withValues(alpha: 0.8),
-          ),
+          bottom: BorderSide(color: seal.outlineVariant.withValues(alpha: 0.8)),
         ),
       ),
       child: Row(
@@ -655,10 +667,10 @@ class HackCommandTopBar extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   AppStrings.appName,
                   style: TextStyle(
-                    color: SealPalette.onSurface,
+                    color: context.onSurfaceColor,
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0,
@@ -667,8 +679,8 @@ class HackCommandTopBar extends StatelessWidget {
                 if (subtitle != null)
                   Text(
                     subtitle!,
-                    style: const TextStyle(
-                      color: SealPalette.onSurfaceVariant,
+                    style: TextStyle(
+                      color: seal.onSurfaceVariant,
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
@@ -679,8 +691,20 @@ class HackCommandTopBar extends StatelessWidget {
           ),
           trailing ??
               IconButton(
-                tooltip: 'Hỗ trợ',
-                onPressed: () {},
+                tooltip: AppStrings.helpTooltip,
+                onPressed: () => showDialog<void>(
+                  context: context,
+                  builder: (dialogContext) => AlertDialog(
+                    title: const Text(AppStrings.helpDialogTitle),
+                    content: const Text(AppStrings.helpDialogBody),
+                    actions: [
+                      FilledButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: const Text(AppStrings.doneButton),
+                      ),
+                    ],
+                  ),
+                ),
                 icon: const Icon(Icons.help_outline_rounded),
               ),
         ],
@@ -734,16 +758,7 @@ class SessionRequired extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              SealPalette.background,
-              SealPalette.surfaceContainerLowest,
-            ],
-          ),
-        ),
+        decoration: BoxDecoration(gradient: context.sealBackgroundGradient),
         child: SafeArea(
           child: ListView(
             padding: const EdgeInsets.all(AppSizes.paddingMedium),
@@ -775,16 +790,7 @@ class SupabaseRequiredScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: DecoratedBox(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              SealPalette.background,
-              SealPalette.surfaceContainerLowest,
-            ],
-          ),
-        ),
+        decoration: BoxDecoration(gradient: context.sealBackgroundGradient),
         child: SafeArea(
           child: Center(
             child: ConstrainedBox(
@@ -797,14 +803,14 @@ class SupabaseRequiredScreen extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: const [
-                        Icon(
+                      children: [
+                        const Icon(
                           Icons.storage_outlined,
                           size: 56,
                           color: SealPalette.primary,
                         ),
-                        SizedBox(height: 16),
-                        Text(
+                        const SizedBox(height: 16),
+                        const Text(
                           AppStrings.supabaseRequiredTitle,
                           textAlign: TextAlign.center,
                           style: TextStyle(
@@ -812,12 +818,12 @@ class SupabaseRequiredScreen extends StatelessWidget {
                             fontWeight: FontWeight.w900,
                           ),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           AppStrings.supabaseRequiredBody,
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            color: SealPalette.onSurfaceVariant,
+                            color: context.sealTheme.onSurfaceVariant,
                             height: 1.4,
                           ),
                         ),
@@ -830,6 +836,152 @@ class SupabaseRequiredScreen extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class RefreshableListView extends StatelessWidget {
+  const RefreshableListView({
+    super.key,
+    required this.onRefresh,
+    required this.children,
+    this.padding,
+  });
+
+  final Future<void> Function() onRefresh;
+  final List<Widget> children;
+  final EdgeInsetsGeometry? padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      child: ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: padding ?? const EdgeInsets.all(AppSizes.paddingMedium),
+        children: children,
+      ),
+    );
+  }
+}
+
+class LoadMoreButton extends StatelessWidget {
+  const LoadMoreButton({
+    super.key,
+    required this.onPressed,
+    this.label = AppStrings.loadMoreButton,
+  });
+
+  final VoidCallback onPressed;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8, bottom: 16),
+      child: OutlinedButton.icon(
+        onPressed: onPressed,
+        icon: const Icon(Icons.expand_more),
+        label: Text(label),
+      ),
+    );
+  }
+}
+
+class DemoOnboardingDialog extends StatelessWidget {
+  const DemoOnboardingDialog({super.key, required this.onDone});
+
+  final VoidCallback onDone;
+  static const _title = 'Hướng dẫn demo nhanh';
+  static const _startButton = 'Bắt đầu demo';
+  static const _participantTitle = 'Thí sinh';
+  static const _participantBody =
+      'Sự kiện -> Đội -> Nộp bài. Dùng tài khoản demo nếu môi trường có seed dữ liệu.';
+  static const _judgeTitle = 'Giám khảo';
+  static const _judgeBody =
+      'Tab Chấm điểm -> chọn bài -> nhập tiêu chí và nhận xét -> Gửi điểm.';
+  static const _alertsTitle = 'Thông báo';
+  static const _alertsBody =
+      'Icon chuông góc phải. Bấm thông báo điểm để xem chi tiết.';
+
+  static Future<void> show(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => DemoOnboardingDialog(
+        onDone: () {
+          Navigator.of(dialogContext).pop();
+          context.read<OnboardingProvider>().complete();
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text(_title),
+      content: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            _OnboardingStep(
+              step: '1',
+              title: _participantTitle,
+              body: _participantBody,
+            ),
+            SizedBox(height: 12),
+            _OnboardingStep(step: '2', title: _judgeTitle, body: _judgeBody),
+            SizedBox(height: 12),
+            _OnboardingStep(step: '3', title: _alertsTitle, body: _alertsBody),
+          ],
+        ),
+      ),
+      actions: [
+        FilledButton(onPressed: onDone, child: const Text(_startButton)),
+      ],
+    );
+  }
+}
+
+class _OnboardingStep extends StatelessWidget {
+  const _OnboardingStep({
+    required this.step,
+    required this.title,
+    required this.body,
+  });
+
+  final String step;
+  final String title;
+  final String body;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(
+          radius: 14,
+          child: Text(
+            step,
+            style: const TextStyle(fontWeight: FontWeight.w800),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
+              const SizedBox(height: 4),
+              Text(
+                body,
+                style: const TextStyle(color: SealPalette.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

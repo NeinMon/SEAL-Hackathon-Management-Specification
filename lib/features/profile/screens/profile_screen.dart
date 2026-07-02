@@ -1,4 +1,4 @@
-﻿import '../../../shared.dart';
+import '../../../shared.dart';
 import '../widgets/profile_account_card.dart';
 import '../widgets/profile_form.dart';
 import '../widgets/profile_session_section.dart';
@@ -81,6 +81,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
         else ...[
           ProfileAccountCard(user: user),
           const SizedBox(height: AppSizes.paddingCompact),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSizes.paddingMedium),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    AppStrings.themeModeTitle,
+                    style: TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 10),
+                  SegmentedButton<ThemeMode>(
+                    segments: const [
+                      ButtonSegment(
+                        value: ThemeMode.dark,
+                        label: Text(AppStrings.themeModeDark),
+                        icon: Icon(Icons.dark_mode_outlined),
+                      ),
+                      ButtonSegment(
+                        value: ThemeMode.light,
+                        label: Text(AppStrings.themeModeLight),
+                        icon: Icon(Icons.light_mode_outlined),
+                      ),
+                      ButtonSegment(
+                        value: ThemeMode.system,
+                        label: Text(AppStrings.themeModeSystem),
+                        icon: Icon(Icons.brightness_auto_outlined),
+                      ),
+                    ],
+                    selected: {context.watch<ThemeProvider>().mode},
+                    onSelectionChanged: (selection) {
+                      context.read<ThemeProvider>().setMode(selection.first);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSizes.paddingCompact),
           ProfileForm(
             formKey: formKey,
             fullName: fullName,
@@ -120,9 +159,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!context.mounted) return;
     if (!loggedOut) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(auth.error ?? AppStrings.logoutFailedMessage),
-        ),
+        SnackBar(content: Text(auth.error ?? AppStrings.logoutFailedMessage)),
       );
       return;
     }

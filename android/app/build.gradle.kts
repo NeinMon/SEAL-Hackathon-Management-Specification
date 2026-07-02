@@ -22,6 +22,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Required by flutter_local_notifications (and some transitive deps)
+        // to use newer Java language APIs on older Android devices.
+        isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
@@ -52,6 +55,10 @@ android {
             }
         }
     }
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 
 kotlin {

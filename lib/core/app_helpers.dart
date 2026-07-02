@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'constants/app_routes.dart';
 import 'constants/app_strings.dart';
 import 'supabase_config.dart';
 
@@ -293,6 +294,31 @@ class AppValidators {
     return notificationContent(title: title, content: content, type: type);
   }
 
+  static String? notificationRoute({
+    required String type,
+    required String role,
+  }) {
+    switch (type) {
+      case 'score':
+        if (role == AppRoles.participant) return AppRoutes.submit;
+        if (AppRoles.scorers.contains(role)) return AppRoutes.judge;
+        return AppRoutes.teams;
+      case 'invitation':
+        return AppRoutes.teams;
+      case 'reminder':
+        return AppRoutes.map;
+      case 'system':
+        if (role == AppRoles.participant) return AppRoutes.submit;
+        if (role == AppRoles.judge) return AppRoutes.judge;
+        if (role == AppRoles.organizer) return AppRoutes.organizer;
+        return AppRoutes.events;
+      case 'announcement':
+        return AppRoutes.events;
+      default:
+        return AppRoutes.events;
+    }
+  }
+
   static String? eventTitle(String? value) {
     final clean = (value ?? '').trim();
     if (clean.isEmpty) return AppStrings.validationEventTitleRequired;
@@ -402,10 +428,7 @@ class AppValidators {
   }) {
     return eventTitle(title) ??
         eventLocation(location) ??
-        optionalWebUrl(
-          bannerUrl,
-          label: AppStrings.validationBannerUrlLabel,
-        ) ??
+        optionalWebUrl(bannerUrl, label: AppStrings.validationBannerUrlLabel) ??
         eventMaxTeamSize(maxTeamSize) ??
         eventSchedule(
           startDate: startDate,
@@ -570,7 +593,9 @@ class FriendlyErrorMapper {
       if (text.contains('otp') || text.contains('token')) {
         return AppStrings.errorInvalidOtp;
       }
-      return exception.message;
+      return _isTechnicalError(exception.message)
+          ? AppStrings.unknownError
+          : exception.message;
     }
     if (exception is TimeoutException) {
       return AppStrings.errorConnectionTimeout;
@@ -581,21 +606,40 @@ class FriendlyErrorMapper {
         return AppStrings.errorRlsPermissionDenied;
       }
       if (exception.code == '23505') {
+        if (text.contains('team_invitations')) {
+          return AppStrings.invitationAlreadyPending;
+        }
         return AppStrings.errorDuplicateRecord;
       }
       if (exception.code == '23514') {
         return AppStrings.errorCheckConstraint;
       }
-      return exception.message;
+      if (text.contains('already on a team for this event')) {
+        return AppStrings.alreadyOnEventTeamError;
+      }
+      return AppStrings.unknownError;
     }
     final text = exception.toString();
     if (text.contains('PostgrestException')) {
-      return text
-          .replaceFirst(RegExp(r'^PostgrestException\(message:\s*'), '')
-          .replaceAll(RegExp(r', code:.*$'), '')
-          .trim();
+      return AppStrings.unknownError;
     }
-    return text.replaceFirst('Exception: ', '').trim();
+    final clean = text.replaceFirst('Exception: ', '').trim();
+    if (_isTechnicalError(clean)) return AppStrings.unknownError;
+    return clean;
+  }
+
+  static bool _isTechnicalError(String message) {
+    final text = message.toLowerCase();
+    return text.contains('postgrest') ||
+        text.contains('supabase') ||
+        text.contains('stack') ||
+        text.contains('sql') ||
+        text.contains('database') ||
+        text.contains('rls') ||
+        text.contains('row-level security') ||
+        text.contains('jwt') ||
+        text.contains('socketexception') ||
+        text.contains('stateerror');
   }
 }
 

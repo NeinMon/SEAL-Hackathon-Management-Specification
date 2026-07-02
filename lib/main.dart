@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'app.dart';
 import 'core/supabase_config.dart';
 
+import 'services/push_notification_service.dart';
+
 export 'app.dart';
 export 'shared.dart';
 export 'features/shell/app_shell.dart';
@@ -23,7 +25,6 @@ Future<void> main() async {
   if (SupabaseConfig.isConfigured) {
     await SupabaseGateway.initialize();
   }
+  await PushNotificationService.instance.initialize();
   runApp(const SealApp());
 }
-
-

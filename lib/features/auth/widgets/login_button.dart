@@ -29,9 +29,7 @@ class LoginButton extends StatelessWidget {
               dimension: AppSizes.iconSmall,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : Icon(
-              awaitingVerification ? Icons.verified_outlined : Icons.login,
-            ),
+          : Icon(awaitingVerification ? Icons.verified_outlined : Icons.login),
       label: Text(label),
     );
   }
