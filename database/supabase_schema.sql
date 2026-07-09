@@ -76,6 +76,7 @@ create table if not exists scores (
   technical_score numeric,
   ui_score numeric,
   innovation_score numeric,
+  criteria_scores jsonb not null default '{}'::jsonb,
   feedback text,
   average_score numeric,
   created_at timestamp default now(),
@@ -86,6 +87,17 @@ create table if not exists scores (
     and average_score between 0 and 10
   ),
   constraint scores_submission_judge_unique unique (submission_id, judge_id)
+);
+
+create table if not exists score_criteria (
+  id text not null,
+  event_id uuid not null references events(id) on delete cascade,
+  label text not null,
+  description text default '',
+  weight numeric not null default 1 check (weight > 0),
+  sort_order integer not null default 0,
+  created_at timestamp default now(),
+  primary key (event_id, id)
 );
 
 create table if not exists notifications (
@@ -115,6 +127,7 @@ create index if not exists submissions_team_id_idx on submissions(team_id);
 create index if not exists submissions_submitted_at_idx on submissions(submitted_at desc);
 create index if not exists submission_history_submission_id_idx on submission_history(submission_id, changed_at desc);
 create index if not exists scores_submission_id_idx on scores(submission_id);
+create index if not exists score_criteria_event_order_idx on score_criteria(event_id, sort_order);
 create index if not exists notifications_user_id_idx on notifications(user_id);
 create index if not exists messages_sender_receiver_idx on messages(sender_id, receiver_id);
 create index if not exists messages_receiver_sender_idx on messages(receiver_id, sender_id);

@@ -6,6 +6,7 @@ alter table team_invitations enable row level security;
 alter table submissions enable row level security;
 alter table submission_history enable row level security;
 alter table scores enable row level security;
+alter table score_criteria enable row level security;
 alter table notifications enable row level security;
 alter table messages enable row level security;
 
@@ -25,19 +26,13 @@ security definer
 set search_path = public
 as $$
   select case public.current_user_role()
-    when 'organizer' then true
     when 'participant' then exists (
       select 1
       from public.users receiver_user
       where receiver_user.id = receiver
-        and receiver_user.role in ('mentor', 'organizer')
+        and receiver_user.role = 'mentor'
     )
     when 'mentor' then exists (
-      select 1
-      from public.users receiver_user
-      where receiver_user.id = receiver
-        and receiver_user.role = 'organizer'
-    ) or exists (
       select 1
       from public.users receiver_user
       join public.team_members mentor_member
@@ -319,6 +314,19 @@ on scores for select
 to authenticated
 using (true);
 
+drop policy if exists "Authenticated users can view score criteria" on score_criteria;
+create policy "Authenticated users can view score criteria"
+on score_criteria for select
+to authenticated
+using (true);
+
+drop policy if exists "Organizers can manage score criteria" on score_criteria;
+create policy "Organizers can manage score criteria"
+on score_criteria for all
+to authenticated
+using (public.current_user_role() = 'organizer')
+with check (public.current_user_role() = 'organizer');
+
 drop policy if exists "Judges can create scores" on scores;
 create policy "Judges can create scores"
 on scores for insert
@@ -355,7 +363,35 @@ drop policy if exists "Authenticated users can create notifications" on notifica
 create policy "Authenticated users can create notifications"
 on notifications for insert
 to authenticated
-with check (true);
+with check (
+  notification_type not in ('score', 'reminder')
+  and (
+    user_id = auth.uid()
+    or (
+      notification_type = 'announcement'
+      and public.current_user_role() = 'organizer'
+    )
+    or (
+      notification_type = 'invitation'
+      and exists (
+        select 1
+        from public.teams t
+        where t.leader_id = auth.uid()
+      )
+    )
+    or (
+      notification_type = 'system'
+      and exists (
+        select 1
+        from public.team_members sender
+        join public.team_members recipient
+          on recipient.team_id = sender.team_id
+        where sender.user_id = auth.uid()
+          and recipient.user_id = notifications.user_id
+      )
+    )
+  )
+);
 
 drop policy if exists "Users can update own notifications" on notifications;
 create policy "Users can update own notifications"

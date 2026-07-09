@@ -1,3 +1,4 @@
+import '../core/l10n/l10n_service.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -5,8 +6,11 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../core/notification_link.dart';
 import '../core/app_helpers.dart';
+import '../core/route_query.dart';
 import '../core/supabase_config.dart';
 import '../models/app_notification.dart';
+import '../models/app_user.dart';
+import '../models/team.dart';
 import '../services/push_notification_service.dart';
 import '../services/supabase_services.dart';
 
@@ -19,6 +23,7 @@ class NotificationProvider extends ChangeNotifier {
   String? error;
   RealtimeChannel? _realtimeChannel;
   String? _watchedUserId;
+  String _watchedUserRole = AppRoles.participant;
   bool bellHighlight = false;
   AppNotification? pendingScoreAlert;
 
@@ -73,14 +78,20 @@ class NotificationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void watchForUser(String userId) {
+  void watchForUser(String userId, {String role = AppRoles.participant}) {
     if (!SupabaseGateway.isReady) {
+      _watchedUserRole = role;
       unawaited(loadForUser(userId));
       return;
     }
-    if (_watchedUserId == userId && _realtimeChannel != null) return;
+    if (_watchedUserId == userId &&
+        _watchedUserRole == role &&
+        _realtimeChannel != null) {
+      return;
+    }
     _stopRealtime();
     _watchedUserId = userId;
+    _watchedUserRole = role;
     _realtimeChannel = SupabaseGateway.client
         .channel('notifications-$userId')
         .onPostgresChanges(
@@ -114,9 +125,24 @@ class NotificationProvider extends ChangeNotifier {
           .toList();
       if (latestUnread.length > previousUnread && latestUnread.isNotEmpty) {
         final latest = latestUnread.first;
+        final route = latest.deepRoute?.trim().isNotEmpty == true
+            ? latest.deepRoute!.trim()
+            : NotificationLink.routeFor(
+                latest,
+                role: _watchedUserRole,
+                userId: userId,
+              );
+        final actionLabel = latest.actionLabel?.trim().isNotEmpty == true
+            ? latest.actionLabel!.trim()
+            : NotificationLink.actionLabelFor(
+                latest,
+                role: _watchedUserRole,
+              );
         await PushNotificationService.instance.showInAppAlert(
           title: latest.title,
           body: NotificationLink.displayContent(latest.content),
+          payload: route,
+          actionLabel: actionLabel,
         );
       }
       final newScore = newUnread
@@ -137,6 +163,8 @@ class NotificationProvider extends ChangeNotifier {
     String content,
     String type, {
     String? userId,
+    String? actionLabel,
+    String? deepRoute,
   }) async {
     error = null;
     final validationError = AppValidators.notificationPayload(
@@ -163,6 +191,8 @@ class NotificationProvider extends ChangeNotifier {
         title: title.trim(),
         content: content.trim(),
         type: type,
+        actionLabel: actionLabel,
+        deepRoute: deepRoute,
       );
       if (SupabaseGateway.client.auth.currentUser?.id == targetUserId) {
         await loadForUser(targetUserId);
@@ -171,6 +201,73 @@ class NotificationProvider extends ChangeNotifier {
       error = FriendlyErrorMapper.message(exception);
     }
     notifyListeners();
+  }
+
+  Future<void> notifyTeamCreated({
+    required String userId,
+    required String teamName,
+    required String eventTitle,
+    required String eventId,
+  }) {
+    return push(
+      L10nService.strings.teamCreatedNotificationTitle,
+      NotificationLink.encodeEvent(
+        eventId: eventId,
+        content: L10nService.strings.teamCreatedNotificationBody(teamName, eventTitle),
+      ),
+      'system',
+      userId: userId,
+      actionLabel: L10nService.strings.notificationActionGoTeams,
+      deepRoute: RouteQuery.teamsForEvent(eventId),
+    );
+  }
+
+  Future<void> notifySubmissionSaved({
+    required Team team,
+    required String projectName,
+  }) async {
+    final eventId = team.eventId;
+    final recipients = team.members.map((member) => member.id).toSet()
+      ..removeWhere((id) => id.isEmpty);
+    for (final recipientId in recipients) {
+      await push(
+        L10nService.strings.submissionSavedNotificationTitle,
+        NotificationLink.encodeEvent(
+          eventId: eventId,
+          content: L10nService.strings.submissionSavedNotificationBody(projectName),
+        ),
+        'system',
+        userId: recipientId,
+        actionLabel: L10nService.strings.notificationActionSubmit,
+        deepRoute: RouteQuery.submitForEvent(eventId, teamId: team.id),
+      );
+      if (error != null) return;
+    }
+  }
+
+  Future<void> requestMentorAssignment({
+    required AppUser participant,
+    required String eventId,
+    required String eventTitle,
+  }) async {
+    final organizers = await const UserDirectoryService().fetchUsersByRole(
+      AppRoles.organizer,
+    );
+    final body = NotificationLink.encodeEvent(
+      eventId: eventId,
+      content: L10nService.strings.chatMentorRequestTemplate,
+    );
+    for (final organizer in organizers) {
+      await push(
+        L10nService.strings.mentorRequestNotificationTitle(participant.fullName),
+        body,
+        'system',
+        userId: organizer.id,
+        actionLabel: L10nService.strings.notificationActionViewEvent,
+        deepRoute: RouteQuery.organizerForEvent(eventId),
+      );
+      if (error != null) return;
+    }
   }
 
   Future<void> markRead(String id) async {

@@ -6,6 +6,8 @@ class AppNotification {
     required this.type,
     required this.createdAt,
     this.isRead = false,
+    this.actionLabel,
+    this.deepRoute,
   });
 
   final String id;
@@ -14,6 +16,8 @@ class AppNotification {
   final String type;
   final DateTime createdAt;
   bool isRead;
+  final String? actionLabel;
+  final String? deepRoute;
 
   factory AppNotification.fromJson(Map<String, dynamic> json) {
     return AppNotification(
@@ -25,6 +29,8 @@ class AppNotification {
           DateTime.tryParse((json['created_at'] ?? '').toString()) ??
           DateTime.now(),
       isRead: (json['is_read'] ?? false) as bool,
+      actionLabel: json['action_label'] as String?,
+      deepRoute: json['deep_route'] as String?,
     );
   }
 }
