@@ -1,6 +1,11 @@
+import 'dart:convert';
+
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../../../shared.dart';
-import 'judge_score_slider.dart';
+import 'judge_rubric_controls.dart';
 import 'judge_score_summary_card.dart';
+import 'judge_submission_header.dart';
 
 class JudgeSubmissionCard extends StatefulWidget {
   const JudgeSubmissionCard({
@@ -27,12 +32,11 @@ class JudgeSubmissionCard extends StatefulWidget {
 }
 
 class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
-  double technical = 8;
-  double ui = 8;
-  double innovation = 9;
+  final Map<String, double> criterionScores = {};
   final feedback = TextEditingController();
   String? inlineError;
   bool _hydratedExistingScore = false;
+  bool _hydratedDraft = false;
   bool isSubmitting = false;
 
   @override
@@ -57,13 +61,18 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
   }
 
   void _refreshFeedbackState() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {});
+    _saveDraft();
   }
 
   @override
   Widget build(BuildContext context) {
     final submission = widget.submission;
     final judgeId = widget.judge?.id;
+    final existingScore = judgeId == null
+        ? null
+        : widget.scores.scoreFor(submission.id, judgeId);
     final eventTitle =
         widget.event?.title ??
         EventScope.eventTitleForSubmission(
@@ -71,15 +80,15 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
           teams: widget.teams,
           events: widget.events,
         );
-    final existingScore = judgeId == null
-        ? null
-        : widget.scores.scoreFor(submission.id, judgeId);
-    final scoreCount = widget.scores.scoreCountFor(submission.id);
-    final currentAverage = (technical + ui + innovation) / 3;
     final judgingBlockReason = widget.event?.judgingBlockReason();
     final canSubmitScore =
         widget.canSubmit &&
-        (widget.event == null || widget.event!.judgingOpen());
+        widget.event != null &&
+        widget.event!.judgingOpen();
+    final criteria = widget.scores.criteriaForEvent(widget.event?.id);
+    _ensureCriterionScores(criteria);
+    final currentAverage = _averageScore(criteria);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       child: Padding(
@@ -87,137 +96,36 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(AppSizes.paddingMedium),
-              decoration: BoxDecoration(
-                color: SealPalette.primary.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: SealPalette.outlineVariant),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      StatusPill(
-                        label: existingScore == null
-                            ? AppStrings.needsScoringBadge
-                            : AppStrings.filterScored,
-                        color: existingScore == null
-                            ? SealPalette.tertiary
-                            : SealPalette.secondary,
-                        icon: existingScore == null
-                            ? Icons.pending_actions_outlined
-                            : Icons.verified_outlined,
-                      ),
-                      StatusPill(
-                        label: AppStrings.scoreCountLabel(scoreCount),
-                        icon: Icons.leaderboard_outlined,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    submission.projectName,
-                    style: TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w900,
-                      color: context.onSurfaceColor,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${_teamName(submission.teamId)} • ${eventTitle ?? AppStrings.eventNotLoadedYet}',
-                    style: TextStyle(
-                      color: context.sealTheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    submission.description,
-                    style: TextStyle(
-                      color: context.sealTheme.onSurfaceVariant,
-                      height: 1.4,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      OutlinedButton.icon(
-                        onPressed: () => _openUrl(submission.githubUrl),
-                        icon: const Icon(Icons.code_outlined),
-                        label: const Text(AppStrings.repositoryButton),
-                      ),
-                      OutlinedButton.icon(
-                        onPressed: () => _openUrl(submission.videoUrl),
-                        icon: const Icon(Icons.play_circle_outline),
-                        label: const Text(AppStrings.demoButton),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            JudgeSubmissionHeader(
+              submission: submission,
+              teamName: _teamName(submission.teamId),
+              eventTitle: eventTitle,
+              hasExistingScore: existingScore != null,
+              scoreCount: widget.scores.scoreCountFor(submission.id),
+              onOpenRepository: () => _openUrl(submission.githubUrl),
+              onOpenDemo: () => _openUrl(submission.videoUrl),
             ),
             const SizedBox(height: 14),
-            const StatusBanner(message: AppStrings.judgeReviewReminder),
+            StatusBanner(message: L10nService.strings.judgeReviewReminder),
             if (judgingBlockReason != null) ...[
               const SizedBox(height: 8),
               StatusBanner(message: judgingBlockReason, isError: true),
             ],
-            const Text(
-              AppStrings.rubricEvaluationTitle,
+            Text(
+              L10nService.strings.rubricEvaluationTitle,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 12),
-            JudgeScoreSlider(
-              label: AppStrings.rubricTechnicalLabel,
-              description: AppStrings.rubricTechnicalDescription,
-              icon: Icons.memory_outlined,
-              value: technical,
-              onChanged: (value) => setState(() => technical = value),
+            JudgeRubricControls(
+              criteria: criteria,
+              values: criterionScores,
+              feedback: feedback,
+              inlineError: inlineError,
+              onChanged: (id, value) {
+                setState(() => criterionScores[id] = value);
+                _saveDraft();
+              },
             ),
-            const SizedBox(height: 10),
-            JudgeScoreSlider(
-              label: AppStrings.rubricUiLabel,
-              description: AppStrings.rubricUiDescription,
-              icon: Icons.design_services_outlined,
-              value: ui,
-              onChanged: (value) => setState(() => ui = value),
-            ),
-            const SizedBox(height: 10),
-            JudgeScoreSlider(
-              label: AppStrings.rubricInnovationLabel,
-              description: AppStrings.rubricInnovationDescription,
-              icon: Icons.auto_awesome_outlined,
-              value: innovation,
-              onChanged: (value) => setState(() => innovation = value),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              controller: feedback,
-              minLines: 2,
-              maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: AppStrings.feedbackLabel,
-                prefixIcon: Icon(Icons.rate_review_outlined),
-              ),
-            ),
-            if (inlineError != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                inlineError!,
-                style: const TextStyle(
-                  color: SealPalette.error,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
             const SizedBox(height: 10),
             JudgeScoreSummaryCard(
               currentAverage: currentAverage,
@@ -237,16 +145,14 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
     for (final team in widget.teams) {
       if (team.id == teamId) return team.name;
     }
-    return AppStrings.unknownTeamLabel;
+    return L10nService.strings.unknownTeamLabel;
   }
 
   Future<void> _openUrl(String value) async {
     final opened = await ExternalLauncher.openUrl(value);
     if (!opened && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Không thể mở liên kết trên thiết bị này.'),
-        ),
+        SnackBar(content: Text(context.l10n.openExternalLinkFailed)),
       );
     }
   }
@@ -254,112 +160,70 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
   Future<void> _submitScore() async {
     final judge = widget.judge;
     if (judge == null) return;
-    final scoreError = AppValidators.scoreError(technical, ui, innovation);
-    if (scoreError != null) {
-      setState(() => inlineError = scoreError);
-      return;
-    }
-    if (feedback.text.trim().isEmpty) {
-      setState(() => inlineError = AppStrings.validationFeedbackRequired);
+    final validationError = _scoreValidationError();
+    if (validationError != null) {
+      setState(() => inlineError = validationError);
       return;
     }
     final existingScore = widget.scores.scoreFor(
       widget.submission.id,
       judge.id,
     );
-    if (existingScore != null) {
-      final confirmed = await showDialog<bool>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: const Text(AppStrings.updateScoreDialogTitle),
-          content: Text(
-            AppStrings.updateScoreDialogBody(widget.submission.projectName),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text(AppStrings.cancelButton),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text(AppStrings.updateButton),
-            ),
-          ],
-        ),
-      );
-      if (confirmed != true) return;
-    }
-    setState(() => inlineError = null);
-    setState(() => isSubmitting = true);
+    if (existingScore != null && !await _confirmScoreUpdate()) return;
+
+    setState(() {
+      inlineError = null;
+      isSubmitting = true;
+    });
     final score = ProjectScore(
       submissionId: widget.submission.id,
       judgeId: judge.id,
-      technicalScore: technical,
-      uiScore: ui,
-      innovationScore: innovation,
+      technicalScore: _legacyScoreAt(0),
+      uiScore: _legacyScoreAt(1),
+      innovationScore: _legacyScoreAt(2),
       feedback: feedback.text.trim(),
+      criteriaScores: _scoresForCurrentCriteria(),
     );
     await widget.scores.addScore(score, event: widget.event);
     if (!mounted) return;
     setState(() => isSubmitting = false);
     if (widget.scores.error != null) return;
-    Team? team;
-    for (final item in widget.teams) {
-      if (item.id == widget.submission.teamId) {
-        team = item;
-        break;
-      }
-    }
-    if (team == null || team.members.isEmpty) {
-      try {
-        final freshTeams = await const TeamService().fetchTeams();
-        for (final item in freshTeams) {
-          if (item.id == widget.submission.teamId) {
-            team = item;
-            break;
-          }
-        }
-      } catch (_) {
-        // Keep the in-memory team if the refresh fails.
-      }
-    }
+
+    await _clearDraft();
     if (!mounted) return;
-    final recipients = <String>{};
-    if (team != null) {
-      recipients.addAll(team.members.map((member) => member.id));
-      recipients.add(team.leaderId);
-    }
-    recipients.removeWhere((id) => id.isEmpty);
-    if (recipients.isEmpty) {
-      recipients.add(judge.id);
-    }
-    if (!mounted) return;
-    final notifications = context.read<NotificationProvider>();
-    for (final recipientId in recipients) {
-      await notifications.push(
-        AppStrings.scorePublishedNotificationTitle,
-        AppStrings.scorePublishedNotificationBody(
-          widget.submission.projectName,
-          average: score.average,
-          feedback: score.feedback,
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(context.l10n.scorePublishedWithHintSnackBar)),
+    );
+  }
+
+  String? _scoreValidationError() {
+    return AppValidators.scoreValues(_scoresForCurrentCriteria().values) ??
+        (feedback.text.trim().isEmpty
+            ? L10nService.strings.validationFeedbackRequired
+            : null);
+  }
+
+  Future<bool> _confirmScoreUpdate() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(context.l10n.updateScoreDialogTitle),
+        content: Text(
+          L10nService.strings.updateScoreDialogBody(widget.submission.projectName),
         ),
-        'score',
-        userId: recipientId,
-      );
-    }
-    if (!mounted) return;
-    if (notifications.error != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(notifications.error!)));
-      return;
-    }
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text(AppStrings.scorePublishedSnackBar)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(context.l10n.cancelButton),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(context.l10n.updateButton),
+          ),
+        ],
+      ),
     );
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text(AppStrings.judgeScoreParticipantHint)),
-    );
+    return confirmed == true;
   }
 
   void _hydrateFromExistingScore() {
@@ -367,10 +231,109 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
     if (judgeId == null) return;
     final existingScore = widget.scores.scoreFor(widget.submission.id, judgeId);
     if (existingScore == null) return;
-    technical = existingScore.technicalScore;
-    ui = existingScore.uiScore;
-    innovation = existingScore.innovationScore;
+    final existingCriteriaScores = existingScore.criteriaScores;
+    if (existingCriteriaScores.isNotEmpty) {
+      criterionScores
+        ..clear()
+        ..addAll(existingCriteriaScores);
+    } else {
+      criterionScores
+        ..clear()
+        ..addAll({
+          'technical': existingScore.technicalScore,
+          'ui': existingScore.uiScore,
+          'innovation': existingScore.innovationScore,
+        });
+    }
     if (feedback.text.isEmpty) feedback.text = existingScore.feedback;
     _hydratedExistingScore = true;
+  }
+
+  void _ensureCriterionScores(List<ScoreCriterion> criteria) {
+    for (final criterion in criteria) {
+      criterionScores.putIfAbsent(criterion.id, () => 8);
+    }
+    criterionScores.removeWhere(
+      (id, _) => !criteria.any((criterion) => criterion.id == id),
+    );
+    if (!_hydratedExistingScore && !_hydratedDraft) {
+      _hydrateDraft();
+    }
+  }
+
+  Map<String, double> _scoresForCurrentCriteria() {
+    final criteria = widget.scores.criteriaForEvent(widget.event?.id);
+    _ensureCriterionScores(criteria);
+    return {
+      for (final criterion in criteria)
+        criterion.id: criterionScores[criterion.id] ?? 8,
+    };
+  }
+
+  double _averageScore(List<ScoreCriterion> criteria) {
+    return ScoreCriterion.weightedAverage(_scoresForCurrentCriteria(), criteria);
+  }
+
+  double _legacyScoreAt(int index) {
+    final values = _scoresForCurrentCriteria().values.toList();
+    if (index >= values.length) return values.isEmpty ? 0 : values.last;
+    return values[index];
+  }
+
+  String? get _draftKey {
+    final judgeId = widget.judge?.id;
+    if (judgeId == null) return null;
+    return 'judge_draft_${judgeId}_${widget.submission.id}';
+  }
+
+  Future<void> _hydrateDraft() async {
+    final key = _draftKey;
+    if (key == null || _hydratedDraft || _hydratedExistingScore) return;
+    _hydratedDraft = true;
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(key);
+    if (raw == null || raw.isEmpty || !mounted) return;
+    final Object? decoded;
+    try {
+      decoded = jsonDecode(raw);
+    } catch (_) {
+      await prefs.remove(key);
+      return;
+    }
+    if (decoded is! Map<String, dynamic>) return;
+    final data = decoded;
+    final rawScores = data['scores'];
+    if (rawScores is! Map) return;
+    setState(() {
+      criterionScores
+        ..clear()
+        ..addAll(
+          rawScores.map(
+            (key, value) =>
+                MapEntry(key.toString(), value is num ? value.toDouble() : 8.0),
+          ),
+        );
+      feedback.text = (data['feedback'] ?? '').toString();
+    });
+  }
+
+  Future<void> _saveDraft() async {
+    final key = _draftKey;
+    if (key == null || _hydratedExistingScore || isSubmitting) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      key,
+      jsonEncode({
+        'scores': _scoresForCurrentCriteria(),
+        'feedback': feedback.text,
+      }),
+    );
+  }
+
+  Future<void> _clearDraft() async {
+    final key = _draftKey;
+    if (key == null) return;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(key);
   }
 }

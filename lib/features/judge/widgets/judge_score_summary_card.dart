@@ -35,24 +35,33 @@ class JudgeScoreSummaryCard extends StatelessWidget {
             children: [
               Expanded(
                 child: JudgeScoreMetric(
-                  label: AppStrings.currentScoreLabel,
+                  label: L10nService.strings.currentScoreLabel,
                   value: currentAverage.toStringAsFixed(1),
-                  accent: SealPalette.tertiary,
+                  accent: context.sealTertiary,
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
                 child: JudgeScoreMetric(
-                  label: AppStrings.feedbackLabel,
+                  label: L10nService.strings.feedbackLabel,
                   value: feedbackReady
-                      ? AppStrings.feedbackReady
-                      : AppStrings.feedbackMissing,
+                      ? L10nService.strings.feedbackReady
+                      : L10nService.strings.feedbackMissing,
                   accent: feedbackReady
-                      ? SealPalette.secondary
-                      : SealPalette.error,
+                      ? context.sealSecondary
+                      : context.sealError,
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 10),
+          Text(
+            L10nService.strings.weightedScoreHint,
+            style: TextStyle(
+              color: seal.onSurfaceVariant,
+              fontSize: 12,
+              height: 1.35,
+            ),
           ),
           const SizedBox(height: 10),
           FilledButton.icon(
@@ -62,11 +71,11 @@ class JudgeScoreSummaryCard extends StatelessWidget {
                     dimension: 18,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Icon(Icons.check),
+                : Icon(Icons.check),
             label: Text(
               existingScore == null
-                  ? AppStrings.submitScoreButton
-                  : AppStrings.updateScoreButton,
+                  ? L10nService.strings.submitScoreButton
+                  : L10nService.strings.updateScoreButton,
             ),
           ),
         ],

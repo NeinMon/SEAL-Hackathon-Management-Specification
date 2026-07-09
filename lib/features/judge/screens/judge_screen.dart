@@ -13,9 +13,13 @@ class _JudgeScreenState extends State<JudgeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SubmissionProvider>().loadSubmissions();
-      context.read<ScoreProvider>().loadScores();
-      context.read<TeamProvider>().loadTeams();
+      final eventId = GoRouter.maybeOf(
+        context,
+      )?.state.uri.queryParameters['event'];
+      context.read<SubmissionProvider>().loadSubmissions(eventId: eventId);
+      context.read<ScoreProvider>().loadScores(eventId: eventId);
+      context.read<ScoreProvider>().loadCriteria();
+      context.read<TeamProvider>().loadTeams(eventId: eventId);
       context.read<EventProvider>().loadEvents();
     });
   }
@@ -26,8 +30,8 @@ class _JudgeScreenState extends State<JudgeScreen> {
       context,
     )?.state.uri.queryParameters['event'];
     return RoleGate(
-      allowedRoles: AppRoles.scorers,
-      message: AppStrings.judgeRoleGateMessage,
+      allowedRoles: AppRoles.judgeAccess,
+      message: L10nService.strings.judgeRoleGateMessage,
       child: JudgeContent(eventId: eventId),
     );
   }

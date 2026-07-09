@@ -17,7 +17,7 @@ class JudgeProgress extends StatelessWidget {
     final progress = total == 0 ? 0.0 : scored / total;
     final seal = context.sealTheme;
     return Semantics(
-      label: AppStrings.scoringProgressSemantic(scored, unscored),
+      label: L10nService.strings.scoringProgressSemantic(scored, unscored),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -31,8 +31,8 @@ class JudgeProgress extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    AppStrings.scoringProgressTitle,
+                  Text(
+                    L10nService.strings.scoringProgressTitle,
                     style: TextStyle(fontWeight: FontWeight.w900),
                   ),
                   const SizedBox(height: 8),
@@ -41,8 +41,8 @@ class JudgeProgress extends StatelessWidget {
                     minHeight: 7,
                     borderRadius: BorderRadius.circular(999),
                     color: unscored == 0
-                        ? SealPalette.secondary
-                        : SealPalette.primary,
+                        ? context.sealSecondary
+                        : context.sealPrimary,
                     backgroundColor: seal.surfaceContainerHighest,
                   ),
                 ],
@@ -52,8 +52,8 @@ class JudgeProgress extends StatelessWidget {
             StatusPill(
               label: '$scored/$total',
               color: unscored == 0
-                  ? SealPalette.secondary
-                  : SealPalette.tertiary,
+                  ? context.sealSecondary
+                  : context.sealTertiary,
               icon: Icons.fact_check_outlined,
             ),
           ],
