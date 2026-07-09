@@ -1,5 +1,6 @@
 import '../../../shared.dart';
 import '../widgets/event_list_toolbar.dart';
+import '../widgets/participant_home_section.dart';
 
 class EventListScreen extends StatefulWidget {
   const EventListScreen({super.key});
@@ -15,9 +16,6 @@ class _EventListScreenState extends State<EventListScreen> {
   void initState() {
     super.initState();
     search.addListener(_refreshSearchUi);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<EventProvider>().loadEvents();
-    });
   }
 
   @override
@@ -44,20 +42,52 @@ class _EventListScreenState extends State<EventListScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<EventProvider>();
+    final auth = context.watch<AuthProvider>().user;
     final hasActiveQuery = provider.hasActiveFilters;
     return RefreshableListView(
       onRefresh: () => _refresh(provider),
       children: [
         SealSectionHeader(
-          title: AppStrings.eventsTitle,
-          subtitle: AppStrings.eventsSubtitle,
-          icon: Icons.event_outlined,
+          title: auth?.role == AppRoles.participant
+              ? L10nService.strings.participantHomeTitle
+              : L10nService.strings.eventsTitle,
+          subtitle: auth?.role == AppRoles.participant
+              ? L10nService.strings.participantHomeSubtitle
+              : L10nService.strings.eventsSubtitle,
+          icon: auth?.role == AppRoles.participant
+              ? Icons.home_outlined
+              : Icons.event_outlined,
           trailing: IconButton.filledTonal(
-            tooltip: AppStrings.reloadEventsAction,
+            tooltip: context.l10n.reloadEventsAction,
             onPressed: provider.isLoading ? null : provider.loadEvents,
-            icon: const Icon(Icons.refresh),
+            icon: Icon(Icons.refresh),
           ),
         ),
+        if (auth?.role == AppRoles.participant) ...[
+          const ParticipantHomeSection(),
+          const SizedBox(height: AppSizes.paddingMedium),
+          Text(
+            L10nService.strings.allEventsSectionTitle,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: AppSizes.paddingCompact),
+        ],
+        if (auth?.role == AppRoles.judge)
+          Padding(
+            padding: EdgeInsets.only(bottom: AppSizes.paddingCompact),
+            child: StatusBanner(
+              message: L10nService.strings.judgeEventListHint,
+              isError: false,
+            ),
+          ),
+        if (auth?.role == AppRoles.mentor)
+          Padding(
+            padding: EdgeInsets.only(bottom: AppSizes.paddingCompact),
+            child: StatusBanner(
+              message: L10nService.strings.mentorEventListHint,
+              isError: false,
+            ),
+          ),
         if (provider.error != null && provider.events.isEmpty)
           ErrorState(message: provider.error!, onRetry: provider.loadEvents)
         else if (provider.error != null)

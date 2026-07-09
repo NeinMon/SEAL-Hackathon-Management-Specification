@@ -21,7 +21,7 @@ class EventDetailStats extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              AppStrings.eventDetailStatsTitle,
+              L10nService.strings.eventDetailStatsTitle,
               style: TextStyle(
                 fontWeight: FontWeight.w900,
                 color: context.onSurfaceColor,
@@ -33,7 +33,7 @@ class EventDetailStats extends StatelessWidget {
                 Expanded(
                   child: _StatTile(
                     icon: Icons.groups_outlined,
-                    label: AppStrings.eventTeamsMetric,
+                    label: L10nService.strings.eventTeamsMetric,
                     value: '$teamCount',
                   ),
                 ),
@@ -41,7 +41,7 @@ class EventDetailStats extends StatelessWidget {
                 Expanded(
                   child: _StatTile(
                     icon: Icons.upload_file_outlined,
-                    label: AppStrings.eventSubmissionsMetric,
+                    label: L10nService.strings.eventSubmissionsMetric,
                     value: '$submissionCount',
                   ),
                 ),
@@ -49,11 +49,11 @@ class EventDetailStats extends StatelessWidget {
                 Expanded(
                   child: _StatTile(
                     icon: Icons.pending_actions_outlined,
-                    label: AppStrings.eventUnscoredMetric,
+                    label: L10nService.strings.eventUnscoredMetric,
                     value: '$unscoredCount',
                     accent: unscoredCount == 0
-                        ? SealPalette.secondary
-                        : SealPalette.tertiary,
+                        ? context.sealSecondary
+                        : context.sealTertiary,
                   ),
                 ),
               ],
@@ -80,7 +80,7 @@ class _StatTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = accent ?? SealPalette.primary;
+    final color = accent ?? context.sealPrimary;
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(

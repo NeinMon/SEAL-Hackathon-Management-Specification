@@ -21,8 +21,8 @@ class EventRoleActions extends StatelessWidget {
         const SizedBox(height: 8),
         OutlinedButton.icon(
           onPressed: () => context.go(RouteQuery.mapForEvent(event.id)),
-          icon: const Icon(Icons.map_outlined),
-          label: const Text(AppStrings.viewVenueButton),
+          icon: Icon(Icons.map_outlined),
+          label: Text(context.l10n.viewVenueButton),
         ),
       ],
     );
@@ -36,16 +36,16 @@ class EventRoleActions extends StatelessWidget {
         return [
           FilledButton.icon(
             onPressed: () => context.go(RouteQuery.organizerForEvent(event.id)),
-            icon: const Icon(Icons.dashboard_customize_outlined),
-            label: const Text(AppStrings.openOrganizerDashboardButton),
+            icon: Icon(Icons.dashboard_customize_outlined),
+            label: Text(context.l10n.openOrganizerDashboardButton),
           ),
         ];
       case AppRoles.mentor:
         return [
           FilledButton.icon(
-            onPressed: () => context.go(AppRoutes.chat),
-            icon: const Icon(Icons.chat_outlined),
-            label: const Text(AppStrings.openMentorChatButton),
+            onPressed: () => context.go(RouteQuery.chatForEvent(event.id)),
+            icon: Icon(Icons.chat_outlined),
+            label: Text(context.l10n.openMentorChatButton),
           ),
         ];
       default:
@@ -61,8 +61,8 @@ class EventRoleActions extends StatelessWidget {
         onPressed: enabled
             ? () => context.go(RouteQuery.judgeForEvent(event.id))
             : null,
-        icon: const Icon(Icons.rate_review_outlined),
-        label: const Text(AppStrings.openJudgeQueueButton),
+        icon: Icon(Icons.rate_review_outlined),
+        label: Text(context.l10n.openJudgeQueueButton),
       ),
       if (disabledReason != null) ...[
         const SizedBox(height: 8),
@@ -77,7 +77,7 @@ class EventRoleActions extends StatelessWidget {
   List<Widget> _participantActions(BuildContext context) {
     if (myTeam != null) {
       // Avoid duplicating actions when the "Team của bạn" card is shown.
-      return const [];
+      return [];
     }
 
     final registrationOpen = event.registrationOpen();
@@ -87,8 +87,8 @@ class EventRoleActions extends StatelessWidget {
         onPressed: registrationOpen
             ? () => context.go(RouteQuery.teamsForEvent(event.id))
             : null,
-        icon: const Icon(Icons.group_add_outlined),
-        label: const Text(AppStrings.joinOrCreateTeamButton),
+        icon: Icon(Icons.group_add_outlined),
+        label: Text(context.l10n.joinOrCreateTeamButton),
       ),
       if (blockReason != null) ...[
         const SizedBox(height: 8),

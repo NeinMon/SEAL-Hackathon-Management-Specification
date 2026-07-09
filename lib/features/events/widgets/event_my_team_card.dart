@@ -26,7 +26,7 @@ class EventMyTeamCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        AppStrings.myTeamForEventTitle,
+                        L10nService.strings.myTeamForEventTitle,
                         style: TextStyle(
                           color: context.sealTheme.onSurfaceVariant,
                           fontWeight: FontWeight.w800,
@@ -42,7 +42,7 @@ class EventMyTeamCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        AppStrings.memberCountLabel(team.members.length),
+                        L10nService.strings.memberCountLabel(team.members.length),
                         style: TextStyle(
                           color: context.sealTheme.onSurfaceVariant,
                         ),
@@ -66,15 +66,17 @@ class EventMyTeamCard extends StatelessWidget {
             const SizedBox(height: 12),
             FilledButton.icon(
               onPressed: () => context.go(RouteQuery.teamsForEvent(event.id)),
-              icon: const Icon(Icons.groups_outlined),
-              label: const Text(AppStrings.viewMyTeamButton),
+              icon: Icon(Icons.groups_outlined),
+              label: Text(context.l10n.viewMyTeamButton),
             ),
             if (canSubmit) ...[
               const SizedBox(height: 8),
               OutlinedButton.icon(
-                onPressed: () => context.go(RouteQuery.submitForTeam(team.id)),
-                icon: const Icon(Icons.upload_file_outlined),
-                label: const Text(AppStrings.submitForEventButton),
+                onPressed: () => context.go(
+                  RouteQuery.submitForTeam(team.id, eventId: event.id),
+                ),
+                icon: Icon(Icons.upload_file_outlined),
+                label: Text(context.l10n.submitForEventButton),
               ),
             ],
           ],

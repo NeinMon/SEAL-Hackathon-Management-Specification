@@ -22,17 +22,17 @@ class EventTimeline extends StatelessWidget {
     final items = [
       EventTimelineItem(
         icon: Icons.how_to_reg_outlined,
-        label: AppStrings.timelineRegistration,
+        label: L10nService.strings.timelineRegistration,
         date: event.registrationDeadline,
       ),
       EventTimelineItem(
         icon: Icons.flag_outlined,
-        label: AppStrings.timelineKickoff,
+        label: L10nService.strings.timelineKickoff,
         date: event.startDate,
       ),
       EventTimelineItem(
         icon: Icons.emoji_events_outlined,
-        label: AppStrings.timelineFinal,
+        label: L10nService.strings.timelineFinal,
         date: event.endDate,
       ),
     ];
@@ -46,8 +46,8 @@ class EventTimeline extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            AppStrings.timelineTitle,
+          Text(
+            L10nService.strings.timelineTitle,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: AppSizes.paddingCompact),
@@ -56,7 +56,7 @@ class EventTimeline extends StatelessWidget {
               padding: const EdgeInsets.only(bottom: 10),
               child: Row(
                 children: [
-                  Icon(item.icon, color: SealPalette.primary),
+                  Icon(item.icon, color: context.sealPrimary),
                   const SizedBox(width: AppSizes.paddingSmall + 2),
                   Expanded(
                     child: Text(

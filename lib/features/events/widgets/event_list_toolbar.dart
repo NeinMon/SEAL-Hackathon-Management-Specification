@@ -18,14 +18,14 @@ class EventSearchField extends StatelessWidget {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.search),
-        hintText: AppStrings.eventSearchHint,
+        prefixIcon: Icon(Icons.search),
+        hintText: L10nService.strings.eventSearchHint,
         suffixIcon: controller.text.trim().isEmpty
             ? null
             : IconButton(
-                tooltip: AppStrings.clearSearchAction,
+                tooltip: context.l10n.clearSearchAction,
                 onPressed: onClear,
-                icon: const Icon(Icons.close),
+                icon: Icon(Icons.close),
               ),
       ),
       onChanged: onChanged,
@@ -89,8 +89,8 @@ class EventSortDropdown extends StatelessWidget {
           child: DropdownButtonFormField<String>(
             key: const Key('event_sort_dropdown'),
             initialValue: value,
-            decoration: const InputDecoration(
-              labelText: AppStrings.sortLabel,
+            decoration: InputDecoration(
+              labelText: L10nService.strings.sortLabel,
               isDense: true,
               contentPadding: EdgeInsets.symmetric(
                 horizontal: AppSizes.paddingCompact,
@@ -132,7 +132,7 @@ class EventListBody extends StatelessWidget {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         itemCount: 3,
-        itemBuilder: (context, index) => const Padding(
+        itemBuilder: (context, index) => Padding(
           padding: EdgeInsets.only(bottom: AppSizes.sectionGap),
           child: EventCardSkeleton(),
         ),
@@ -141,11 +141,11 @@ class EventListBody extends StatelessWidget {
     if (provider.filteredEvents.isEmpty) {
       return EmptyState(
         message: hasActiveQuery
-            ? AppStrings.noMatchingEvents
-            : AppStrings.noEventsYet,
+            ? L10nService.strings.noMatchingEvents
+            : L10nService.strings.noEventsYet,
         actionLabel: hasActiveQuery
-            ? AppStrings.clearSearchAction
-            : AppStrings.reloadEventsAction,
+            ? L10nService.strings.clearSearchAction
+            : L10nService.strings.reloadEventsAction,
         onAction: hasActiveQuery ? onResetFilters : provider.loadEvents,
       );
     }
