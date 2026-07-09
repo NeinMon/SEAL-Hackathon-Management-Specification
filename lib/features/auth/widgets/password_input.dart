@@ -22,15 +22,15 @@ class PasswordInput extends StatelessWidget {
       controller: controller,
       obscureText: !showPassword,
       textInputAction: textInputAction,
-      autofillHints: const [AutofillHints.password],
+      autofillHints: [AutofillHints.password],
       validator: validator ?? AppValidators.loginPassword,
       decoration: InputDecoration(
-        labelText: AppStrings.passwordLabel,
-        prefixIcon: const Icon(Icons.lock_outline),
+        labelText: L10nService.strings.passwordLabel,
+        prefixIcon: Icon(Icons.lock_outline),
         suffixIcon: IconButton(
           tooltip: showPassword
-              ? AppStrings.hidePasswordTooltip
-              : AppStrings.showPasswordTooltip,
+              ? L10nService.strings.hidePasswordTooltip
+              : L10nService.strings.showPasswordTooltip,
           onPressed: onToggleVisibility,
           icon: Icon(
             showPassword

@@ -21,16 +21,16 @@ class ConfirmPasswordInput extends StatelessWidget {
       controller: controller,
       obscureText: !showPassword,
       textInputAction: TextInputAction.done,
-      autofillHints: const [AutofillHints.password],
+      autofillHints: [AutofillHints.password],
       validator: (value) =>
           AppValidators.confirmPassword(passwordController.text, value),
       decoration: InputDecoration(
-        labelText: AppStrings.confirmPasswordLabel,
-        prefixIcon: const Icon(Icons.lock_reset_outlined),
+        labelText: L10nService.strings.confirmPasswordLabel,
+        prefixIcon: Icon(Icons.lock_reset_outlined),
         suffixIcon: IconButton(
           tooltip: showPassword
-              ? AppStrings.hidePasswordTooltip
-              : AppStrings.showPasswordTooltip,
+              ? L10nService.strings.hidePasswordTooltip
+              : L10nService.strings.showPasswordTooltip,
           onPressed: onToggleVisibility,
           icon: Icon(
             showPassword
