@@ -1,6 +1,7 @@
 import '../../../shared.dart';
 import '../widgets/login_form.dart';
 import '../widgets/login_hero.dart';
+import '../widgets/login_scaffold.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -59,110 +60,92 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     if (!auth.hasCheckedSession) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const LoginSessionBootstrapView();
     }
 
     final awaitingVerification = auth.pendingVerificationEmail != null;
 
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          color: context.sealTheme.background,
-          gradient: RadialGradient(
-            center: const Alignment(-0.65, -0.85),
-            radius: 1.1,
-            colors: [
-              SealPalette.primary.withValues(alpha: 0.16),
-              context.sealTheme.background,
-              context.sealTheme.surfaceContainerLowest,
-            ],
-          ),
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              const HackCommandTopBar(),
-              Expanded(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 420),
-                    child: ListView(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.fromLTRB(
-                        AppSizes.paddingMedium,
-                        AppSizes.paddingLarge,
-                        AppSizes.paddingMedium,
-                        AppSizes.paddingLarge,
+    return LoginScaffold(
+      child: Column(
+        children: [
+          const HackCommandTopBar(),
+          Expanded(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 420),
+                child: ListView(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSizes.paddingMedium,
+                    AppSizes.paddingLarge,
+                    AppSizes.paddingMedium,
+                    AppSizes.paddingLarge,
+                  ),
+                  children: [
+                    const LoginHero(),
+                    const SizedBox(height: AppSizes.paddingLarge),
+                    LoginForm(
+                      formKey: formKey,
+                      email: email,
+                      password: password,
+                      confirmPassword: confirmPassword,
+                      otp: otp,
+                      name: name,
+                      university: university,
+                      registerMode: registerMode,
+                      awaitingVerification: awaitingVerification,
+                      pendingVerificationEmail: auth.pendingVerificationEmail,
+                      showPassword: showPassword,
+                      showConfirmPassword: showConfirmPassword,
+                      isLoading: auth.isLoading,
+                      error: auth.error,
+                      infoMessage: auth.infoMessage,
+                      onTogglePassword: () =>
+                          setState(() => showPassword = !showPassword),
+                      onToggleConfirmPassword: () => setState(
+                        () => showConfirmPassword = !showConfirmPassword,
                       ),
-                      children: [
-                        const LoginHero(),
-                        const SizedBox(height: AppSizes.paddingLarge),
-                        LoginForm(
-                          formKey: formKey,
-                          email: email,
-                          password: password,
-                          confirmPassword: confirmPassword,
-                          otp: otp,
-                          name: name,
-                          university: university,
-                          registerMode: registerMode,
-                          awaitingVerification: awaitingVerification,
-                          pendingVerificationEmail:
-                              auth.pendingVerificationEmail,
-                          showPassword: showPassword,
-                          showConfirmPassword: showConfirmPassword,
-                          isLoading: auth.isLoading,
-                          error: auth.error,
-                          infoMessage: auth.infoMessage,
-                          onTogglePassword: () =>
-                              setState(() => showPassword = !showPassword),
-                          onToggleConfirmPassword: () => setState(
-                            () => showConfirmPassword = !showConfirmPassword,
-                          ),
-                          onSubmit: () => _submit(context),
-                          onForgotPassword: () => _forgotPassword(context),
-                          onCancelVerification: () {
-                            auth.cancelEmailVerification();
-                            setState(() {
-                              registerMode = false;
-                              otp.clear();
-                            });
-                          },
-                        ),
-                        if (!awaitingVerification) ...[
-                          const SizedBox(height: AppSizes.paddingMedium),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              TextButton.icon(
-                                onPressed: () {
-                                  setState(() => registerMode = !registerMode);
-                                  confirmPassword.clear();
-                                  context.read<AuthProvider>().clearFeedback();
-                                },
-                                icon: Icon(
-                                  registerMode
-                                      ? Icons.login
-                                      : Icons.person_add_alt_outlined,
-                                ),
-                                label: Text(
-                                  registerMode
-                                      ? AppStrings.haveAccountButton
-                                      : AppStrings.createAccountButton,
-                                ),
-                              ),
-                            ],
+                      onSubmit: () => _submit(context),
+                      onForgotPassword: () => _forgotPassword(context),
+                      onCancelVerification: () {
+                        auth.cancelEmailVerification();
+                        setState(() {
+                          registerMode = false;
+                          otp.clear();
+                        });
+                      },
+                    ),
+                    if (!awaitingVerification) ...[
+                      const SizedBox(height: AppSizes.paddingMedium),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton.icon(
+                            onPressed: () {
+                              setState(() => registerMode = !registerMode);
+                              confirmPassword.clear();
+                              context.read<AuthProvider>().clearFeedback();
+                            },
+                            icon: Icon(
+                              registerMode
+                                  ? Icons.login
+                                  : Icons.person_add_alt_outlined,
+                            ),
+                            label: Text(
+                              registerMode
+                                  ? L10nService.strings.haveAccountButton
+                                  : L10nService.strings.createAccountButton,
+                            ),
                           ),
                         ],
-                      ],
-                    ),
-                  ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -170,18 +153,18 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _forgotPassword(BuildContext context) async {
     final emailError = AppValidators.loginEmail(email.text);
     if (emailError != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(emailError)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(emailError)),
+      );
       return;
     }
     final auth = context.read<AuthProvider>();
     await auth.requestPasswordReset(email.text);
     if (!context.mounted) return;
     if (auth.infoMessage != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(auth.infoMessage!)));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(auth.infoMessage!)),
+      );
     }
   }
 
@@ -207,17 +190,5 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  String _homeForRole(String role) {
-    switch (role) {
-      case 'judge':
-        return AppRoutes.judge;
-      case 'mentor':
-        return AppRoutes.chat;
-      case 'organizer':
-        return AppRoutes.organizer;
-      case 'participant':
-      default:
-        return AppRoutes.events;
-    }
-  }
+  String _homeForRole(String role) => RoleLanding.initialRouteForRole(role);
 }

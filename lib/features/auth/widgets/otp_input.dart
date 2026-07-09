@@ -17,17 +17,17 @@ class OtpInput extends StatelessWidget {
           textInputAction: TextInputAction.done,
           maxLength: 6,
           validator: AppValidators.signupOtp,
-          decoration: const InputDecoration(
-            labelText: AppStrings.otpLabel,
+          decoration: InputDecoration(
+            labelText: L10nService.strings.otpLabel,
             prefixIcon: Icon(Icons.pin_outlined),
             counterText: '',
           ),
         ),
         const SizedBox(height: AppSizes.paddingSmall),
         Text(
-          AppStrings.otpHelpText,
-          style: const TextStyle(
-            color: SealPalette.onSurfaceVariant,
+          L10nService.strings.otpHelpText,
+          style: TextStyle(
+            color: context.sealTheme.onSurfaceVariant,
             fontSize: 12,
             fontWeight: FontWeight.w700,
             height: 1.35,

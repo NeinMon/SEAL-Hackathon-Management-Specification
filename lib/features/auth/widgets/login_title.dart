@@ -13,17 +13,17 @@ class LoginTitle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = awaitingVerification
-        ? AppStrings.verifyEmailTitle
+        ? L10nService.strings.verifyEmailTitle
         : registerMode
-        ? AppStrings.registerTitle
-        : AppStrings.loginTitle;
+        ? L10nService.strings.registerTitle
+        : L10nService.strings.loginTitle;
     return Text(
       title,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w800,
         letterSpacing: 0.6,
-        color: SealPalette.onSurfaceVariant,
+        color: context.sealTheme.onSurfaceVariant,
       ),
     );
   }

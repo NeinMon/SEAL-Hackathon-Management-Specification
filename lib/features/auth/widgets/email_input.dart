@@ -11,10 +11,10 @@ class EmailInput extends StatelessWidget {
       controller: controller,
       keyboardType: TextInputType.emailAddress,
       textInputAction: TextInputAction.next,
-      autofillHints: const [AutofillHints.email],
+      autofillHints: [AutofillHints.email],
       validator: AppValidators.loginEmail,
-      decoration: const InputDecoration(
-        labelText: AppStrings.emailLabel,
+      decoration: InputDecoration(
+        labelText: L10nService.strings.emailLabel,
         prefixIcon: Icon(Icons.alternate_email),
       ),
     );

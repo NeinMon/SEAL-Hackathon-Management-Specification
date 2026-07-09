@@ -13,25 +13,23 @@ class MainActivity : FlutterActivity() {
             flutterEngine.dartExecutor.binaryMessenger,
             "vn.seal.hackathon/external"
         ).setMethodCallHandler { call, result ->
-            if (call.method != "openUrl") {
+            if (call.method == "openUrl") {
+                val rawUrl = call.arguments as? String
+                val uri = rawUrl?.let { Uri.parse(it) }
+                if (uri != null) {
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW, uri)
+                        startActivity(intent)
+                        result.success(true)
+                    } catch (e: Exception) {
+                        result.success(false)
+                    }
+                } else {
+                    result.success(false)
+                }
+            } else {
                 result.notImplemented()
-                return@setMethodCallHandler
             }
-
-            val rawUrl = call.arguments as? String
-            val uri = rawUrl?.let(Uri::parse)
-            if (uri == null) {
-                result.success(false)
-                return@setMethodCallHandler
-            }
-
-            val intent = Intent(Intent.ACTION_VIEW, uri)
-            if (intent.resolveActivity(packageManager) == null) {
-                result.success(false)
-                return@setMethodCallHandler
-            }
-            startActivity(intent)
-            result.success(true)
         }
     }
 }

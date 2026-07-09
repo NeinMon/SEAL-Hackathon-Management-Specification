@@ -13,26 +13,26 @@ class ProfileSessionSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: SealPalette.errorContainer.withValues(alpha: 0.10),
+      color: context.sealErrorContainer.withValues(alpha: 0.10),
       child: Padding(
         padding: const EdgeInsets.all(AppSizes.paddingMedium),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              AppStrings.sessionSectionTitle,
+            Text(
+              L10nService.strings.sessionSectionTitle,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 8),
-            const Text(
-              AppStrings.logoutDescription,
-              style: TextStyle(color: SealPalette.onSurfaceVariant),
+            Text(
+              L10nService.strings.logoutDescription,
+              style: TextStyle(color: context.sealTheme.onSurfaceVariant),
             ),
             const SizedBox(height: AppSizes.paddingCompact),
             OutlinedButton.icon(
               onPressed: isLoading ? null : onLogout,
-              icon: const Icon(Icons.logout),
-              label: const Text(AppStrings.logoutButton),
+              icon: Icon(Icons.logout),
+              label: Text(context.l10n.logoutButton),
             ),
           ],
         ),

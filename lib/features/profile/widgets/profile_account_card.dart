@@ -15,14 +15,14 @@ class ProfileAccountCard extends StatelessWidget {
           children: [
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.alternate_email),
-              title: const Text(AppStrings.emailLabel),
+              leading: Icon(Icons.alternate_email),
+              title: Text(context.l10n.emailLabel),
               subtitle: Text(user.email),
             ),
             ListTile(
               contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.verified_user_outlined),
-              title: const Text(AppStrings.roleLabel),
+              leading: Icon(Icons.verified_user_outlined),
+              title: Text(context.l10n.roleLabel),
               subtitle: Text(AppRoles.label(user.role)),
             ),
           ],

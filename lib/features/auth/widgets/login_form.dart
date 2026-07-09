@@ -59,6 +59,7 @@ class LoginForm extends StatelessWidget {
         padding: const EdgeInsets.all(AppSizes.paddingLarge),
         child: Form(
           key: formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: AutofillGroup(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -70,7 +71,7 @@ class LoginForm extends StatelessWidget {
                 const SizedBox(height: AppSizes.paddingMedium),
                 if (awaitingVerification) ...[
                   Text(
-                    '${AppStrings.emailPrefix} $pendingVerificationEmail',
+                    '${L10nService.strings.emailPrefix} $pendingVerificationEmail',
                     style: const TextStyle(fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: AppSizes.paddingCompact),
@@ -80,10 +81,10 @@ class LoginForm extends StatelessWidget {
                     TextFormField(
                       controller: name,
                       textInputAction: TextInputAction.next,
-                      autofillHints: const [AutofillHints.name],
+                      autofillHints: [AutofillHints.name],
                       validator: AppValidators.registerName,
-                      decoration: const InputDecoration(
-                        labelText: AppStrings.fullNameLabel,
+                      decoration: InputDecoration(
+                        labelText: L10nService.strings.fullNameLabel,
                         prefixIcon: Icon(Icons.badge_outlined),
                       ),
                     ),
@@ -91,10 +92,10 @@ class LoginForm extends StatelessWidget {
                     TextFormField(
                       controller: university,
                       textInputAction: TextInputAction.next,
-                      autofillHints: const [AutofillHints.organizationName],
+                      autofillHints: [AutofillHints.organizationName],
                       validator: AppValidators.registerUniversity,
-                      decoration: const InputDecoration(
-                        labelText: AppStrings.universityLabel,
+                      decoration: InputDecoration(
+                        labelText: L10nService.strings.universityLabel,
                         prefixIcon: Icon(Icons.school_outlined),
                       ),
                     ),
@@ -119,10 +120,10 @@ class LoginForm extends StatelessWidget {
                       onToggleVisibility: onToggleConfirmPassword,
                     ),
                     const SizedBox(height: AppSizes.paddingCompact),
-                    const Text(
-                      AppStrings.registerRoleHint,
+                    Text(
+                      L10nService.strings.registerRoleHint,
                       style: TextStyle(
-                        color: SealPalette.onSurfaceVariant,
+                        color: context.sealTheme.onSurfaceVariant,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         height: 1.35,
@@ -133,11 +134,11 @@ class LoginForm extends StatelessWidget {
                     const SizedBox(height: AppSizes.paddingCompact),
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Text(
-                            AppStrings.roleManagedHint,
+                            L10nService.strings.roleManagedHint,
                             style: TextStyle(
-                              color: SealPalette.onSurfaceVariant,
+                              color: context.sealTheme.onSurfaceVariant,
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                             ),
@@ -145,7 +146,7 @@ class LoginForm extends StatelessWidget {
                         ),
                         TextButton(
                           onPressed: isLoading ? null : onForgotPassword,
-                          child: const Text(AppStrings.forgotPasswordButton),
+                          child: Text(context.l10n.forgotPasswordButton),
                         ),
                       ],
                     ),
@@ -165,8 +166,8 @@ class LoginForm extends StatelessWidget {
                   const SizedBox(height: AppSizes.paddingCompact),
                   Text(
                     infoMessage!,
-                    style: const TextStyle(
-                      color: SealPalette.secondary,
+                    style: TextStyle(
+                      color: context.sealSecondary,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -182,7 +183,7 @@ class LoginForm extends StatelessWidget {
                   const SizedBox(height: AppSizes.paddingSmall),
                   TextButton(
                     onPressed: isLoading ? null : onCancelVerification,
-                    child: const Text(AppStrings.backToLoginButton),
+                    child: Text(context.l10n.backToLoginButton),
                   ),
                 ],
               ],

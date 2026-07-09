@@ -1,4 +1,4 @@
-import 'app_strings.dart';
+import '../l10n/l10n_service.dart';
 
 class AnnouncementTemplate {
   const AnnouncementTemplate({
@@ -17,23 +17,23 @@ class AnnouncementTemplate {
 class AnnouncementTemplates {
   AnnouncementTemplates._();
 
-  static const List<AnnouncementTemplate> demo = [
+  static List<AnnouncementTemplate> get demo => [
     AnnouncementTemplate(
-      label: AppStrings.announcementTemplateJudgingLabel,
-      title: AppStrings.announcementTemplateJudgingTitle,
-      content: AppStrings.announcementTemplateJudgingBody,
+      label: L10nService.strings.announcementTemplateJudgingLabel,
+      title: L10nService.strings.announcementTemplateJudgingTitle,
+      content: L10nService.strings.announcementTemplateJudgingBody,
       role: 'judge',
     ),
     AnnouncementTemplate(
-      label: AppStrings.announcementTemplateDeadlineLabel,
-      title: AppStrings.announcementTemplateDeadlineTitle,
-      content: AppStrings.announcementTemplateDeadlineBody,
+      label: L10nService.strings.announcementTemplateDeadlineLabel,
+      title: L10nService.strings.announcementTemplateDeadlineTitle,
+      content: L10nService.strings.announcementTemplateDeadlineBody,
       role: 'participant',
     ),
     AnnouncementTemplate(
-      label: AppStrings.announcementTemplateKickoffLabel,
-      title: AppStrings.announcementTemplateKickoffTitle,
-      content: AppStrings.announcementTemplateKickoffBody,
+      label: L10nService.strings.announcementTemplateKickoffLabel,
+      title: L10nService.strings.announcementTemplateKickoffTitle,
+      content: L10nService.strings.announcementTemplateKickoffBody,
     ),
   ];
 }

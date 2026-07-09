@@ -14,9 +14,9 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final mine = message.senderId == currentUser?.id;
     final seal = context.sealTheme;
-    final senderLabel = mine ? AppStrings.yourMessageSemantic : message.sender;
+    final senderLabel = mine ? L10nService.strings.yourMessageSemantic : message.sender;
     return Semantics(
-      label: AppStrings.messageTimestampSemantic(
+      label: L10nService.strings.messageTimestampSemantic(
         senderLabel,
         DateFormat('HH:mm').format(message.createdAt),
       ),
@@ -33,7 +33,7 @@ class MessageBubble extends StatelessWidget {
             child: Card(
               margin: const EdgeInsets.only(bottom: 8),
               color: mine
-                  ? SealPalette.primaryContainer.withValues(alpha: 0.95)
+                  ? context.sealPrimaryContainer.withValues(alpha: 0.95)
                   : seal.surfaceContainerHigh,
               child: Padding(
                 padding: const EdgeInsets.all(AppSizes.paddingCompact),
@@ -41,7 +41,7 @@ class MessageBubble extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      mine ? AppStrings.meLabel : message.sender,
+                      mine ? L10nService.strings.meLabel : message.sender,
                       style: const TextStyle(fontWeight: FontWeight.w800),
                     ),
                     const SizedBox(height: 4),
@@ -54,6 +54,17 @@ class MessageBubble extends StatelessWidget {
                         color: seal.onSurfaceVariant,
                       ),
                     ),
+                    if (mine) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        L10nService.strings.messageSentStatus,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: seal.onSurfaceVariant,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -68,16 +79,16 @@ class MessageBubble extends StatelessWidget {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text(AppStrings.deleteMessageTitle),
-        content: const Text(AppStrings.confirmDelete),
+        title: Text(context.l10n.deleteMessageTitle),
+        content: Text(context.l10n.confirmDelete),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text(AppStrings.cancelButton),
+            child: Text(context.l10n.cancelButton),
           ),
           FilledButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(AppStrings.deleteButton),
+            child: Text(context.l10n.deleteButton),
           ),
         ],
       ),

@@ -28,8 +28,8 @@ class ProfileForm extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text(
-              AppStrings.accountInfoTitle,
+            Text(
+              L10nService.strings.accountInfoTitle,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: AppSizes.paddingCompact),
@@ -38,24 +38,24 @@ class ProfileForm extends StatelessWidget {
               child: Column(
                 children: [
                   Semantics(
-                    label: AppStrings.profileFullNameFieldSemantic,
+                    label: L10nService.strings.profileFullNameFieldSemantic,
                     child: TextFormField(
                       controller: fullName,
                       validator: AppValidators.registerName,
-                      decoration: const InputDecoration(
-                        labelText: AppStrings.fullNameLabel,
+                      decoration: InputDecoration(
+                        labelText: L10nService.strings.fullNameLabel,
                         prefixIcon: Icon(Icons.badge_outlined),
                       ),
                     ),
                   ),
                   const SizedBox(height: AppSizes.paddingCompact),
                   Semantics(
-                    label: AppStrings.profileUniversityFieldSemantic,
+                    label: L10nService.strings.profileUniversityFieldSemantic,
                     child: TextFormField(
                       controller: university,
                       validator: AppValidators.registerUniversity,
-                      decoration: const InputDecoration(
-                        labelText: AppStrings.universityLabel,
+                      decoration: InputDecoration(
+                        labelText: L10nService.strings.universityLabel,
                         prefixIcon: Icon(Icons.school_outlined),
                       ),
                     ),
@@ -75,8 +75,8 @@ class ProfileForm extends StatelessWidget {
                       dimension: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.save_outlined),
-              label: const Text(AppStrings.saveProfileButton),
+                  : Icon(Icons.save_outlined),
+              label: Text(context.l10n.saveProfileButton),
             ),
           ],
         ),

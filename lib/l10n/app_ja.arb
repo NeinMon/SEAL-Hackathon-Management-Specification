@@ -1,0 +1,1276 @@
+{
+  "@@locale": "ja",
+  "sessionBootstrapMessage": "サインインセッションを復元しています...",
+  "statusRegistrationClosing": "登録締切間近",
+  "statusJudging": "審査中",
+  "allEventsFilter": "すべてのイベント",
+  "myTeamReadyBadge": "チーム参加済み",
+  "myTeamPendingBadge": "チーム未参加",
+  "weightedScoreHint": "表示スコアはシステムに保存された加重ルーブリック平均です。",
+  "scorePublishedWithHintSnackBar": "スコアを公開しました。参加者は受信トレイで通知を受け取ります。",
+  "demoResetTitle": "デモデータをリセット",
+  "demoResetDescription": "現在の環境のすべてのユーザー、イベント、チーム、提出、スコアを削除します。ローカルデモのみ。",
+  "demoResetConfirmLabel": "確認のため RESET と入力",
+  "demoResetSuccess": "デモデータをリセットしました。",
+  "eventSupportHotline": "チャットまたは通知で運営に連絡",
+  "demoOnboardingTitle": "クイックデモガイド",
+  "demoOnboardingStartButton": "デモを開始",
+  "demoOnboardingParticipantTitle": "参加者",
+  "demoOnboardingParticipantBody": "イベント → チーム → 提出。環境がシードされている場合はデモアカウントを使用。",
+  "demoOnboardingJudgeTitle": "審査員",
+  "demoOnboardingJudgeBody": "採点タブ → 提出を選択 → 基準とフィードバックを入力 → スコアを提出。",
+  "demoOnboardingAlertsTitle": "通知",
+  "demoOnboardingAlertsBody": "右上のベルアイコン。スコア通知をタップして詳細を表示。",
+  "appName": "SEAL Hackathon",
+  "cancelButton": "キャンセル",
+  "saveButton": "保存",
+  "deleteButton": "削除",
+  "sendButton": "送信",
+  "doneButton": "完了",
+  "resetButton": "リセット",
+  "updateButton": "更新",
+  "retryButton": "再試行",
+  "stayButton": "留まる",
+  "confirmButton": "確認",
+  "confirmDelete": "本当に削除しますか？",
+  "detailsButton": "詳細",
+  "editButton": "編集",
+  "inviteButton": "招待",
+  "allFilter": "すべて",
+  "sortLabel": "並び替え",
+  "unknownLabel": "不明",
+  "leaderBadge": "リーダー",
+  "meLabel": "自分",
+  "statusActive": "開催中",
+  "statusUpcoming": "開催予定",
+  "statusClosed": "終了",
+  "filterRegistrationOpen": "登録受付中",
+  "networkOfflineMessage": "ネットワークに接続されていません。接続を確認して再試行してください。",
+  "networkError": "サーバーに接続できません",
+  "unknownError": "エラーが発生しました",
+  "accessDeniedTitle": "アクセス拒否",
+  "accessDeniedSubtitle": "この機能はお使いのロールでは利用できません。",
+  "accessDeniedDefaultMessage": "適切なアカウントでサインインしてください。",
+  "backToEventsButton": "イベントに戻る",
+  "loginRequiredTitle": "サインインしてください",
+  "loginRequiredSubtitle": "SEAL Hackathonを続けるにはサインインが必要です。",
+  "goToLoginButton": "サインインへ",
+  "supabaseRequiredTitle": "システムに接続できません",
+  "supabaseRequiredBody": "データを読み込む準備ができていません。後でもう一度お試しいただくか、運営にお問い合わせください。",
+  "notLoggedInMessage": "ログインしていません",
+  "logoutFailedMessage": "ログアウトできませんでした。再試行してください。",
+  "saveSuccess": "データを保存しました",
+  "updateSuccess": "更新しました",
+  "deleteSuccess": "削除しました",
+  "roleParticipant": "参加者",
+  "roleJudge": "審査員",
+  "roleMentor": "メンター",
+  "roleOrganizer": "運営",
+  "eventsNavLabel": "イベント",
+  "myHomeNavLabel": "ホーム",
+  "teamNavLabel": "チーム",
+  "submitNavLabel": "提出",
+  "judgeNavLabel": "採点",
+  "dashboardNavLabel": "ダッシュボード",
+  "chatNavLabel": "チャット",
+  "mapNavLabel": "マップ",
+  "eventSubNavOverview": "概要",
+  "eventScopedSubtitle": "アクティブなイベント",
+  "backToEventsAction": "ホームに戻る",
+  "backToEventListAction": "イベント一覧に戻る",
+  "profileNavLabel": "プロフィール",
+  "notificationsNavLabel": "通知",
+  "accountMenuTooltip": "アカウントメニュー",
+  "logoutButton": "ログアウト",
+  "helpTooltip": "ヘルプ",
+  "helpDialogTitle": "お困りですか？",
+  "helpDialogBody": "サポートデスクまたはチャットで運営にお問い合わせください。",
+  "loginTitle": "ログイン",
+  "registerTitle": "アカウント作成",
+  "verifyEmailTitle": "メール確認",
+  "loginHeroSubtitle": "イベント、チーム、提出、採点、メッセージ、会場を一つのアプリで管理。",
+  "emailLabel": "メール",
+  "passwordLabel": "パスワード",
+  "confirmPasswordLabel": "パスワード確認",
+  "fullNameLabel": "氏名",
+  "universityLabel": "大学",
+  "otpLabel": "OTPコード（6桁）",
+  "registerRoleHint": "新規アカウントは参加者として作成されます。登録後にOTPまたはリンクでメールを確認してください。",
+  "roleManagedHint": "ロールはアカウントプロフィールで管理されます。",
+  "forgotPasswordButton": "パスワードをお忘れですか？",
+  "hidePasswordTooltip": "パスワードを隠す",
+  "showPasswordTooltip": "パスワードを表示",
+  "loginButton": "ログイン",
+  "registerButton": "登録",
+  "confirmOtpButton": "OTPを確認",
+  "backToLoginButton": "サインインに戻る",
+  "haveAccountButton": "すでにアカウントをお持ちですか？ログイン",
+  "createAccountButton": "新規アカウント作成",
+  "loginSuccess": "ログインに成功しました",
+  "loginFailed": "メールまたはパスワードが正しくありません",
+  "emailConfirmedWelcomeBack": "メールが確認されました。おかえりなさい！",
+  "noPendingVerificationEmail": "確認待ちのメールはありません。",
+  "registerSuccessPrefix": "登録成功：",
+  "eventsTitle": "イベント",
+  "participantHomeTitle": "あなたのイベント",
+  "participantHomeSubtitle": "下のイベントをタップして開始するか、進捗カードから続けてください。",
+  "participantPickEventTitle": "開始するイベントを選択",
+  "participantPickEventBody": "まだチームに参加していません。一覧からイベントをタップして詳細を確認し、登録してください。",
+  "judgeEventListHint": "開催中のイベントをタップして採点キューを開きます。",
+  "mentorEventListHint": "割り当てられたイベントをタップして参加者とチャットします。",
+  "allEventsSectionTitle": "すべてのイベント",
+  "journeyStepNeedsTeam": "チーム未参加",
+  "journeyStepNeedsSubmission": "未提出",
+  "journeyStepAwaitingScore": "採点待ち",
+  "journeyStepHasScore": "採点済み",
+  "journeyStepRegistrationClosed": "登録締切",
+  "journeyStepMissedSubmission": "提出期限超過",
+  "journeyNextStepTitle": "次のステップ",
+  "journeyActionJoinTeam": "チームを作成または参加",
+  "journeyActionBrowseEvents": "他のイベントを見る",
+  "journeyActionContactOrganizer": "運営に連絡",
+  "journeyActionSubmit": "今すぐ提出",
+  "journeyActionViewSubmission": "提出を表示",
+  "journeyActionViewScore": "スコアを表示",
+  "journeyActionOpenMap": "会場を表示",
+  "journeyHelperRegistrationClosed": "チーム登録は締め切られました。他のイベントを探すか運営に連絡してください。",
+  "journeyHelperMissedSubmission": "提出期限を過ぎました。サポートが必要な場合は運営に連絡してください。",
+  "submissionReadOnlyScoreTitle": "採点結果",
+  "notificationActionGoTeams": "チームへ",
+  "notificationActionSubmit": "提出",
+  "notificationActionViewScore": "スコアを表示",
+  "notificationActionViewEvent": "イベントを表示",
+  "notificationActionOpenJudge": "採点を開く",
+  "submissionDraftAutoSaving": "下書きを自動保存中",
+  "clearDraftButton": "下書きを消去",
+  "draftClearedMessage": "下書きを消去しました。",
+  "submitWizardStepTeam": "チームを選択",
+  "submitWizardStepProject": "プロジェクト情報",
+  "submitWizardStepLinks": "リンクと提出",
+  "submitWizardNext": "次へ",
+  "submitWizardBack": "戻る",
+  "submitWizardReviewTitle": "提出前の確認",
+  "organizerTodayModeTitle": "今日",
+  "organizerShowDetailsButton": "詳細を表示",
+  "organizerHideDetailsButton": "詳細を隠す",
+  "roleOnboardingSkip": "スキップ",
+  "roleOnboardingStart": "開始",
+  "roleOnboardingParticipantTitle": "参加者へようこそ",
+  "roleOnboardingParticipantBody": "イベントをタップして開始 → チーム招待を作成または承諾 → 締切前に提出。",
+  "roleOnboardingJudgeTitle": "審査員へようこそ",
+  "roleOnboardingJudgeBody": "開催中のイベントを選択 → 採点タブ → 未採点の提出を選択。",
+  "roleOnboardingOrganizerTitle": "運営へようこそ",
+  "roleOnboardingOrganizerBody": "未採点作業を追跡し、メンターを割り当て、今日からお知らせを送信。",
+  "roleOnboardingMentorTitle": "メンターへようこそ",
+  "roleOnboardingMentorBody": "割り当てられたイベントを選択 → チャットで参加者に返信。",
+  "chatMentorRequestTemplate": "運営の方、現在のイベントにメンターを割り当てていただけますか。",
+  "eventsSubtitle": "ハッカソン、締切、詳細を追跡。",
+  "eventSearchHint": "名前、場所、トピックで検索",
+  "sortStartAsc": "開始日：早い順",
+  "sortStartDesc": "開始日：遅い順",
+  "sortTitleAsc": "名前 A → Z",
+  "sortTitleDesc": "名前 Z → A",
+  "sortDeadlineAsc": "締切：近い順",
+  "sortDeadlineDesc": "締切：遅い順",
+  "noMatchingEvents": "一致するイベントがありません。",
+  "noEventsYet": "イベントはまだありません。",
+  "eventQuickActionsTitle": "クイックアクション",
+  "clearSearchAction": "検索をクリア",
+  "reloadEventsAction": "イベントを再読み込み",
+  "registerTeamPill": "チーム登録",
+  "registrationClosedPill": "登録締切",
+  "eventDetailTitle": "イベント詳細",
+  "eventDetailSubtitle": "タイムライン、ルール、会場、リーダーボード。",
+  "eventDetailLoadingSubtitle": "イベント情報を読み込み中...",
+  "eventNotFound": "イベントが見つかりません",
+  "rulesTitle": "ルール",
+  "prizeTitle": "賞品",
+  "leaderboardTitle": "リーダーボード",
+  "noScoredSubmissionsYet": "採点済みの提出はまだありません。",
+  "noSubmissionsForEventYet": "このイベントの提出はまだありません。",
+  "eventDetailStatsTitle": "イベント統計",
+  "eventTeamsMetric": "チーム",
+  "eventSubmissionsMetric": "提出",
+  "eventUnscoredMetric": "未採点",
+  "organizerShowAllEventsButton": "すべてのイベントを表示",
+  "timelineTitle": "タイムライン",
+  "timelineRegistration": "登録",
+  "timelineKickoff": "キックオフ",
+  "timelineFinal": "最終",
+  "openJudgeQueueButton": "未採点を表示",
+  "openOrganizerDashboardButton": "運営ダッシュボードを開く",
+  "openMentorChatButton": "メンターチャットを開く",
+  "manageTeamButton": "チームを作成・管理",
+  "viewMyTeamButton": "自分のチームを表示",
+  "joinOrCreateTeamButton": "チームを作成または参加",
+  "submitForEventButton": "このイベントに提出",
+  "myTeamForEventTitle": "あなたのチーム",
+  "leaderboardPendingTitle": "未採点",
+  "awaitingScoreBadge": "採点待ち",
+  "judgeQueueFilteredSubtitle": "選択イベントの未採点提出。",
+  "viewVenueButton": "会場を表示",
+  "eventCreatedSuccess": "イベントを作成しました。",
+  "eventUpdatedSuccess": "イベントを更新しました。",
+  "teamTitle": "チーム",
+  "teamSubtitle": "チームの作成・参加・管理",
+  "teamOverviewTitle": "チーム概要",
+  "noTeamsYet": "チームはまだありません",
+  "teamsAvailable": "参加可能なチーム",
+  "checkInLabel": "チェックイン",
+  "checkInPending": "保留中",
+  "checkInConfirmed": "確認済み",
+  "submitProjectButton": "プロジェクトを提出",
+  "createTeamButton": "チームを作成",
+  "createTeamTitle": "チームを作成",
+  "eventLabel": "イベント",
+  "teamNameLabel": "チーム名",
+  "loadEventsBeforeCreateTeam": "イベントが読み込まれていません。チーム作成前にイベントを読み込んでください。",
+  "roleViewOnlyTeams": "このロールはチームの閲覧のみ可能です。",
+  "emptyTeamsMessage": "チームがありません。続行するにはチームを作成してください。",
+  "myTeamsGroup": "自分のチーム",
+  "otherTeamsGroup": "その他のチーム",
+  "teamFullBadge": "満員",
+  "updateTeamDialogTitle": "チームを更新",
+  "leaveTeamDialogTitle": "チームを脱退しますか？",
+  "leaveTeamButton": "チームを脱退",
+  "joinTeamButton": "チームに参加",
+  "inviteMemberTitle": "メンバーを招待",
+  "memberEmailLabel": "メンバーのメール",
+  "sendInvitationButton": "招待を送信",
+  "invitationSendingStatus": "招待を送信中...",
+  "teamInvitationTitle": "チーム招待",
+  "teamCreatedNotificationTitle": "チームを作成しました",
+  "teamCreatedSuccess": "チームを作成しました。",
+  "teamJoinedSuccess": "チームに参加しました。",
+  "invitationSentSuccess": "招待を送信しました。",
+  "invitationAcceptedSuccess": "チームに参加しました。",
+  "invitationDeclinedSuccess": "招待を辞退しました。",
+  "pendingInvitationsTitle": "保留中の招待",
+  "pendingInvitationsEmpty": "チーム招待はありません。",
+  "acceptInvitationButton": "承諾",
+  "declineInvitationButton": "辞退",
+  "invitationStatusPending": "保留中",
+  "invitationStatusAccepted": "承諾済み",
+  "invitationStatusDeclined": "辞退済み",
+  "teamUpdatedSuccess": "チームを更新しました。",
+  "teamLeftSuccess": "チームを脱退しました。",
+  "invalidTeamError": "無効なチームです。",
+  "inviteUserNotFound": "このメールのアカウントが見つかりません。",
+  "invitationAlreadyPending": "この人には既に保留中の招待があります。",
+  "alreadyTeamMemberError": "既にこのチームのメンバーです。",
+  "alreadyOnEventTeamError": "このイベントの別チームに既に参加しています。新しいチームに参加する前に現在のチームを脱退してください。",
+  "oneTeamPerEventBadge": "このイベントのチーム参加済み",
+  "cannotChangeOwnRole": "自分のロールは変更できません。",
+  "leaveTeamRegistrationClosedError": "登録締切後はチームを脱退できません。",
+  "invitationNoLongerPending": "この招待は無効になりました。",
+  "errorEventContextRequired": "イベントコンテキストが必要です",
+  "errorEventEnded": "イベントが終了しました。チームの作成・参加はできません。",
+  "errorRegistrationDeadlinePassed": "このイベントのチーム登録締切を過ぎました。",
+  "errorSubmissionClosed": "イベントが終了しました。提出・更新はできません。",
+  "errorSubmissionNotStarted": "イベントがまだ開始していません。提出できません。",
+  "errorJudgingNotStarted": "イベントがまだ開始していません。採点できません。",
+  "errorJudgingClosed": "イベントが終了しました。採点できません。",
+  "teamInviteOnlyError": "リーダーの招待でのみチームに参加できます。",
+  "teamInviteOnlyBadge": "招待制",
+  "teamInviteOnlyHelper": "招待についてはチームリーダーにお問い合わせください。",
+  "submissionsRoleGateMessage": "提出は参加者のみ可能です。",
+  "submitScreenTitle": "プロジェクト提出",
+  "submitScreenSubtitle": "GitHub、デモ動画、説明を送信",
+  "projectInfoSection": "プロジェクト情報",
+  "linksSection": "リンク",
+  "descriptionSection": "説明",
+  "projectNameLabel": "プロジェクト名",
+  "githubUrlLabel": "GitHubリンク",
+  "demoVideoUrlLabel": "デモ動画リンク",
+  "projectDescriptionHint": "プロジェクトはどんな課題を解決しますか？",
+  "submissionDescriptionTip": "ヒント：課題、解決策、主要機能、技術スタック、測定可能なインパクト。",
+  "joinTeamBeforeSubmit": "提出する前にチームに参加してください",
+  "updateSubmissionButton": "提出を更新",
+  "submitProjectAction": "提出",
+  "needsSubmissionStatus": "提出が必要",
+  "noProjectSubmittedHelper": "まだ提出がありません。",
+  "reviewedStatus": "レビュー済み",
+  "reviewedHelper": "審査員がフィードバックを公開しました。",
+  "submittedStatus": "提出済み",
+  "submittedHelper": "審査員の採点を待っています。",
+  "notSubmittedYet": "未提出",
+  "latestSubmissionTitle": "最新の提出",
+  "selectTeamToSubmit": "提出するチームを選択または作成してください。",
+  "goToTeamAction": "チームへ",
+  "createTeamNowAction": "今すぐチームを作成",
+  "teamHasNoSubmission": "このチームはまだ提出していません。",
+  "updateHistoryTitle": "更新履歴",
+  "judgeFeedbackTitle": "審査員フィードバック",
+  "submissionSavedNotificationTitle": "提出を保存しました",
+  "submissionCreatedSuccess": "提出しました。",
+  "submissionUpdatedSuccess": "提出を更新しました。",
+  "submissionStatusReviewed": "レビュー済み",
+  "submissionStatusSubmitted": "提出済み",
+  "submissionStatusDraft": "下書き",
+  "submissionDraftRestored": "未送信の下書きを復元しました。",
+  "chatRoleGateMessage": "チャットは参加者とメンターが利用できます。",
+  "chatTitle": "チャット",
+  "chatSubtitle": "メンターまたは運営に連絡",
+  "chatContactLabel": "メンターとチャット",
+  "noChatContactsMessage": "チャット相手がいません",
+  "contactOrganizerForMentorAction": "メッセージをコピー",
+  "sendMentorRequestAction": "メンター依頼を送信",
+  "mentorRequestSentSuccess": "メンター依頼を送信しました",
+  "contactOrganizerHint": "テンプレートをコピーしました。運営に連絡してください",
+  "chatInputHint": "メンターに質問...",
+  "chatRealtimeConnected": "リアルタイム接続中",
+  "chatRealtimeConnecting": "リアルタイム接続中...",
+  "chatRealtimeOffline": "手動同期",
+  "reloadChatTooltip": "チャットを再読み込み",
+  "messageSentStatus": "送信済み",
+  "sendMessageTooltip": "送信",
+  "yourMessageSemantic": "自分のメッセージ",
+  "deleteMessageTitle": "メッセージを削除しますか？",
+  "deleteMessageBody": "メッセージは会話から削除されます。",
+  "noMessagesYet": "メッセージはまだありません。",
+  "selectConversationBeforeSend": "送信前に会話を選択してください。",
+  "judgeRoleGateMessage": "採点は審査員のみアクセス可能です。",
+  "judgeTitle": "採点キュー",
+  "judgeSubtitle": "提出物を審査してスコアを付ける",
+  "filterUnscored": "未採点",
+  "filterScored": "採点済み",
+  "judgeSearchLabel": "提出またはチームを検索",
+  "noMatchingSubmissions": "条件に一致する提出物がありません",
+  "showAllSubmissions": "すべて表示",
+  "selectSubmissionTitle": "提出を選択",
+  "nextUnscoredButton": "次の未採点",
+  "selectSubmissionToScore": "採点する提出物を選択",
+  "needsScoringBadge": "採点が必要",
+  "repositoryButton": "ソースコード",
+  "demoButton": "デモ動画",
+  "rubricEvaluationTitle": "ルーブリック",
+  "feedbackLabel": "フィードバック",
+  "updateScoreDialogTitle": "古いスコアを更新しますか？",
+  "currentScoreLabel": "現在のスコア",
+  "feedbackReady": "準備完了",
+  "feedbackMissing": "未入力",
+  "submitScoreButton": "スコアを提出",
+  "updateScoreButton": "スコアを更新",
+  "scoringProgressTitle": "採点の進捗",
+  "scorePublishedNotificationTitle": "スコアを公開しました",
+  "scorePublishedSnackBar": "提出のスコアを公開しました。",
+  "scoreSavedSuccess": "スコアを保存しました。",
+  "judgeScoreParticipantHint": "参加者は通知を開いてスコアとフィードバックを確認できます。",
+  "scoreNotificationDialogTitle": "採点結果",
+  "announcementNotificationDialogTitle": "運営からのお知らせ",
+  "viewSubmissionButton": "提出を表示",
+  "closeDialogButton": "閉じる",
+  "organizerRoleGateMessage": "運営機能は運営者のみアクセス可能です。",
+  "organizerTitle": "運営ダッシュボード",
+  "organizerSubtitle": "イベント、チーム、提出物を管理",
+  "sectionOverview": "概要",
+  "sectionOperations": "運用",
+  "sectionSubmissions": "提出",
+  "sectionEvents": "イベント",
+  "sectionTeams": "チーム",
+  "sendAnnouncementButton": "お知らせを送信",
+  "sendAnnouncementDialogTitle": "お知らせを送信",
+  "recipientLabel": "受信者",
+  "notificationTitleLabel": "タイトル",
+  "notificationContentLabel": "内容",
+  "announcementPreviewTitle": "お知らせのプレビュー",
+  "confirmSendAnnouncementButton": "送信を確認",
+  "announcementSendingStatus": "お知らせを送信中...",
+  "recipientCountLabel": "受信者数",
+  "createEventTitle": "イベントを作成",
+  "editEventTitle": "イベントを編集",
+  "eventFieldTitle": "タイトル",
+  "eventFieldDescription": "説明",
+  "eventFieldLocation": "場所",
+  "eventFieldBannerUrl": "バナーURL",
+  "eventFieldStartDate": "開始日",
+  "eventFieldEndDate": "終了日",
+  "eventFieldRegistrationDeadline": "登録締切",
+  "eventFieldSubmissionDeadline": "提出締切",
+  "eventFieldSupportHotline": "サポートホットライン",
+  "eventFieldOpeningHours": "営業時間",
+  "eventFieldMaxTeamSize": "最大チーム人数",
+  "eventFieldRules": "ルール",
+  "eventFieldPrize": "賞品",
+  "eventFieldLatitude": "緯度",
+  "eventFieldLongitude": "経度",
+  "selectOnMapButton": "マップで選択",
+  "eventStepInfo": "情報",
+  "eventStepBanner": "バナー",
+  "eventStepLocation": "場所",
+  "eventStepTime": "スケジュール",
+  "uploadBannerTooltip": "画像をアップロード",
+  "uploadBannerButton": "画像をアップロード",
+  "changeBannerButton": "画像を変更",
+  "removeBannerButton": "画像を削除",
+  "bannerUploadSuccess": "バナーをアップロードしました。",
+  "uploadBannerFailed": "画像をアップロードできませんでした。Storage設定を確認してください。",
+  "advancedCoordinatesTitle": "詳細：座標",
+  "invalidEventDatesSnackBar": "イベント日付が無効です。形式を確認してください。",
+  "closeRegistrationTitle": "登録を締め切る",
+  "closeRegistrationSuccess": "登録を締め切りました",
+  "recentSubmissionsTitle": "最近の提出",
+  "noSubmissionsYet": "提出はまだありません。",
+  "openTeamAction": "チームを開く",
+  "teamDetailsTitle": "チーム詳細",
+  "noTeamsToView": "表示するチームがありません。",
+  "leaderboardCopiedSuccess": "リーダーボードをコピーしました",
+  "manageUserRolesTitle": "ユーザーロールを管理",
+  "createStaffAccountTitle": "審査員/メンターアカウントを作成",
+  "createStaffAccountButton": "アカウントを作成",
+  "createStaffAccountFailed": "アカウントを作成できませんでした。admin-create-user Edge Functionを確認してください。",
+  "noUsersYet": "ユーザーはまだいません。",
+  "changeRoleDialogTitle": "アカウントロールを変更しますか？",
+  "exportLeaderboardTitle": "リーダーボードをエクスポート",
+  "userRolesTitle": "ユーザーロール",
+  "userSearchLabel": "名前またはメールで検索",
+  "roleFilterLabel": "ロールでフィルター",
+  "noMatchingUsers": "一致するアカウントがありません。",
+  "manageScoreCriteriaTitle": "採点基準を管理",
+  "manageEventMentorsTitle": "イベントメンターを割り当て",
+  "manageEventMentorsDescription": "ハッカソンごとに参加者をサポートするメンターを選択",
+  "noEventsForMentorAssignment": "メンター割り当て可能なイベントがありません。",
+  "noMentorsAvailableMessage": "メンターアカウントがありません。先にロールを作成・割り当ててください。",
+  "mentorAssignmentLoadFailed": "割り当て済みメンターを読み込めませんでした。",
+  "manageScoreCriteriaDescription": "イベントごとにカスタムルーブリックを作成",
+  "addScoreCriterionButton": "基準を追加",
+  "scoreCriterionLabel": "基準名",
+  "scoreCriterionDescription": "基準の説明",
+  "scoreCriteriaSavedSuccess": "採点基準を保存しました。",
+  "defaultRubricHint": "このイベントはデフォルトルーブリックを使用しています。運営者はカスタムルーブリックを編集・保存できます。",
+  "useDefaultRubricButton": "デフォルトルーブリックを使用",
+  "unscoredMetricLabel": "未採点",
+  "organizerTodayTasksTitle": "今日のタスク",
+  "organizerUnscoredTasksLabel": "未採点の提出",
+  "organizerTeamsNeedMembersLabel": "メンバー不足のチーム",
+  "organizerClosingSoonLabel": "登録締切間近",
+  "organizerSendReminderButton": "リマインダーを送信",
+  "organizerAssignMentorButton": "メンターを割り当て",
+  "organizerTaskUnscoredLabel": "採点リマインダー",
+  "organizerTaskTeamsLabel": "チームリマインダー",
+  "organizerTaskClosingLabel": "登録リマインダー",
+  "otherActionsTitle": "その他のアクション",
+  "dashboardChartTitle": "採点概要",
+  "scoredBarLabel": "採点済み",
+  "unscoredBarLabel": "未採点",
+  "loadMoreButton": "もっと読み込む",
+  "announcementEventLabel": "イベントをリンク（任意）",
+  "announcementNoEvent": "リンクされたイベントなし",
+  "viewEventFromAnnouncementButton": "イベントを表示",
+  "announcementTemplatesLabel": "クイックテンプレート",
+  "announcementTemplateJudgingLabel": "審査開始",
+  "announcementTemplateJudgingTitle": "審査室オープン",
+  "announcementTemplateJudgingBody": "審査員は採点タブを開いてください。公式審査セッションが開始されました。",
+  "announcementTemplateDeadlineLabel": "締切",
+  "announcementTemplateDeadlineTitle": "提出締切のリマインダー",
+  "announcementTemplateDeadlineBody": "未提出のチームは締切前にGitHub、デモ動画、説明を完成させてください。",
+  "announcementTemplateKickoffLabel": "キックオフ",
+  "announcementTemplateKickoffTitle": "ハッカソンキックオフ",
+  "announcementTemplateKickoffBody": "SEAL Innovation Hackathon 2026へようこそ。スケジュールとルールはイベントタブをご確認ください。",
+  "newScoreSnackBar": "新しいスコアがあります",
+  "openInboxAction": "通知を表示",
+  "inboxTitle": "受信トレイ",
+  "inboxSubtitle": "スコア、チーム、イベントの通知",
+  "inboxEmpty": "通知はまだありません",
+  "reloadInboxAction": "再読み込み",
+  "unreadGroup": "未読",
+  "readGroup": "既読",
+  "markAsReadAction": "既読にする",
+  "deleteNotificationTitle": "通知を削除しますか？",
+  "deleteNotificationBody": "この項目は一覧から削除されます。",
+  "profileTitle": "プロフィール",
+  "profileSubtitle": "アカウントとセキュリティ設定",
+  "noActiveSession": "アクティブなセッションがありません。",
+  "roleLabel": "ロール",
+  "accountInfoTitle": "アカウント情報",
+  "saveProfileButton": "プロフィールを保存",
+  "profileUpdatedSuccess": "プロフィールを更新しました",
+  "profileSecurityTitle": "セキュリティ",
+  "profileSecuritySubtitle": "登録メールにパスワードリセットメールを送信。メール変更は運営にお問い合わせください。",
+  "themeModeTitle": "外観",
+  "themeModeDark": "ダーク",
+  "themeModeLight": "ライト",
+  "themeModeSystem": "システム",
+  "languageTitle": "言語",
+  "languageVi": "ベトナム語",
+  "languageEn": "英語",
+  "languageJa": "日本語",
+  "sessionSectionTitle": "セッション",
+  "logoutDescription": "サインアウトするとローカル状態がクリアされ、サインイン画面に戻ります。",
+  "mapTitle": "会場マップ",
+  "mapSubtitle": "イベント会場とアクセス情報",
+  "noVenueYet": "会場情報はまだありません",
+  "addressLabel": "住所",
+  "openingHoursLabel": "営業時間",
+  "hotlineLabel": "ホットライン",
+  "coordinatesLabel": "座標",
+  "defaultOpeningHours": "08:00 - 18:00",
+  "defaultHotline": "0900 000 000",
+  "copyAddressButton": "住所をコピー",
+  "addressCopiedSuccess": "住所をコピーしました",
+  "openMapsButton": "マップで開く",
+  "openExternalMapsTitle": "外部マップを開きますか？",
+  "openExternalMapsBody": "SEAL Hackathonを一時的に離れてマップを開きます。",
+  "mapPickerTitle": "イベント場所を選択",
+  "mapPickerInstruction": "マップをドラッグしてピンをイベント場所に置いてください",
+  "openMapsFailed": "このデバイスでマップを開けませんでした。",
+  "validationEmailRequired": "メールを入力してください。",
+  "validationEmailInvalid": "有効なメールを入力してください。",
+  "validationPasswordRequired": "パスワードを入力してください。",
+  "validationPasswordMinLength": "パスワードは6文字以上必要です。",
+  "validationConfirmPasswordRequired": "パスワードを確認してください。",
+  "validationPasswordMismatch": "パスワードが一致しません。",
+  "validationOtpRequired": "メールのOTPを入力してください。",
+  "validationOtpInvalid": "OTPは6桁である必要があります。",
+  "validationFullNameRequired": "氏名を入力してください。",
+  "validationFullNameMinLength": "氏名は2文字以上必要です。",
+  "validationUniversityRequired": "大学を入力してください。",
+  "validationUniversityMinLength": "大学名は2文字以上必要です。",
+  "validationSupabaseNotReady": "システムに接続できません。後でもう一度お試しください。",
+  "validationTeamNameRequired": "チーム名を入力してください。",
+  "validationTeamNameMinLength": "チーム名は2文字以上必要です。",
+  "validationInviteEmailInvalid": "有効なメンバーメールを入力してください。",
+  "validationProjectNameRequired": "プロジェクト名を入力してください。",
+  "validationProjectNameMinLength": "プロジェクト名は2文字以上必要です。",
+  "validationDescriptionRequired": "プロジェクト説明を入力してください。",
+  "validationDescriptionMinLength": "説明は10文字以上必要です。",
+  "validationJoinTeamBeforeSubmit": "提出前にチームを作成または参加してください。",
+  "eventNotLoadedForSubmit": "チームのイベント情報を読み込めませんでした。イベントを再読み込みしてください。",
+  "validationChatMessageRequired": "メッセージは空にできません。",
+  "validationNotificationTitleRequired": "通知タイトルを入力してください。",
+  "validationNotificationBodyRequired": "通知本文を入力してください。",
+  "validationNotificationTypeInvalid": "無効な通知タイプです。",
+  "validationRecipientLabel": "受信者",
+  "validationEventTitleRequired": "イベントタイトルを入力してください。",
+  "validationEventTitleMinLength": "イベントタイトルは2文字以上必要です。",
+  "validationEventLocationRequired": "イベントの場所を入力してください。",
+  "validationEventLocationMinLength": "場所は2文字以上必要です。",
+  "validationLatitudeRequired": "緯度を入力してください。",
+  "validationLatitudeInvalid": "緯度は有効な数値である必要があります。",
+  "validationLatitudeRange": "緯度は-90から90の間である必要があります。",
+  "validationLongitudeRequired": "経度を入力してください。",
+  "validationLongitudeInvalid": "経度は有効な数値である必要があります。",
+  "validationLongitudeRange": "経度は-180から180の間である必要があります。",
+  "validationMaxTeamSizeRequired": "最大チーム人数を入力してください。",
+  "validationMaxTeamSizeInvalid": "最大チーム人数は有効な整数である必要があります。",
+  "validationEndAfterStart": "終了日は開始日より後である必要があります。",
+  "validationDeadlineBeforeEnd": "登録締切はイベント終了後にできません。",
+  "validationSubmissionAfterStart": "提出締切はイベント開始後である必要があります。",
+  "validationSubmissionBeforeEnd": "提出締切はイベント終了後にできません。",
+  "validationScoreRange": "スコアは0から10の間である必要があります。",
+  "validationScoreCriteriaRequired": "採点基準が少なくとも1つ必要です。",
+  "validationScoreCriteriaLimit": "イベントあたり最大8つの採点基準。",
+  "validationScoreCriteriaLabelRequired": "基準名を入力してください。",
+  "validationScoreCriteriaDuplicate": "重複する基準IDがあります。削除して再度追加してください。",
+  "validationScoreCriteriaWeight": "基準の重みは0より大きい必要があります。",
+  "validationNoSubmissionSelected": "採点する提出が選択されていません。",
+  "validationInvalidJudgeSession": "無効な審査員セッションです。",
+  "validationFeedbackRequired": "スコア提出前にフィードバックを入力してください。",
+  "validationInvalidRole": "無効なロールです。",
+  "validationUserLabel": "ユーザー",
+  "validationBannerUrlLabel": "バナーURL",
+  "openLinkTooltip": "リンクを開いて確認",
+  "openLinkFailed": "このリンクを開けませんでした。",
+  "openExternalLinkFailed": "このデバイスでリンクを開けませんでした。",
+  "reloadTeamsTooltip": "チームを再読み込み",
+  "reloadJudgeQueueTooltip": "キューを再読み込み",
+  "reloadDashboardTooltip": "ダッシュボードを再読み込み",
+  "judgePreviewOnlyMessage": "プレビューモード — 審査員アカウントでログインして採点してください",
+  "judgeQueueSortLabel": "未採点キューの並び替え",
+  "sortNewestFirst": "新しい順",
+  "sortProjectName": "プロジェクト名",
+  "sortTeamName": "チーム",
+  "sortAverageScore": "平均スコア",
+  "judgeSubmissionToScoreLabel": "採点する提出",
+  "unknownTeamLabel": "不明なチーム",
+  "teamNotLoadedYet": "チーム未読み込み",
+  "eventNotLoadedYet": "イベント未読み込み",
+  "averageScoreAbbrev": "平均",
+  "judgeReviewReminder": "スコア提出前にソースコード、デモ品質、実装の深さ、プロダクトインパクトを確認してください。",
+  "rubricTechnicalLabel": "技術的深さ",
+  "rubricTechnicalDescription": "アーキテクチャ、正確性、信頼性、実装の深さ。",
+  "rubricUiLabel": "ユーザー体験",
+  "rubricUiDescription": "モバイルフロー、明確さ、アクセシビリティ、仕上げ。",
+  "rubricInnovationLabel": "革新性",
+  "rubricInnovationDescription": "新規性、インパクト、有用なAI/自動化、プロダクト適合。",
+  "decreaseScoreTooltip": "減らす",
+  "increaseScoreTooltip": "増やす",
+  "editEventMenuItem": "イベントを編集",
+  "closeRegistrationMenuItem": "登録を締め切る",
+  "closeRegistrationConfirmButton": "締め切る",
+  "notificationActionsTooltip": "通知オプション",
+  "eventActionsTooltip": "イベントアクション",
+  "submissionsMetricLabel": "提出",
+  "scoresMetricLabel": "スコア数",
+  "systemStatusTitle": "システム状態",
+  "systemStatusSubtitle": "データ読み込みと同期を追跡。",
+  "chatSuggestionSubmission": "提出について質問",
+  "chatSuggestionGithub": "GitHubリンクのレビューを依頼",
+  "chatSuggestionChecklist": "提出チェックリスト",
+  "emailPrefix": "メール：",
+  "averageScoreTitle": "平均スコア",
+  "judgeQueueTitle": "未採点キュー",
+  "judgeQueueWaitingSuffix": " 件の未採点提出",
+  "exportLeaderboardDescription": "リーダーボードデータをクリップボードにコピー",
+  "userRolesDescription": "アカウントロールを表示・更新",
+  "databaseConnectedLabel": "データ準備完了",
+  "databaseMissingLabel": "データなし",
+  "operationsDataLabel": "運用データ",
+  "syncingLabel": "同期中",
+  "stateReadyLabel": "準備完了",
+  "notLoggedInShortLabel": "未サインイン",
+  "noApiErrorsLabel": "データ読み込みエラーなし",
+  "systemStatusSemanticLabel": "システム運用状態",
+  "profileFullNameFieldSemantic": "プロフィール氏名フィールド",
+  "profileUniversityFieldSemantic": "プロフィール大学フィールド",
+  "errorInvalidCredentials": "メールまたはパスワードが正しくありません。登録済みのメールを使用するか「新規アカウント作成」をタップしてください。",
+  "errorEmailNotConfirmed": "メールが確認されていません。受信トレイまたは迷惑メールを確認してください。",
+  "errorInvalidOtp": "OTPが無効または期限切れです。有効化メールを再送信してください。",
+  "errorConnectionTimeout": "接続がタイムアウトしました。ネットワークを確認して再試行してください。",
+  "errorRlsPermissionDenied": "この操作を実行する権限がありません。",
+  "errorDuplicateRecord": "このデータは既に存在します。再読み込みして既存レコードを更新してください。",
+  "errorCheckConstraint": "無効なデータです。入力を確認して再試行してください。",
+  "otpHelpText": "OTPは有効化メールに記載されています。受信トレイまたは迷惑メールをご確認ください。",
+  "teamOverviewForEvent": "チーム — {title}",
+  "@teamOverviewForEvent": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "scopedTeamsAvailable": "このイベントに{count}チーム",
+  "@scopedTeamsAvailable": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pendingInvitationsCount": "{count}件の保留中招待",
+  "@pendingInvitationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventScheduleHours": "{start} - {end}",
+  "@eventScheduleHours": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "activationEmailSent": "有効化メールを{email}に送信しました。リンクを開くか下に6桁のOTPを入力してください。",
+  "@activationEmailSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "emailActivatedWelcome": "メールが有効化されました。{email}、ようこそ！",
+  "@emailActivatedWelcome": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "passwordResetEmailSent": "パスワードリセットリンクを{email}に送信しました。受信トレイまたは迷惑メールをご確認ください。",
+  "@passwordResetEmailSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "registerSuccess": "{email}で登録が完了しました。",
+  "@registerSuccess": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "organizerFocusEventSubtitle": "{title}でフィルタリング中。",
+  "@organizerFocusEventSubtitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionEventLabel": "イベント：{title}",
+  "@submissionEventLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "judgeQueueForEventTitle": "採点：{title}",
+  "@judgeQueueForEventTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "openEventSemanticLabel": "イベント{title}を開く",
+  "@openEventSemanticLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "registerBeforeDate": "{date}までに登録",
+  "@registerBeforeDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "registrationClosedByDate": "{date}に登録締切",
+  "@registrationClosedByDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "registrationOpenUntilDate": "{date}まで登録受付中",
+  "@registrationOpenUntilDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "maxMembersChip": "最大{count}人",
+  "@maxMembersChip": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "leaderPrefix": "リーダー：{name}",
+  "@leaderPrefix": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "memberCountLabel": "{count}人",
+  "@memberCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teamSemanticLabel": "チーム {name}、{memberCount}人、リーダー：{leader}",
+  "@teamSemanticLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "memberCount": {
+        "type": "String"
+      },
+      "leader": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteTeamPrefix": "チーム：{name}",
+  "@inviteTeamPrefix": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveTeamDialogBody": "{teamName}を脱退します。登録締切後は再参加できません。",
+  "@leaveTeamDialogBody": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "teamInvitationBody": "{teamName}に招待されています。チームタブで確認し、空きがあれば参加してください。",
+  "@teamInvitationBody": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "invitedByLabel": "招待者：{name}",
+  "@invitedByLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "teamCreatedNotificationBody": "{teamName}が{eventTitle}に参加しました。",
+  "@teamCreatedNotificationBody": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      },
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "alreadyOnEventTeamNamedError": "このイベントでは既にチーム{teamName}に参加しています。",
+  "@alreadyOnEventTeamNamedError": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "teamFullForEventError": "{teamName}はこのイベントで満員です。",
+  "@teamFullForEventError": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionSavedNotificationBody": "{projectName}が正常に提出されました。",
+  "@submissionSavedNotificationBody": {
+    "placeholders": {
+      "projectName": {
+        "type": "String"
+      }
+    }
+  },
+  "chatEventScopedSubtitle": "イベント{eventTitle}の会話",
+  "@chatEventScopedSubtitle": {
+    "placeholders": {
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "mentorRequestNotificationTitle": "メンター依頼：{participantName}",
+  "@mentorRequestNotificationTitle": {
+    "placeholders": {
+      "participantName": {
+        "type": "String"
+      }
+    }
+  },
+  "todayTimestamp": "今日、{time}",
+  "@todayTimestamp": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreOutOfTenLabel": "{score}/10",
+  "@scoreOutOfTenLabel": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreWeightLabel": "重み x{weight}",
+  "@scoreWeightLabel": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "updateScoreDialogBody": "{projectName}の以前のスコアが置き換えられます。",
+  "@updateScoreDialogBody": {
+    "placeholders": {
+      "projectName": {
+        "type": "String"
+      }
+    }
+  },
+  "closeRegistrationBody": "{title}の登録締切が現在時刻に設定されます。",
+  "@closeRegistrationBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "announcementSentSuccess": "{count}人のユーザーにお知らせを送信しました。",
+  "@announcementSentSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "announcementRolePreview": "送信先：{role}",
+  "@announcementRolePreview": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "recipientCountValue": "{count}アカウント",
+  "@recipientCountValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "changeRoleDialogBody": "{name}を{role}に割り当てます。",
+  "@changeRoleDialogBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "roleUpdatedSuccess": "{name}のロールを更新しました。",
+  "@roleUpdatedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cannotChangeOwnRoleSubtitle": "{email}\n自分のロールは変更できません。",
+  "@cannotChangeOwnRoleSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "sendPasswordResetTo": "{email}にパスワードリセットリンクを送信",
+  "@sendPasswordResetTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "mapPickerCoordinates": "座標：{latitude}、{longitude}",
+  "@mapPickerCoordinates": {
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "coordinatesPreview": "{latitude}、{longitude}",
+  "@coordinatesPreview": {
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "staffAccountCreatedSuccess": "{name}のアカウントを作成しました。",
+  "@staffAccountCreatedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mentorAssignmentSavedSuccess": "イベントに{count}人のメンターを割り当てました。",
+  "@mentorAssignmentSavedSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "organizerTaskUnscoredTitle": "採点リマインダー — {eventTitle}",
+  "@organizerTaskUnscoredTitle": {
+    "placeholders": {
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "organizerTaskUnscoredBody": "{count}件の提出がまだ未採点です。本日中に採点を完了してください。",
+  "@organizerTaskUnscoredBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "organizerTaskTeamsTitle": "チームリマインダー — {eventTitle}",
+  "@organizerTaskTeamsTitle": {
+    "placeholders": {
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "organizerTaskTeamsBody": "{count}チームがまだメンバー不足です。締切前に参加者を招待してください。",
+  "@organizerTaskTeamsBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "organizerTaskClosingTitle": "登録締切 — {eventTitle}",
+  "@organizerTaskClosingTitle": {
+    "placeholders": {
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "organizerTaskClosingBody": "{count}イベントが3日以内に登録締切です。早めに登録を完了してください。",
+  "@organizerTaskClosingBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "organizerNotificationSuggestions": "{count}件のおすすめお知らせ",
+  "@organizerNotificationSuggestions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "journeyScoreSummary": "平均スコア：{score}",
+  "@journeyScoreSummary": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionDraftSavedAt": "下書き保存：{time}",
+  "@submissionDraftSavedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "validationSearchMaxLength": "検索キーワードは最大{max}文字です。",
+  "@validationSearchMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationInvalidUser": "{label}が無効です。",
+  "@validationInvalidUser": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "validationFieldRequired": "{label}を入力してください。",
+  "@validationFieldRequired": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "validationInvalidUrl": "{label}は有効なhttp/https URLである必要があります。",
+  "@validationInvalidUrl": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "validationTeamNameMaxLength": "チーム名は最大{max}文字です。",
+  "@validationTeamNameMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationProjectNameMaxLength": "プロジェクト名は最大{max}文字です。",
+  "@validationProjectNameMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationDescriptionMaxLength": "説明は最大{max}文字です。",
+  "@validationDescriptionMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationChatMessageMaxLength": "メッセージは最大{max}文字です。",
+  "@validationChatMessageMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationNotificationTitleMaxLength": "タイトルは最大{max}文字です。",
+  "@validationNotificationTitleMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationNotificationBodyMaxLength": "本文は最大{max}文字です。",
+  "@validationNotificationBodyMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationFeedbackMaxLength": "フィードバックは最大{max}文字です。",
+  "@validationFeedbackMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationMaxTeamSizeRange": "最大チーム人数は{min}から{max}の間である必要があります。",
+  "@validationMaxTeamSizeRange": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationDateTimeFormat": "{label}は{format}形式を使用してください（例：2026-06-15 09:00）。",
+  "@validationDateTimeFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionQueueCountLabel": "このキューに{count}件の提出",
+  "@submissionQueueCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scoreCountLabel": "{count}件のスコア",
+  "@scoreCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scoringProgressSemantic": "採点進捗：{scored}件採点済み、{unscored}件未採点",
+  "@scoringProgressSemantic": {
+    "placeholders": {
+      "scored": {
+        "type": "int"
+      },
+      "unscored": {
+        "type": "int"
+      }
+    }
+  },
+  "memberCountWithLimit": "{current}/{limit}人",
+  "@memberCountWithLimit": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "apiErrorCountLabel": "{count}件のエラー",
+  "@apiErrorCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "judgeQueueWaitingLabel": "{count}件の未採点提出",
+  "@judgeQueueWaitingLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scoreSliderSemantic": "{label} {value}点。{description}",
+  "@scoreSliderSemantic": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      }
+    }
+  },
+  "messageTimestampSemantic": "{senderLabel}、{time}",
+  "@messageTimestampSemantic": {
+    "placeholders": {
+      "senderLabel": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  }
+}

@@ -17,10 +17,10 @@ class LoginButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final label = awaitingVerification
-        ? AppStrings.confirmOtpButton
+        ? L10nService.strings.confirmOtpButton
         : registerMode
-        ? AppStrings.registerButton
-        : AppStrings.loginButton;
+        ? L10nService.strings.registerButton
+        : L10nService.strings.loginButton;
     return FilledButton.icon(
       key: const Key('auth_submit_button'),
       onPressed: onPressed,

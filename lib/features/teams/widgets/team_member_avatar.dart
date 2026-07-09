@@ -46,7 +46,7 @@ class MemberAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     return CircleAvatar(
       radius: 19,
-      backgroundColor: SealPalette.primaryContainer,
+      backgroundColor: context.sealPrimaryContainer,
       foregroundColor: Colors.white,
       child: Text(label, style: const TextStyle(fontWeight: FontWeight.w900)),
     );

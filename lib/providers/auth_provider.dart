@@ -1,3 +1,4 @@
+import '../core/l10n/l10n_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -37,7 +38,7 @@ class AuthProvider extends ChangeNotifier {
       user = await _service.currentUserProfile();
       pendingVerificationEmail = null;
       error = null;
-      infoMessage = AppStrings.emailConfirmedWelcomeBack;
+      infoMessage = L10nService.strings.emailConfirmedWelcomeBack;
     } catch (_) {
       user = null;
     }
@@ -122,11 +123,11 @@ class AuthProvider extends ChangeNotifier {
       if (result.requiresEmailVerification) {
         pendingVerificationEmail = cleanEmail;
         user = null;
-        infoMessage = AppStrings.activationEmailSent(cleanEmail);
+        infoMessage = L10nService.strings.activationEmailSent(cleanEmail);
       } else {
         pendingVerificationEmail = null;
         user = result.user;
-        infoMessage = AppStrings.registerSuccess(cleanEmail);
+        infoMessage = L10nService.strings.registerSuccess(cleanEmail);
       }
     } on AuthException catch (exception) {
       error = FriendlyErrorMapper.message(exception);
@@ -140,7 +141,7 @@ class AuthProvider extends ChangeNotifier {
   Future<void> verifySignupOtp(String otp) async {
     final email = pendingVerificationEmail;
     if (email == null) {
-      error = AppStrings.noPendingVerificationEmail;
+      error = L10nService.strings.noPendingVerificationEmail;
       notifyListeners();
       return;
     }
@@ -159,7 +160,7 @@ class AuthProvider extends ChangeNotifier {
       }
       user = await _service.verifySignupOtp(email: email, otp: otp);
       pendingVerificationEmail = null;
-      infoMessage = AppStrings.emailActivatedWelcome(email);
+      infoMessage = L10nService.strings.emailActivatedWelcome(email);
     } on AuthException catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     } catch (exception) {
@@ -180,7 +181,7 @@ class AuthProvider extends ChangeNotifier {
     error = null;
     infoMessage = null;
     if (user == null) {
-      error = AppStrings.notLoggedInMessage;
+      error = L10nService.strings.notLoggedInMessage;
       notifyListeners();
       return false;
     }
@@ -219,7 +220,7 @@ class AuthProvider extends ChangeNotifier {
       }
       final cleanEmail = email.trim();
       await _service.requestPasswordReset(cleanEmail);
-      infoMessage = AppStrings.passwordResetEmailSent(cleanEmail);
+      infoMessage = L10nService.strings.passwordResetEmailSent(cleanEmail);
       isLoading = false;
       notifyListeners();
       return true;

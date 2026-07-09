@@ -24,7 +24,7 @@ class JudgeSubmissionSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       margin: EdgeInsets.zero,
-      color: SealPalette.primary.withValues(alpha: 0.08),
+      color: context.sealPrimary.withValues(alpha: 0.08),
       child: Padding(
         padding: const EdgeInsets.all(AppSizes.paddingMedium),
         child: Column(
@@ -32,14 +32,14 @@ class JudgeSubmissionSelector extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.assignment_turned_in_outlined,
-                  color: SealPalette.primary,
+                  color: context.sealPrimary,
                 ),
                 const SizedBox(width: 8),
-                const Expanded(
+                Expanded(
                   child: Text(
-                    AppStrings.selectSubmissionTitle,
+                    L10nService.strings.selectSubmissionTitle,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
                   ),
                 ),
@@ -51,15 +51,15 @@ class JudgeSubmissionSelector extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              AppStrings.submissionQueueCountLabel(submissions.length),
+              L10nService.strings.submissionQueueCountLabel(submissions.length),
               style: TextStyle(color: context.sealTheme.onSurfaceVariant),
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
               isExpanded: true,
               initialValue: value ?? submissions.first.id,
-              decoration: const InputDecoration(
-                labelText: AppStrings.judgeSubmissionToScoreLabel,
+              decoration: InputDecoration(
+                labelText: L10nService.strings.judgeSubmissionToScoreLabel,
                 prefixIcon: Icon(Icons.assignment_turned_in_outlined),
               ),
               items: [
@@ -125,6 +125,6 @@ class JudgeSubmissionSelector extends StatelessWidget {
     for (final team in teams) {
       if (team.id == teamId) return team.name;
     }
-    return AppStrings.unknownTeamLabel;
+    return L10nService.strings.unknownTeamLabel;
   }
 }

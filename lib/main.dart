@@ -7,7 +7,7 @@ import 'services/push_notification_service.dart';
 
 export 'app.dart';
 export 'shared.dart';
-export 'features/shell/app_shell.dart';
+export 'features/shell/screens/app_shell.dart';
 export 'features/auth/screens/login_screen.dart';
 export 'features/chat/screens/chat_screen.dart';
 export 'features/events/screens/event_detail_screen.dart';

@@ -10,7 +10,6 @@ class TeamActions extends StatelessWidget {
     required this.alreadyOnEventTeam,
     required this.user,
     required this.onSubmit,
-    required this.onJoin,
     required this.onLeave,
     required this.onEdit,
     required this.onInvite,
@@ -23,7 +22,6 @@ class TeamActions extends StatelessWidget {
   final bool alreadyOnEventTeam;
   final AppUser? user;
   final VoidCallback onSubmit;
-  final VoidCallback? onJoin;
   final VoidCallback? onLeave;
   final VoidCallback onEdit;
   final VoidCallback onInvite;
@@ -38,18 +36,18 @@ class TeamActions extends StatelessWidget {
         children: [
           FilledButton.icon(
             onPressed: teamIsFull || registrationClosed ? null : onInvite,
-            icon: const Icon(Icons.person_add_alt_outlined),
-            label: const Text(AppStrings.inviteButton),
+            icon: Icon(Icons.person_add_alt_outlined),
+            label: Text(context.l10n.inviteButton),
           ),
           OutlinedButton.icon(
             onPressed: onEdit,
-            icon: const Icon(Icons.edit_outlined),
-            label: const Text(AppStrings.editButton),
+            icon: Icon(Icons.edit_outlined),
+            label: Text(context.l10n.editButton),
           ),
           TextButton.icon(
             onPressed: onSubmit,
-            icon: const Icon(Icons.upload_file_outlined),
-            label: const Text(AppStrings.submitNavLabel),
+            icon: Icon(Icons.upload_file_outlined),
+            label: Text(context.l10n.submitNavLabel),
           ),
         ],
       );
@@ -61,42 +59,52 @@ class TeamActions extends StatelessWidget {
         children: [
           FilledButton.icon(
             onPressed: onSubmit,
-            icon: const Icon(Icons.upload_file_outlined),
-            label: const Text(AppStrings.submitProjectButton),
+            icon: Icon(Icons.upload_file_outlined),
+            label: Text(context.l10n.submitProjectButton),
           ),
           OutlinedButton.icon(
             onPressed: onLeave,
-            icon: const Icon(Icons.exit_to_app_outlined),
-            label: const Text(AppStrings.leaveTeamButton),
+            icon: Icon(Icons.exit_to_app_outlined),
+            label: Text(context.l10n.leaveTeamButton),
           ),
         ],
       );
     }
     if (teamIsFull) {
-      return const StatusPill(
-        label: AppStrings.teamFullBadge,
-        color: SealPalette.tertiary,
+      return StatusPill(
+        label: L10nService.strings.teamFullBadge,
+        color: context.sealTertiary,
         icon: Icons.lock_outline,
       );
     }
     if (registrationClosed) {
-      return const StatusPill(
-        label: AppStrings.registrationClosedPill,
-        color: SealPalette.onSurfaceVariant,
+      return StatusPill(
+        label: L10nService.strings.registrationClosedPill,
+        color: context.sealTheme.onSurfaceVariant,
         icon: Icons.lock_clock_outlined,
       );
     }
     if (alreadyOnEventTeam) {
-      return const StatusPill(
-        label: AppStrings.oneTeamPerEventBadge,
-        color: SealPalette.tertiary,
+      return StatusPill(
+        label: L10nService.strings.oneTeamPerEventBadge,
+        color: context.sealTertiary,
         icon: Icons.info_outline,
       );
     }
-    return FilledButton.icon(
-      onPressed: onJoin,
-      icon: const Icon(Icons.group_add_outlined),
-      label: const Text(AppStrings.joinTeamButton),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        StatusPill(
+          label: L10nService.strings.teamInviteOnlyBadge,
+          color: context.sealTertiary,
+          icon: Icons.mail_outline,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          L10nService.strings.teamInviteOnlyHelper,
+          style: TextStyle(color: context.sealTheme.onSurfaceVariant),
+        ),
+      ],
     );
   }
 }

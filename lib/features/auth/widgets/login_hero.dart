@@ -15,24 +15,24 @@ class LoginHero extends StatelessWidget {
             color: seal.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: SealPalette.primary.withValues(alpha: 0.30),
+              color: context.sealPrimary.withValues(alpha: 0.30),
             ),
           ),
-          child: const Icon(
+          child: Icon(
             Icons.workspace_premium_outlined,
-            color: SealPalette.primary,
+            color: context.sealPrimary,
             size: 38,
           ),
         ),
         const SizedBox(height: AppSizes.paddingMedium),
-        const Text(
-          AppStrings.appName,
+        Text(
+          L10nService.strings.appName,
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: AppSizes.paddingSmall),
         Text(
-          AppStrings.loginHeroSubtitle,
+          L10nService.strings.loginHeroSubtitle,
           textAlign: TextAlign.center,
           style: TextStyle(color: seal.onSurfaceVariant, height: 1.35),
         ),

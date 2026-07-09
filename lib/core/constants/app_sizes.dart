@@ -12,7 +12,7 @@ class AppSizes {
   static const double buttonHeight = 48;
   static const double buttonHeightCompact = 44;
 
-  static const double appBarHeight = 64;
+  static const double appBarHeight = 56;
   static const double iconSmall = 18;
   static const double sectionGap = 14;
 }

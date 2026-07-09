@@ -64,7 +64,7 @@ class _NotificationBellButtonState extends State<NotificationBellButton>
         final iconColor = widget.highlight
             ? Color.lerp(
                 baseIconColor,
-                SealPalette.secondary,
+                context.sealSecondary,
                 0.35 + pulse * 0.65,
               )!
             : baseIconColor;
@@ -75,7 +75,7 @@ class _NotificationBellButtonState extends State<NotificationBellButton>
             isLabelVisible: widget.unreadCount > 0,
             label: Text('${widget.unreadCount}'),
             child: IconButton(
-              tooltip: AppStrings.notificationsNavLabel,
+              tooltip: context.l10n.notificationsNavLabel,
               onPressed: widget.onPressed,
               icon: Icon(Icons.notifications_outlined, color: iconColor),
             ),

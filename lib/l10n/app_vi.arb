@@ -1,0 +1,1276 @@
+{
+  "@@locale": "vi",
+  "sessionBootstrapMessage": "Đang khôi phục phiên đăng nhập...",
+  "statusRegistrationClosing": "Đăng ký sắp đóng",
+  "statusJudging": "Đang chấm",
+  "allEventsFilter": "Tất cả sự kiện",
+  "myTeamReadyBadge": "Đã có đội",
+  "myTeamPendingBadge": "Chưa có đội",
+  "weightedScoreHint": "Điểm hiển thị là trung bình có trọng số theo rubric và sẽ được lưu vào hệ thống.",
+  "scorePublishedWithHintSnackBar": "Đã công bố điểm. Thí sinh sẽ nhận thông báo qua hộp thư.",
+  "demoResetTitle": "Reset dữ liệu demo",
+  "demoResetDescription": "Xóa toàn bộ users, events, teams, submissions và scores trên môi trường hiện tại. Chỉ dùng cho demo local.",
+  "demoResetConfirmLabel": "Nhập RESET để xác nhận",
+  "demoResetSuccess": "Đã reset dữ liệu demo.",
+  "eventSupportHotline": "Liên hệ BTC qua Chat hoặc thông báo",
+  "demoOnboardingTitle": "Hướng dẫn demo nhanh",
+  "demoOnboardingStartButton": "Bắt đầu demo",
+  "demoOnboardingParticipantTitle": "Thí sinh",
+  "demoOnboardingParticipantBody": "Sự kiện → Đội → Nộp bài. Dùng tài khoản demo nếu môi trường đã seed dữ liệu.",
+  "demoOnboardingJudgeTitle": "Giám khảo",
+  "demoOnboardingJudgeBody": "Tab Chấm điểm → chọn bài → nhập tiêu chí và nhận xét → Gửi điểm.",
+  "demoOnboardingAlertsTitle": "Thông báo",
+  "demoOnboardingAlertsBody": "Biểu tượng chuông góc phải. Bấm thông báo điểm để xem chi tiết.",
+  "appName": "SEAL Hackathon",
+  "cancelButton": "Hủy",
+  "saveButton": "Lưu",
+  "deleteButton": "Xóa",
+  "sendButton": "Gửi",
+  "doneButton": "Xong",
+  "resetButton": "Reset",
+  "updateButton": "Cập nhật",
+  "retryButton": "Thử lại",
+  "stayButton": "Ở lại",
+  "confirmButton": "Xác nhận",
+  "confirmDelete": "Bạn có chắc chắn muốn xóa?",
+  "detailsButton": "Chi tiết",
+  "editButton": "Sửa",
+  "inviteButton": "Mời",
+  "allFilter": "Tất cả",
+  "sortLabel": "Sắp xếp",
+  "unknownLabel": "Chưa rõ",
+  "leaderBadge": "Trưởng đội",
+  "meLabel": "Tôi",
+  "statusActive": "Đang mở",
+  "statusUpcoming": "Sắp diễn ra",
+  "statusClosed": "Đã đóng",
+  "filterRegistrationOpen": "Còn đăng ký",
+  "networkOfflineMessage": "Không có kết nối mạng. Kiểm tra mạng rồi thử lại.",
+  "networkError": "Không thể kết nối máy chủ",
+  "unknownError": "Đã có lỗi xảy ra",
+  "accessDeniedTitle": "Không có quyền truy cập",
+  "accessDeniedSubtitle": "Tính năng này không khả dụng với vai trò hiện tại.",
+  "accessDeniedDefaultMessage": "Vui lòng đăng nhập bằng tài khoản phù hợp.",
+  "backToEventsButton": "Về sự kiện",
+  "loginRequiredTitle": "Vui lòng đăng nhập",
+  "loginRequiredSubtitle": "Đăng nhập để tiếp tục sử dụng SEAL Hackathon.",
+  "goToLoginButton": "Đến màn hình đăng nhập",
+  "supabaseRequiredTitle": "Không thể kết nối hệ thống",
+  "supabaseRequiredBody": "Ứng dụng chưa sẵn sàng để tải dữ liệu. Vui lòng thử lại sau hoặc liên hệ ban tổ chức.",
+  "notLoggedInMessage": "Bạn chưa đăng nhập.",
+  "logoutFailedMessage": "Không thể đăng xuất. Thử lại.",
+  "saveSuccess": "Lưu dữ liệu thành công",
+  "updateSuccess": "Cập nhật thành công",
+  "deleteSuccess": "Xóa dữ liệu thành công",
+  "roleParticipant": "Thí sinh",
+  "roleJudge": "Giám khảo",
+  "roleMentor": "Cố vấn",
+  "roleOrganizer": "Ban tổ chức",
+  "eventsNavLabel": "Sự kiện",
+  "myHomeNavLabel": "Của tôi",
+  "teamNavLabel": "Đội",
+  "submitNavLabel": "Nộp bài",
+  "judgeNavLabel": "Chấm điểm",
+  "dashboardNavLabel": "Tổng quan",
+  "chatNavLabel": "Chat",
+  "mapNavLabel": "Bản đồ",
+  "eventSubNavOverview": "Tổng quan",
+  "eventScopedSubtitle": "Sự kiện đang làm việc",
+  "backToEventsAction": "Về trang Của tôi",
+  "backToEventListAction": "Về danh sách sự kiện",
+  "profileNavLabel": "Hồ sơ",
+  "notificationsNavLabel": "Thông báo",
+  "accountMenuTooltip": "Tài khoản",
+  "logoutButton": "Đăng xuất",
+  "helpTooltip": "Hỗ trợ",
+  "helpDialogTitle": "Cần hỗ trợ?",
+  "helpDialogBody": "Liên hệ ban tổ chức tại quầy hỗ trợ hoặc gửi tin nhắn trong mục Chat.",
+  "loginTitle": "Đăng nhập",
+  "registerTitle": "Tạo tài khoản",
+  "verifyEmailTitle": "Kích hoạt email",
+  "loginHeroSubtitle": "Quản lý sự kiện, đội, bài nộp, chấm điểm, tin nhắn và địa điểm trong một ứng dụng di động.",
+  "emailLabel": "Email",
+  "passwordLabel": "Mật khẩu",
+  "confirmPasswordLabel": "Nhập lại mật khẩu",
+  "fullNameLabel": "Họ tên",
+  "universityLabel": "Trường",
+  "otpLabel": "Mã OTP (6 số)",
+  "registerRoleHint": "Tài khoản mới được tạo với vai trò Thí sinh. Sau đăng ký cần kích hoạt email bằng OTP hoặc link.",
+  "roleManagedHint": "Vai trò được quản lý theo hồ sơ tài khoản.",
+  "forgotPasswordButton": "Quên mật khẩu?",
+  "hidePasswordTooltip": "Ẩn mật khẩu",
+  "showPasswordTooltip": "Hiện mật khẩu",
+  "loginButton": "Đăng nhập",
+  "registerButton": "Đăng ký",
+  "confirmOtpButton": "Xác nhận OTP",
+  "backToLoginButton": "Quay lại đăng nhập",
+  "haveAccountButton": "Tôi đã có tài khoản",
+  "createAccountButton": "Tạo tài khoản mới",
+  "loginSuccess": "Đăng nhập thành công",
+  "loginFailed": "Sai tên đăng nhập hoặc mật khẩu",
+  "emailConfirmedWelcomeBack": "Email đã được xác nhận. Chào mừng bạn quay lại!",
+  "noPendingVerificationEmail": "Không có email đang chờ xác nhận.",
+  "registerSuccessPrefix": "Đăng ký thành công với",
+  "eventsTitle": "Sự kiện",
+  "participantHomeTitle": "Sự kiện của bạn",
+  "participantHomeSubtitle": "Chạm một sự kiện bên dưới để bắt đầu — hoặc tiếp tục từ thẻ tiến độ.",
+  "participantPickEventTitle": "Chọn sự kiện để bắt đầu",
+  "participantPickEventBody": "Bạn chưa tham gia đội nào. Chạm một sự kiện trong danh sách để xem chi tiết và đăng ký.",
+  "judgeEventListHint": "Chạm sự kiện đang mở để vào hàng đợi chấm điểm.",
+  "mentorEventListHint": "Chạm sự kiện được gán để mở chat với thí sinh.",
+  "allEventsSectionTitle": "Tất cả sự kiện",
+  "journeyStepNeedsTeam": "Chưa có đội",
+  "journeyStepNeedsSubmission": "Chưa nộp bài",
+  "journeyStepAwaitingScore": "Đang chờ chấm",
+  "journeyStepHasScore": "Đã có điểm",
+  "journeyStepRegistrationClosed": "Đã đóng đăng ký",
+  "journeyStepMissedSubmission": "Hết hạn nộp bài",
+  "journeyNextStepTitle": "Bước tiếp theo",
+  "journeyActionJoinTeam": "Tạo hoặc tham gia đội",
+  "journeyActionBrowseEvents": "Xem sự kiện khác",
+  "journeyActionContactOrganizer": "Liên hệ BTC",
+  "journeyActionSubmit": "Nộp bài ngay",
+  "journeyActionViewSubmission": "Xem bài nộp",
+  "journeyActionViewScore": "Xem điểm",
+  "journeyActionOpenMap": "Xem địa điểm",
+  "journeyHelperRegistrationClosed": "Đăng ký đội đã đóng. Xem sự kiện khác hoặc liên hệ ban tổ chức.",
+  "journeyHelperMissedSubmission": "Đã hết hạn nộp bài. Liên hệ ban tổ chức nếu bạn cần hỗ trợ.",
+  "submissionReadOnlyScoreTitle": "Kết quả chấm điểm",
+  "notificationActionGoTeams": "Đến Đội",
+  "notificationActionSubmit": "Nộp bài",
+  "notificationActionViewScore": "Xem điểm",
+  "notificationActionViewEvent": "Xem sự kiện",
+  "notificationActionOpenJudge": "Mở chấm điểm",
+  "submissionDraftAutoSaving": "Đang lưu nháp tự động",
+  "clearDraftButton": "Xóa nháp",
+  "draftClearedMessage": "Đã xóa bản nháp.",
+  "submitWizardStepTeam": "Chọn đội",
+  "submitWizardStepProject": "Thông tin dự án",
+  "submitWizardStepLinks": "Liên kết & gửi",
+  "submitWizardNext": "Tiếp theo",
+  "submitWizardBack": "Quay lại",
+  "submitWizardReviewTitle": "Xem lại trước khi gửi",
+  "organizerTodayModeTitle": "Hôm nay",
+  "organizerShowDetailsButton": "Xem chi tiết",
+  "organizerHideDetailsButton": "Thu gọn",
+  "roleOnboardingSkip": "Bỏ qua",
+  "roleOnboardingStart": "Bắt đầu",
+  "roleOnboardingParticipantTitle": "Chào thí sinh",
+  "roleOnboardingParticipantBody": "Chạm một sự kiện để bắt đầu → tạo hoặc nhận lời mời đội → nộp bài trước hạn.",
+  "roleOnboardingJudgeTitle": "Chào giám khảo",
+  "roleOnboardingJudgeBody": "Chọn sự kiện đang mở → vào tab Chấm điểm → chọn bài chưa chấm.",
+  "roleOnboardingOrganizerTitle": "Chào ban tổ chức",
+  "roleOnboardingOrganizerBody": "Theo dõi bài chưa chấm, gán mentor và gửi thông báo từ màn Hôm nay.",
+  "roleOnboardingMentorTitle": "Chào cố vấn",
+  "roleOnboardingMentorBody": "Chọn sự kiện được gán → mở Chat để trả lời thí sinh.",
+  "chatMentorRequestTemplate": "Xin chào BTC, tôi cần được gán mentor cho sự kiện đang tham gia.",
+  "eventsSubtitle": "Theo dõi hackathon, deadline và thông tin chi tiết.",
+  "eventSearchHint": "Tìm theo tên, địa điểm hoặc chủ đề",
+  "sortStartAsc": "Ngày bắt đầu: sớm nhất",
+  "sortStartDesc": "Ngày bắt đầu: muộn nhất",
+  "sortTitleAsc": "Tên A → Z",
+  "sortTitleDesc": "Tên Z → A",
+  "sortDeadlineAsc": "Hạn nộp: gần nhất",
+  "sortDeadlineDesc": "Hạn nộp: xa nhất",
+  "noMatchingEvents": "Không có sự kiện phù hợp.",
+  "noEventsYet": "Chưa có sự kiện.",
+  "eventQuickActionsTitle": "Hành động nhanh",
+  "clearSearchAction": "Xóa tìm kiếm",
+  "reloadEventsAction": "Tải lại sự kiện",
+  "registerTeamPill": "Đăng ký đội",
+  "registrationClosedPill": "Đăng ký đã đóng",
+  "eventDetailTitle": "Chi tiết sự kiện",
+  "eventDetailSubtitle": "Timeline, luật thi, địa điểm và bảng xếp hạng.",
+  "eventDetailLoadingSubtitle": "Đang nạp dữ liệu sự kiện.",
+  "eventNotFound": "Không tìm thấy sự kiện.",
+  "rulesTitle": "Luật thi",
+  "prizeTitle": "Giải thưởng",
+  "leaderboardTitle": "Xếp hạng",
+  "noScoredSubmissionsYet": "Chưa có bài nào được chấm.",
+  "noSubmissionsForEventYet": "Chưa có bài nộp cho sự kiện này.",
+  "eventDetailStatsTitle": "Số liệu sự kiện",
+  "eventTeamsMetric": "Đội",
+  "eventSubmissionsMetric": "Bài nộp",
+  "eventUnscoredMetric": "Chưa chấm",
+  "organizerShowAllEventsButton": "Xem tất cả sự kiện",
+  "timelineTitle": "Timeline",
+  "timelineRegistration": "Đăng ký",
+  "timelineKickoff": "Khai mạc",
+  "timelineFinal": "Chung kết",
+  "openJudgeQueueButton": "Xem bài chưa chấm",
+  "openOrganizerDashboardButton": "Mở tổng quan ban tổ chức",
+  "openMentorChatButton": "Mở chat mentor",
+  "manageTeamButton": "Tạo hoặc quản lý đội",
+  "viewMyTeamButton": "Xem đội của tôi",
+  "joinOrCreateTeamButton": "Tạo hoặc tham gia đội",
+  "submitForEventButton": "Nộp bài cho sự kiện này",
+  "myTeamForEventTitle": "Đội của bạn",
+  "leaderboardPendingTitle": "Bài chưa chấm",
+  "awaitingScoreBadge": "Đang chờ chấm",
+  "judgeQueueFilteredSubtitle": "Danh sách bài nộp chưa được chấm cho sự kiện đang chọn.",
+  "viewVenueButton": "Xem địa điểm",
+  "eventCreatedSuccess": "Đã tạo sự kiện.",
+  "eventUpdatedSuccess": "Đã cập nhật sự kiện.",
+  "teamTitle": "Đội",
+  "teamSubtitle": "Tạo đội, mời thành viên và quản lý tham gia.",
+  "teamOverviewTitle": "Tổng quan đội",
+  "noTeamsYet": "Chưa có đội",
+  "teamsAvailable": "Đội đang có",
+  "checkInLabel": "Điểm danh",
+  "checkInPending": "Chờ",
+  "checkInConfirmed": "Đã xác nhận",
+  "submitProjectButton": "Nộp bài",
+  "createTeamButton": "Tạo đội",
+  "createTeamTitle": "Tạo đội",
+  "eventLabel": "Sự kiện",
+  "teamNameLabel": "Tên đội",
+  "loadEventsBeforeCreateTeam": "Chưa có sự kiện. Tải sự kiện trước khi tạo đội.",
+  "roleViewOnlyTeams": "Vai trò này chỉ xem đội, không tạo đội thí sinh.",
+  "emptyTeamsMessage": "Chưa có đội. Tạo đội để tiếp tục.",
+  "myTeamsGroup": "Đội của tôi",
+  "otherTeamsGroup": "Đội khác",
+  "teamFullBadge": "Đội đã đầy",
+  "updateTeamDialogTitle": "Cập nhật đội",
+  "leaveTeamDialogTitle": "Rời đội?",
+  "leaveTeamButton": "Rời đội",
+  "joinTeamButton": "Tham gia đội",
+  "inviteMemberTitle": "Mời thành viên",
+  "memberEmailLabel": "Email thành viên",
+  "sendInvitationButton": "Gửi lời mời",
+  "invitationSendingStatus": "Đang gửi lời mời...",
+  "teamInvitationTitle": "Lời mời vào đội",
+  "teamCreatedNotificationTitle": "Đã tạo đội",
+  "teamCreatedSuccess": "Đã tạo đội.",
+  "teamJoinedSuccess": "Đã tham gia đội.",
+  "invitationSentSuccess": "Đã gửi lời mời.",
+  "invitationAcceptedSuccess": "Đã tham gia đội.",
+  "invitationDeclinedSuccess": "Đã từ chối lời mời.",
+  "pendingInvitationsTitle": "Lời mời đang chờ",
+  "pendingInvitationsEmpty": "Chưa có lời mời vào đội.",
+  "acceptInvitationButton": "Chấp nhận",
+  "declineInvitationButton": "Từ chối",
+  "invitationStatusPending": "Đang chờ",
+  "invitationStatusAccepted": "Đã chấp nhận",
+  "invitationStatusDeclined": "Đã từ chối",
+  "teamUpdatedSuccess": "Đã cập nhật đội.",
+  "teamLeftSuccess": "Đã rời đội.",
+  "invalidTeamError": "Đội không hợp lệ.",
+  "inviteUserNotFound": "Không tìm thấy tài khoản với email này.",
+  "invitationAlreadyPending": "Người này đã có lời mời đang chờ cho đội.",
+  "alreadyTeamMemberError": "Bạn đã là thành viên của đội này.",
+  "alreadyOnEventTeamError": "Bạn đã thuộc một đội khác của sự kiện này. Rời đội hiện tại trước khi tham gia đội mới.",
+  "oneTeamPerEventBadge": "Đã có đội cho sự kiện",
+  "cannotChangeOwnRole": "Không thể đổi vai trò của chính bạn.",
+  "leaveTeamRegistrationClosedError": "Không thể rời đội sau khi đăng ký đã đóng.",
+  "invitationNoLongerPending": "Lời mời này không còn hiệu lực.",
+  "errorEventContextRequired": "Không xác định được sự kiện. Vui lòng thử lại từ màn sự kiện.",
+  "errorEventEnded": "Sự kiện đã kết thúc. Không thể tạo hoặc tham gia đội.",
+  "errorRegistrationDeadlinePassed": "Đã quá hạn đăng ký đội cho sự kiện này.",
+  "errorSubmissionClosed": "Sự kiện đã kết thúc. Không thể nộp hoặc cập nhật bài.",
+  "errorSubmissionNotStarted": "Sự kiện chưa bắt đầu. Chưa thể nộp bài.",
+  "errorJudgingNotStarted": "Sự kiện chưa bắt đầu. Chưa thể chấm điểm.",
+  "errorJudgingClosed": "Sự kiện đã kết thúc. Không thể chấm điểm.",
+  "teamInviteOnlyError": "Chỉ có thể tham gia đội qua lời mời từ trưởng đội.",
+  "teamInviteOnlyBadge": "Chỉ qua lời mời",
+  "teamInviteOnlyHelper": "Liên hệ trưởng đội để nhận lời mời tham gia.",
+  "submissionsRoleGateMessage": "Chỉ thí sinh mới có thể nộp bài.",
+  "submitScreenTitle": "Nộp bài",
+  "submitScreenSubtitle": "Gửi link GitHub, video demo và mô tả dự án cho giám khảo.",
+  "projectInfoSection": "Thông tin dự án",
+  "linksSection": "Liên kết",
+  "descriptionSection": "Mô tả",
+  "projectNameLabel": "Tên dự án",
+  "githubUrlLabel": "Link GitHub",
+  "demoVideoUrlLabel": "Link video demo",
+  "projectDescriptionHint": "Dự án giải quyết vấn đề gì?",
+  "submissionDescriptionTip": "Gợi ý: nêu vấn đề, giải pháp, tính năng chính, tech stack và tác động đo được.",
+  "joinTeamBeforeSubmit": "Tạo hoặc tham gia đội trước khi nộp bài.",
+  "updateSubmissionButton": "Cập nhật bài nộp",
+  "submitProjectAction": "Nộp bài",
+  "needsSubmissionStatus": "Cần nộp bài",
+  "noProjectSubmittedHelper": "Chưa có bài nộp.",
+  "reviewedStatus": "Đã chấm",
+  "reviewedHelper": "Giám khảo đã công bố feedback.",
+  "submittedStatus": "Đã nộp",
+  "submittedHelper": "Đang chờ giám khảo chấm.",
+  "notSubmittedYet": "Chưa nộp bài",
+  "latestSubmissionTitle": "Bài nộp mới nhất",
+  "selectTeamToSubmit": "Chọn hoặc tạo đội để nộp bài.",
+  "goToTeamAction": "Đến Đội",
+  "createTeamNowAction": "Tạo đội ngay",
+  "teamHasNoSubmission": "Đội này chưa nộp bài.",
+  "updateHistoryTitle": "Lịch sử cập nhật",
+  "judgeFeedbackTitle": "Nhận xét từ giám khảo",
+  "submissionSavedNotificationTitle": "Đã lưu bài nộp",
+  "submissionCreatedSuccess": "Đã nộp bài.",
+  "submissionUpdatedSuccess": "Đã cập nhật bài nộp.",
+  "submissionStatusReviewed": "Đã chấm",
+  "submissionStatusSubmitted": "Đã nộp",
+  "submissionStatusDraft": "Bản nháp",
+  "submissionDraftRestored": "Đã khôi phục bản nháp chưa gửi.",
+  "chatRoleGateMessage": "Chat khả dụng cho thí sinh và mentor.",
+  "chatTitle": "Chat mentor",
+  "chatSubtitle": "Trao đổi với mentor được gán cho sự kiện của bạn.",
+  "chatContactLabel": "Chat với mentor",
+  "noChatContactsMessage": "Chưa có mentor được gán cho sự kiện của bạn. Liên hệ BTC để được hỗ trợ.",
+  "contactOrganizerForMentorAction": "Sao chép tin nhắn",
+  "sendMentorRequestAction": "Gửi yêu cầu",
+  "mentorRequestSentSuccess": "Đã gửi yêu cầu gán mentor tới ban tổ chức.",
+  "contactOrganizerHint": "Hãy liên hệ BTC để được gán mentor phù hợp cho sự kiện.",
+  "chatInputHint": "Hỏi mentor...",
+  "chatRealtimeConnected": "Thời gian thực đang bật",
+  "chatRealtimeConnecting": "Đang kết nối thời gian thực",
+  "chatRealtimeOffline": "Đang đồng bộ thủ công",
+  "reloadChatTooltip": "Tải lại cuộc trò chuyện",
+  "messageSentStatus": "Đã gửi",
+  "sendMessageTooltip": "Gửi",
+  "yourMessageSemantic": "Tin nhắn của bạn",
+  "deleteMessageTitle": "Xóa tin nhắn?",
+  "deleteMessageBody": "Tin nhắn của bạn sẽ bị xóa khỏi cuộc trò chuyện.",
+  "noMessagesYet": "Chưa có tin nhắn.",
+  "selectConversationBeforeSend": "Chọn cuộc trò chuyện trước khi gửi tin nhắn.",
+  "judgeRoleGateMessage": "Chỉ giám khảo mới truy cập được màn chấm điểm.",
+  "judgeTitle": "Chấm điểm",
+  "judgeSubtitle": "Chấm bài theo kỹ thuật, trải nghiệm và đổi mới.",
+  "filterUnscored": "Chưa chấm",
+  "filterScored": "Đã chấm",
+  "judgeSearchLabel": "Tìm bài nộp hoặc đội",
+  "noMatchingSubmissions": "Không có bài nộp phù hợp.",
+  "showAllSubmissions": "Hiện tất cả",
+  "selectSubmissionTitle": "Chọn bài nộp",
+  "nextUnscoredButton": "Bài chưa chấm tiếp theo",
+  "selectSubmissionToScore": "Chọn một bài để chấm.",
+  "needsScoringBadge": "Cần chấm",
+  "repositoryButton": "Mã nguồn",
+  "demoButton": "Video demo",
+  "rubricEvaluationTitle": "Bảng tiêu chí",
+  "feedbackLabel": "Nhận xét",
+  "updateScoreDialogTitle": "Cập nhật điểm cũ?",
+  "currentScoreLabel": "Điểm hiện tại",
+  "feedbackReady": "Sẵn sàng",
+  "feedbackMissing": "Thiếu",
+  "submitScoreButton": "Gửi điểm",
+  "updateScoreButton": "Cập nhật điểm",
+  "scoringProgressTitle": "Tiến độ chấm",
+  "scorePublishedNotificationTitle": "Điểm đã được công bố",
+  "scorePublishedSnackBar": "Đã công bố điểm cho bài nộp.",
+  "scoreSavedSuccess": "Đã lưu điểm.",
+  "judgeScoreParticipantHint": "Thí sinh mở thông báo để xem điểm và nhận xét.",
+  "scoreNotificationDialogTitle": "Kết quả chấm điểm",
+  "announcementNotificationDialogTitle": "Thông báo từ BTC",
+  "viewSubmissionButton": "Xem bài nộp",
+  "closeDialogButton": "Đóng",
+  "organizerRoleGateMessage": "Chỉ ban tổ chức mới truy cập được màn vận hành.",
+  "organizerTitle": "Ban tổ chức",
+  "organizerSubtitle": "Theo dõi sự kiện, tiến độ đội và trạng thái chấm điểm.",
+  "sectionOverview": "Tổng quan",
+  "sectionOperations": "Vận hành",
+  "sectionSubmissions": "Bài nộp",
+  "sectionEvents": "Sự kiện",
+  "sectionTeams": "Đội",
+  "sendAnnouncementButton": "Gửi thông báo",
+  "sendAnnouncementDialogTitle": "Gửi thông báo",
+  "recipientLabel": "Người nhận",
+  "notificationTitleLabel": "Tiêu đề",
+  "notificationContentLabel": "Nội dung",
+  "announcementPreviewTitle": "Xem trước thông báo",
+  "confirmSendAnnouncementButton": "Xác nhận gửi",
+  "announcementSendingStatus": "Đang gửi thông báo...",
+  "recipientCountLabel": "Số người nhận",
+  "createEventTitle": "Tạo sự kiện",
+  "editEventTitle": "Sửa sự kiện",
+  "eventFieldTitle": "Tiêu đề",
+  "eventFieldDescription": "Mô tả",
+  "eventFieldLocation": "Địa điểm",
+  "eventFieldBannerUrl": "Banner URL",
+  "eventFieldStartDate": "Ngày bắt đầu",
+  "eventFieldEndDate": "Ngày kết thúc",
+  "eventFieldRegistrationDeadline": "Hạn đăng ký",
+  "eventFieldSubmissionDeadline": "Hạn nộp bài",
+  "eventFieldSupportHotline": "Hotline hỗ trợ",
+  "eventFieldOpeningHours": "Giờ mở cửa",
+  "eventFieldMaxTeamSize": "Số thành viên tối đa",
+  "eventFieldRules": "Luật thi",
+  "eventFieldPrize": "Giải thưởng",
+  "eventFieldLatitude": "Vĩ độ",
+  "eventFieldLongitude": "Kinh độ",
+  "selectOnMapButton": "Chọn trên bản đồ",
+  "eventStepInfo": "Thông tin",
+  "eventStepBanner": "Banner",
+  "eventStepLocation": "Địa điểm",
+  "eventStepTime": "Thời gian",
+  "uploadBannerTooltip": "Tải ảnh lên",
+  "uploadBannerButton": "Tải ảnh",
+  "changeBannerButton": "Đổi ảnh",
+  "removeBannerButton": "Xóa ảnh",
+  "bannerUploadSuccess": "Đã tải banner lên thành công.",
+  "uploadBannerFailed": "Không thể tải ảnh lên. Vui lòng kiểm tra lại cấu hình Storage.",
+  "advancedCoordinatesTitle": "Nâng cao: tọa độ",
+  "invalidEventDatesSnackBar": "Ngày sự kiện không hợp lệ. Kiểm tra lại định dạng.",
+  "closeRegistrationTitle": "Đóng đăng ký?",
+  "closeRegistrationSuccess": "Đã đóng đăng ký cho sự kiện này.",
+  "recentSubmissionsTitle": "Bài nộp mới nhất",
+  "noSubmissionsYet": "Chưa có bài nộp.",
+  "openTeamAction": "Mở đội",
+  "teamDetailsTitle": "Chi tiết đội",
+  "noTeamsToView": "Chưa có đội để xem.",
+  "leaderboardCopiedSuccess": "Đã sao chép bảng xếp hạng.",
+  "manageUserRolesTitle": "Quản lý vai trò người dùng",
+  "createStaffAccountTitle": "Tạo tài khoản giám khảo/mentor",
+  "createStaffAccountButton": "Tạo tài khoản",
+  "createStaffAccountFailed": "Không thể tạo tài khoản. Kiểm tra Edge Function admin-create-user.",
+  "noUsersYet": "Chưa có người dùng.",
+  "changeRoleDialogTitle": "Đổi vai trò tài khoản?",
+  "exportLeaderboardTitle": "Xuất bảng xếp hạng",
+  "userRolesTitle": "Vai trò người dùng",
+  "userSearchLabel": "Tìm tên hoặc email",
+  "roleFilterLabel": "Lọc vai trò",
+  "noMatchingUsers": "Không có tài khoản phù hợp.",
+  "manageScoreCriteriaTitle": "Quản lý tiêu chí chấm",
+  "manageEventMentorsTitle": "Gán mentor cho sự kiện",
+  "manageEventMentorsDescription": "Chọn mentor hỗ trợ thí sinh theo từng hackathon",
+  "noEventsForMentorAssignment": "Chưa có sự kiện để gán mentor.",
+  "noMentorsAvailableMessage": "Chưa có tài khoản mentor. Tạo hoặc đổi vai trò trước.",
+  "mentorAssignmentLoadFailed": "Không tải được danh sách mentor đã gán.",
+  "manageScoreCriteriaDescription": "Tạo rubric riêng cho từng sự kiện",
+  "addScoreCriterionButton": "Thêm tiêu chí",
+  "scoreCriterionLabel": "Tên tiêu chí",
+  "scoreCriterionDescription": "Mô tả tiêu chí",
+  "scoreCriteriaSavedSuccess": "Đã lưu tiêu chí chấm.",
+  "defaultRubricHint": "Sự kiện này đang dùng rubric mặc định. BTC có thể chỉnh và lưu để tạo rubric riêng.",
+  "useDefaultRubricButton": "Dùng rubric mặc định",
+  "unscoredMetricLabel": "Chưa chấm",
+  "organizerTodayTasksTitle": "Việc cần làm hôm nay",
+  "organizerUnscoredTasksLabel": "Bài chưa chấm",
+  "organizerTeamsNeedMembersLabel": "Đội còn thiếu thành viên",
+  "organizerClosingSoonLabel": "Sự kiện sắp đóng đăng ký",
+  "organizerSendReminderButton": "Gửi nhắc",
+  "organizerAssignMentorButton": "Gán mentor",
+  "organizerTaskUnscoredLabel": "Nhắc chấm điểm",
+  "organizerTaskTeamsLabel": "Nhắc ghép đội",
+  "organizerTaskClosingLabel": "Nhắc hạn đăng ký",
+  "otherActionsTitle": "Thao tác khác",
+  "dashboardChartTitle": "Tổng quan chấm",
+  "scoredBarLabel": "Đã chấm",
+  "unscoredBarLabel": "Chưa chấm",
+  "loadMoreButton": "Xem thêm",
+  "announcementEventLabel": "Liên kết sự kiện (tuỳ chọn)",
+  "announcementNoEvent": "Không gắn sự kiện",
+  "viewEventFromAnnouncementButton": "Xem sự kiện",
+  "announcementTemplatesLabel": "Mẫu nhanh",
+  "announcementTemplateJudgingLabel": "Mở phòng chấm",
+  "announcementTemplateJudgingTitle": "Mở phòng chấm điểm",
+  "announcementTemplateJudgingBody": "Giám khảo vui lòng vào tab Chấm điểm. Phiên chấm điểm chính thức đã mở.",
+  "announcementTemplateDeadlineLabel": "Hạn nộp",
+  "announcementTemplateDeadlineTitle": "Nhắc deadline nộp bài",
+  "announcementTemplateDeadlineBody": "Các đội chưa nộp bài vui lòng hoàn thiện GitHub, video demo và mô tả trước hạn nộp.",
+  "announcementTemplateKickoffLabel": "Khai mạc",
+  "announcementTemplateKickoffTitle": "Khai mạc hackathon",
+  "announcementTemplateKickoffBody": "Chào mừng các đội tham gia SEAL Innovation Hackathon 2026. Kiểm tra Sự kiện để xem lịch trình và luật thi.",
+  "newScoreSnackBar": "Có điểm mới. Mở thông báo để xem.",
+  "openInboxAction": "Xem thông báo",
+  "inboxTitle": "Thông báo",
+  "inboxSubtitle": "Điểm số, lời mời vào đội và cập nhật hệ thống.",
+  "inboxEmpty": "Chưa có thông báo.",
+  "reloadInboxAction": "Nạp lại thông báo",
+  "unreadGroup": "Chưa đọc",
+  "readGroup": "Đã đọc",
+  "markAsReadAction": "Đánh dấu đã đọc",
+  "deleteNotificationTitle": "Xóa mục thông báo?",
+  "deleteNotificationBody": "Mục này sẽ bị xóa khỏi danh sách thông báo.",
+  "profileTitle": "Hồ sơ",
+  "profileSubtitle": "Quản lý thông tin tài khoản dùng trong các luồng vai trò.",
+  "noActiveSession": "Chưa có phiên đăng nhập.",
+  "roleLabel": "Vai trò",
+  "accountInfoTitle": "Thông tin tài khoản",
+  "saveProfileButton": "Lưu hồ sơ",
+  "profileUpdatedSuccess": "Đã cập nhật hồ sơ.",
+  "profileSecurityTitle": "Bảo mật",
+  "profileSecuritySubtitle": "Gửi email đặt lại mật khẩu đến địa chỉ đã đăng ký. Đổi email cần liên hệ BTC.",
+  "themeModeTitle": "Giao diện",
+  "themeModeDark": "Tối",
+  "themeModeLight": "Sáng",
+  "themeModeSystem": "Hệ thống",
+  "languageTitle": "Ngôn ngữ",
+  "languageVi": "Tiếng Việt",
+  "languageEn": "English",
+  "languageJa": "日本語",
+  "sessionSectionTitle": "Phiên đăng nhập",
+  "logoutDescription": "Đăng xuất sẽ xóa state cục bộ và quay về màn đăng nhập.",
+  "mapTitle": "Địa điểm",
+  "mapSubtitle": "Bản đồ, địa chỉ và hỗ trợ mở app chỉ đường.",
+  "noVenueYet": "Chưa có địa điểm sự kiện.",
+  "addressLabel": "Địa chỉ",
+  "openingHoursLabel": "Giờ mở",
+  "hotlineLabel": "Đường dây nóng",
+  "coordinatesLabel": "Tọa độ",
+  "defaultOpeningHours": "08:00 - 18:00",
+  "defaultHotline": "0900 000 000",
+  "copyAddressButton": "Sao chép địa chỉ",
+  "addressCopiedSuccess": "Đã copy địa chỉ.",
+  "openMapsButton": "Mở Maps",
+  "openExternalMapsTitle": "Mở Maps bên ngoài?",
+  "openExternalMapsBody": "Bạn sẽ rời SEAL Hackathon tạm thời để mở ứng dụng bản đồ.",
+  "mapPickerTitle": "Chọn vị trí sự kiện",
+  "mapPickerInstruction": "Kéo bản đồ để đặt điểm ghim vào đúng vị trí sự kiện",
+  "openMapsFailed": "Không thể mở Maps trên thiết bị này.",
+  "validationEmailRequired": "Nhập email.",
+  "validationEmailInvalid": "Nhập email hợp lệ.",
+  "validationPasswordRequired": "Nhập mật khẩu.",
+  "validationPasswordMinLength": "Mật khẩu cần ít nhất 6 ký tự.",
+  "validationConfirmPasswordRequired": "Nhập lại mật khẩu.",
+  "validationPasswordMismatch": "Mật khẩu nhập lại không khớp.",
+  "validationOtpRequired": "Nhập mã OTP từ email.",
+  "validationOtpInvalid": "Mã OTP phải gồm 6 chữ số.",
+  "validationFullNameRequired": "Nhập họ tên.",
+  "validationFullNameMinLength": "Họ tên cần ít nhất 2 ký tự.",
+  "validationUniversityRequired": "Nhập trường.",
+  "validationUniversityMinLength": "Tên trường cần ít nhất 2 ký tự.",
+  "validationSupabaseNotReady": "Không thể kết nối hệ thống. Vui lòng thử lại sau.",
+  "validationTeamNameRequired": "Nhập tên đội.",
+  "validationTeamNameMinLength": "Tên đội cần ít nhất 2 ký tự.",
+  "validationInviteEmailInvalid": "Nhập email thành viên hợp lệ.",
+  "validationProjectNameRequired": "Nhập tên dự án.",
+  "validationProjectNameMinLength": "Tên dự án cần ít nhất 2 ký tự.",
+  "validationDescriptionRequired": "Nhập mô tả dự án.",
+  "validationDescriptionMinLength": "Mô tả cần ít nhất 10 ký tự.",
+  "validationJoinTeamBeforeSubmit": "Tạo hoặc tham gia đội trước khi nộp bài.",
+  "eventNotLoadedForSubmit": "Chưa tải được thông tin sự kiện của đội. Thử tải lại sự kiện.",
+  "validationChatMessageRequired": "Tin nhắn không được để trống.",
+  "validationNotificationTitleRequired": "Nhập tiêu đề thông báo.",
+  "validationNotificationBodyRequired": "Nhập nội dung thông báo.",
+  "validationNotificationTypeInvalid": "Loại thông báo không hợp lệ.",
+  "validationRecipientLabel": "Người nhận",
+  "validationEventTitleRequired": "Nhập tiêu đề sự kiện.",
+  "validationEventTitleMinLength": "Tiêu đề sự kiện cần ít nhất 2 ký tự.",
+  "validationEventLocationRequired": "Nhập địa điểm sự kiện.",
+  "validationEventLocationMinLength": "Địa điểm cần ít nhất 2 ký tự.",
+  "validationLatitudeRequired": "Nhập vĩ độ.",
+  "validationLatitudeInvalid": "Vĩ độ phải là số hợp lệ.",
+  "validationLatitudeRange": "Vĩ độ phải nằm trong khoảng -90 đến 90.",
+  "validationLongitudeRequired": "Nhập kinh độ.",
+  "validationLongitudeInvalid": "Kinh độ phải là số hợp lệ.",
+  "validationLongitudeRange": "Kinh độ phải nằm trong khoảng -180 đến 180.",
+  "validationMaxTeamSizeRequired": "Nhập số thành viên tối đa.",
+  "validationMaxTeamSizeInvalid": "Số thành viên tối đa phải là số nguyên hợp lệ.",
+  "validationEndAfterStart": "Ngày kết thúc phải sau ngày bắt đầu.",
+  "validationDeadlineBeforeEnd": "Hạn đăng ký không được sau ngày kết thúc sự kiện.",
+  "validationSubmissionAfterStart": "Hạn nộp bài phải sau ngày bắt đầu sự kiện.",
+  "validationSubmissionBeforeEnd": "Hạn nộp bài không được sau ngày kết thúc sự kiện.",
+  "validationScoreRange": "Điểm phải nằm trong khoảng 0 đến 10.",
+  "validationScoreCriteriaRequired": "Cần ít nhất một tiêu chí chấm.",
+  "validationScoreCriteriaLimit": "Tối đa 8 tiêu chí chấm cho một sự kiện.",
+  "validationScoreCriteriaLabelRequired": "Nhập tên tiêu chí chấm.",
+  "validationScoreCriteriaDuplicate": "Mã tiêu chí bị trùng. Xóa và thêm lại tiêu chí.",
+  "validationScoreCriteriaWeight": "Trọng số tiêu chí phải lớn hơn 0.",
+  "validationNoSubmissionSelected": "Chưa chọn bài nộp để chấm.",
+  "validationInvalidJudgeSession": "Phiên giám khảo không hợp lệ.",
+  "validationFeedbackRequired": "Cần nhập nhận xét trước khi gửi điểm.",
+  "validationInvalidRole": "Vai trò không hợp lệ.",
+  "validationUserLabel": "Người dùng",
+  "validationBannerUrlLabel": "Banner URL",
+  "openLinkTooltip": "Mở link để kiểm tra",
+  "openLinkFailed": "Không thể mở link này.",
+  "openExternalLinkFailed": "Không thể mở liên kết trên thiết bị này.",
+  "reloadTeamsTooltip": "Tải lại đội",
+  "reloadJudgeQueueTooltip": "Tải lại bài chưa chấm",
+  "reloadDashboardTooltip": "Tải lại tổng quan",
+  "judgePreviewOnlyMessage": "Đăng nhập bằng tài khoản Giám khảo để gửi điểm chính thức.",
+  "judgeQueueSortLabel": "Sắp xếp bài chưa chấm",
+  "sortNewestFirst": "Mới nhất trước",
+  "sortProjectName": "Tên dự án",
+  "sortTeamName": "Đội",
+  "sortAverageScore": "Điểm trung bình",
+  "judgeSubmissionToScoreLabel": "Bài cần chấm",
+  "unknownTeamLabel": "Chưa rõ đội",
+  "teamNotLoadedYet": "Chưa tải đội",
+  "eventNotLoadedYet": "Chưa tải sự kiện",
+  "averageScoreAbbrev": "TB",
+  "judgeReviewReminder": "Xem mã nguồn, chất lượng demo, độ sâu triển khai và tác động sản phẩm trước khi gửi điểm.",
+  "rubricTechnicalLabel": "Độ sâu kỹ thuật",
+  "rubricTechnicalDescription": "Kiến trúc, độ đúng, độ tin cậy và độ sâu triển khai.",
+  "rubricUiLabel": "Trải nghiệm người dùng",
+  "rubricUiDescription": "Luồng di động, độ rõ ràng, khả năng tiếp cận và độ hoàn thiện.",
+  "rubricInnovationLabel": "Đổi mới",
+  "rubricInnovationDescription": "Tính mới, tác động, AI/automation hữu ích và độ phù hợp sản phẩm.",
+  "decreaseScoreTooltip": "Giảm",
+  "increaseScoreTooltip": "Tăng",
+  "editEventMenuItem": "Sửa sự kiện",
+  "closeRegistrationMenuItem": "Đóng đăng ký",
+  "closeRegistrationConfirmButton": "Đóng đăng ký",
+  "notificationActionsTooltip": "Tùy chọn thông báo",
+  "eventActionsTooltip": "Thao tác sự kiện",
+  "submissionsMetricLabel": "Bài nộp",
+  "scoresMetricLabel": "Số lượt chấm",
+  "systemStatusTitle": "Trạng thái hệ thống",
+  "systemStatusSubtitle": "Theo dõi tải dữ liệu và đồng bộ.",
+  "chatSuggestionSubmission": "Hỏi về bài nộp",
+  "chatSuggestionGithub": "Xem giúp GitHub link",
+  "chatSuggestionChecklist": "Checklist nộp bài",
+  "emailPrefix": "Email:",
+  "averageScoreTitle": "Điểm trung bình",
+  "judgeQueueTitle": "Theo dõi bài chưa chấm",
+  "judgeQueueWaitingSuffix": " bài chưa chấm",
+  "exportLeaderboardDescription": "Copy dữ liệu xếp hạng vào clipboard",
+  "userRolesDescription": "Xem và cập nhật vai trò tài khoản",
+  "databaseConnectedLabel": "Dữ liệu sẵn sàng",
+  "databaseMissingLabel": "Chưa có dữ liệu",
+  "operationsDataLabel": "Dữ liệu vận hành",
+  "syncingLabel": "Đang đồng bộ",
+  "stateReadyLabel": "Đã sẵn sàng",
+  "notLoggedInShortLabel": "Chưa đăng nhập",
+  "noApiErrorsLabel": "Không có lỗi tải dữ liệu",
+  "systemStatusSemanticLabel": "Trạng thái vận hành hệ thống",
+  "profileFullNameFieldSemantic": "Ô nhập họ tên hồ sơ",
+  "profileUniversityFieldSemantic": "Ô nhập trường",
+  "errorInvalidCredentials": "Email hoặc mật khẩu không đúng. Hãy dùng đúng email đã đăng ký hoặc bấm \"Tạo tài khoản mới\".",
+  "errorEmailNotConfirmed": "Email chưa được xác nhận. Kiểm tra hộp thư đến hoặc thư rác.",
+  "errorInvalidOtp": "Mã OTP không hợp lệ hoặc đã hết hạn. Yêu cầu gửi lại email kích hoạt.",
+  "errorConnectionTimeout": "Kết nối quá lâu. Kiểm tra mạng rồi thử lại.",
+  "errorRlsPermissionDenied": "Tài khoản hiện tại không có quyền thực hiện thao tác này.",
+  "errorDuplicateRecord": "Dữ liệu này đã tồn tại. Tải lại màn hình rồi cập nhật bản ghi hiện có.",
+  "errorCheckConstraint": "Dữ liệu chưa hợp lệ. Kiểm tra lại thông tin rồi thử lại.",
+  "otpHelpText": "Mã OTP nằm trong email kích hoạt. Kiểm tra hộp thư đến hoặc thư rác nếu chưa thấy email.",
+  "teamOverviewForEvent": "Đội — {title}",
+  "@teamOverviewForEvent": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "scopedTeamsAvailable": "{count} đội trong sự kiện này",
+  "@scopedTeamsAvailable": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pendingInvitationsCount": "{count} lời mời đang chờ phản hồi",
+  "@pendingInvitationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventScheduleHours": "{start} - {end}",
+  "@eventScheduleHours": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "activationEmailSent": "Đã gửi email kích hoạt tới {email}. Mở link trong email hoặc nhập mã OTP 6 số bên dưới.",
+  "@activationEmailSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "emailActivatedWelcome": "Email đã được kích hoạt. Chào mừng {email}!",
+  "@emailActivatedWelcome": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "passwordResetEmailSent": "Đã gửi link đặt lại mật khẩu tới {email}. Kiểm tra hộp thư đến hoặc thư rác.",
+  "@passwordResetEmailSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "registerSuccess": "Đăng ký thành công với {email}.",
+  "@registerSuccess": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "organizerFocusEventSubtitle": "Đang lọc theo {title}.",
+  "@organizerFocusEventSubtitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionEventLabel": "Sự kiện: {title}",
+  "@submissionEventLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "judgeQueueForEventTitle": "Chấm điểm: {title}",
+  "@judgeQueueForEventTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "openEventSemanticLabel": "Mở sự kiện {title}",
+  "@openEventSemanticLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "registerBeforeDate": "Đăng ký trước {date}",
+  "@registerBeforeDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "registrationClosedByDate": "Đóng đăng ký {date}",
+  "@registrationClosedByDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "registrationOpenUntilDate": "Mở đăng ký đến {date}",
+  "@registrationOpenUntilDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "maxMembersChip": "Tối đa {count} thành viên",
+  "@maxMembersChip": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "leaderPrefix": "Trưởng đội: {name}",
+  "@leaderPrefix": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "memberCountLabel": "{count} thành viên",
+  "@memberCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teamSemanticLabel": "Đội {name}, {memberCount} thành viên, Trưởng đội: {leader}",
+  "@teamSemanticLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "memberCount": {
+        "type": "String"
+      },
+      "leader": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteTeamPrefix": "Đội: {name}",
+  "@inviteTeamPrefix": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveTeamDialogBody": "Bạn sẽ rời {teamName}. Sau hạn đăng ký, bạn không thể vào lại đội.",
+  "@leaveTeamDialogBody": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "teamInvitationBody": "Bạn được mời vào {teamName}. Mở màn hình Đội để xem và tham gia nếu còn chỗ.",
+  "@teamInvitationBody": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "invitedByLabel": "Người mời: {name}",
+  "@invitedByLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "teamCreatedNotificationBody": "{teamName} đã tham gia {eventTitle}.",
+  "@teamCreatedNotificationBody": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      },
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "alreadyOnEventTeamNamedError": "Bạn đã thuộc đội {teamName} cho sự kiện này.",
+  "@alreadyOnEventTeamNamedError": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "teamFullForEventError": "{teamName} đã đủ thành viên cho sự kiện này.",
+  "@teamFullForEventError": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionSavedNotificationBody": "{projectName} đã được nộp thành công.",
+  "@submissionSavedNotificationBody": {
+    "placeholders": {
+      "projectName": {
+        "type": "String"
+      }
+    }
+  },
+  "chatEventScopedSubtitle": "Cuộc trò chuyện cho sự kiện {eventTitle}",
+  "@chatEventScopedSubtitle": {
+    "placeholders": {
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "mentorRequestNotificationTitle": "Yêu cầu mentor: {participantName}",
+  "@mentorRequestNotificationTitle": {
+    "placeholders": {
+      "participantName": {
+        "type": "String"
+      }
+    }
+  },
+  "todayTimestamp": "Hôm nay, {time}",
+  "@todayTimestamp": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreOutOfTenLabel": "{score}/10",
+  "@scoreOutOfTenLabel": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreWeightLabel": "Trọng số x{weight}",
+  "@scoreWeightLabel": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "updateScoreDialogBody": "Điểm trước đó của bạn cho {projectName} sẽ được thay thế.",
+  "@updateScoreDialogBody": {
+    "placeholders": {
+      "projectName": {
+        "type": "String"
+      }
+    }
+  },
+  "closeRegistrationBody": "Hạn đăng ký của {title} sẽ được đặt về thời điểm hiện tại.",
+  "@closeRegistrationBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "announcementSentSuccess": "Đã gửi thông báo cho {count} người dùng.",
+  "@announcementSentSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "announcementRolePreview": "Gửi tới: {role}",
+  "@announcementRolePreview": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "recipientCountValue": "{count} tài khoản",
+  "@recipientCountValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "changeRoleDialogBody": "Gán {name} thành {role}.",
+  "@changeRoleDialogBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "roleUpdatedSuccess": "Đã cập nhật vai trò {name}.",
+  "@roleUpdatedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cannotChangeOwnRoleSubtitle": "{email}\nKhông thể đổi vai trò của chính bạn.",
+  "@cannotChangeOwnRoleSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "sendPasswordResetTo": "Gửi link đặt lại mật khẩu đến {email}",
+  "@sendPasswordResetTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "mapPickerCoordinates": "Tọa độ: {latitude}, {longitude}",
+  "@mapPickerCoordinates": {
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "coordinatesPreview": "{latitude}, {longitude}",
+  "@coordinatesPreview": {
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "staffAccountCreatedSuccess": "Đã tạo tài khoản cho {name}.",
+  "@staffAccountCreatedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mentorAssignmentSavedSuccess": "Đã gán {count} mentor cho sự kiện.",
+  "@mentorAssignmentSavedSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "organizerTaskUnscoredTitle": "Nhắc giám khảo chấm — {eventTitle}",
+  "@organizerTaskUnscoredTitle": {
+    "placeholders": {
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "organizerTaskUnscoredBody": "Còn {count} bài chưa chấm. Vui lòng hoàn tất chấm điểm trong hôm nay.",
+  "@organizerTaskUnscoredBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "organizerTaskTeamsTitle": "Nhắc tham gia đội — {eventTitle}",
+  "@organizerTaskTeamsTitle": {
+    "placeholders": {
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "organizerTaskTeamsBody": "Còn {count} đội chưa đủ thành viên. Mời thí sinh ghép đội trước hạn.",
+  "@organizerTaskTeamsBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "organizerTaskClosingTitle": "Sắp đóng đăng ký — {eventTitle}",
+  "@organizerTaskClosingTitle": {
+    "placeholders": {
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "organizerTaskClosingBody": "Có {count} sự kiện sắp đóng đăng ký trong 3 ngày tới. Hoàn tất đăng ký sớm.",
+  "@organizerTaskClosingBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "organizerNotificationSuggestions": "{count} thông báo nên gửi",
+  "@organizerNotificationSuggestions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "journeyScoreSummary": "Điểm trung bình: {score}",
+  "@journeyScoreSummary": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionDraftSavedAt": "Bản nháp lưu lúc {time}",
+  "@submissionDraftSavedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "validationSearchMaxLength": "Từ khóa tìm kiếm tối đa {max} ký tự.",
+  "@validationSearchMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationInvalidUser": "{label} không hợp lệ.",
+  "@validationInvalidUser": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "validationFieldRequired": "Nhập {label}.",
+  "@validationFieldRequired": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "validationInvalidUrl": "{label} phải là URL http/https hợp lệ.",
+  "@validationInvalidUrl": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "validationTeamNameMaxLength": "Tên đội tối đa {max} ký tự.",
+  "@validationTeamNameMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationProjectNameMaxLength": "Tên dự án tối đa {max} ký tự.",
+  "@validationProjectNameMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationDescriptionMaxLength": "Mô tả tối đa {max} ký tự.",
+  "@validationDescriptionMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationChatMessageMaxLength": "Tin nhắn tối đa {max} ký tự.",
+  "@validationChatMessageMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationNotificationTitleMaxLength": "Tiêu đề tối đa {max} ký tự.",
+  "@validationNotificationTitleMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationNotificationBodyMaxLength": "Nội dung tối đa {max} ký tự.",
+  "@validationNotificationBodyMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationFeedbackMaxLength": "Nhận xét tối đa {max} ký tự.",
+  "@validationFeedbackMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationMaxTeamSizeRange": "Số thành viên tối đa phải từ {min} đến {max}.",
+  "@validationMaxTeamSizeRange": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationDateTimeFormat": "{label} phải theo định dạng {format} (vd: 2026-06-15 09:00).",
+  "@validationDateTimeFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionQueueCountLabel": "{count} bài trong hàng chờ này",
+  "@submissionQueueCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scoreCountLabel": "{count} lượt chấm",
+  "@scoreCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scoringProgressSemantic": "Tiến độ chấm: {scored} đã chấm và {unscored} chưa chấm",
+  "@scoringProgressSemantic": {
+    "placeholders": {
+      "scored": {
+        "type": "int"
+      },
+      "unscored": {
+        "type": "int"
+      }
+    }
+  },
+  "memberCountWithLimit": "{current}/{limit} thành viên",
+  "@memberCountWithLimit": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "apiErrorCountLabel": "{count} lỗi",
+  "@apiErrorCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "judgeQueueWaitingLabel": "{count} bài chưa chấm",
+  "@judgeQueueWaitingLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scoreSliderSemantic": "{label} {value} điểm. {description}",
+  "@scoreSliderSemantic": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      }
+    }
+  },
+  "messageTimestampSemantic": "{senderLabel} lúc {time}",
+  "@messageTimestampSemantic": {
+    "placeholders": {
+      "senderLabel": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  }
+}

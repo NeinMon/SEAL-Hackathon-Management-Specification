@@ -41,8 +41,8 @@ class ChatComposer extends StatelessWidget {
                 maxLines: 3,
                 maxLength: AppValidators.maxChatMessageLength,
                 decoration: InputDecoration(
-                  hintText: AppStrings.chatInputHint,
-                  prefixIcon: const Icon(Icons.chat_bubble_outline),
+                  hintText: L10nService.strings.chatInputHint,
+                  prefixIcon: Icon(Icons.chat_bubble_outline),
                   errorText: error,
                   counterText: '',
                   border: InputBorder.none,
@@ -55,14 +55,14 @@ class ChatComposer extends StatelessWidget {
             ),
             const SizedBox(width: AppSizes.paddingSmall),
             IconButton.filled(
-              tooltip: AppStrings.sendMessageTooltip,
+              tooltip: context.l10n.sendMessageTooltip,
               onPressed: !canSend || isSending ? null : onSend,
               icon: isSending
                   ? const SizedBox.square(
                       dimension: 18,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Icon(Icons.send),
+                  : Icon(Icons.send),
             ),
           ],
         ),
