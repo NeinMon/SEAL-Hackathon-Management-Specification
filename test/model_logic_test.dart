@@ -105,6 +105,55 @@ void main() {
     expect(score.average, 8);
   });
 
+  test('ProjectScore calculates weighted average from criteria scores', () {
+    const score = ProjectScore(
+      submissionId: 'submission-id',
+      judgeId: 'judge-id',
+      technicalScore: 10,
+      uiScore: 10,
+      innovationScore: 10,
+      feedback: 'Weighted rubric.',
+      criteriaScores: {
+        'technical': 10,
+        'ui': 4,
+        'innovation': 7,
+      },
+    );
+
+    const weightedCriteria = [
+      ScoreCriterion(
+        id: 'technical',
+        eventId: 'event-id',
+        label: 'Technical',
+        description: 'Technical quality',
+        weight: 2,
+        sortOrder: 0,
+      ),
+      ScoreCriterion(
+        id: 'ui',
+        eventId: 'event-id',
+        label: 'UI',
+        description: 'User experience',
+        weight: 1,
+        sortOrder: 1,
+      ),
+      ScoreCriterion(
+        id: 'innovation',
+        eventId: 'event-id',
+        label: 'Innovation',
+        description: 'Novelty',
+        weight: 1,
+        sortOrder: 2,
+      ),
+    ];
+
+    expect(score.averageFor(weightedCriteria), closeTo(7.75, 0.001));
+    expect(
+      score.withPersistedAverage(weightedCriteria).average,
+      closeTo(7.75, 0.001),
+    );
+  });
+
   test('ScoreProvider averages multiple judge scores for one submission', () {
     final provider = ScoreProvider()
       ..scores = const [
@@ -261,10 +310,10 @@ void main() {
       const AuthException('Auth session token is missing.'),
     );
 
-    expect(message, isNot(AppStrings.errorInvalidOtp));
+    expect(message, isNot(L10nService.strings.errorInvalidOtp));
   });
 
-  test('TeamProvider blocks joining a full team before service call', () async {
+  test('TeamProvider blocks direct join without invitation', () async {
     const user = AppUser(
       id: 'new-user',
       fullName: 'New User',
@@ -281,37 +330,20 @@ void main() {
       location: 'HCMC',
       bannerUrl: 'https://example.com/banner.jpg',
       registrationDeadline: DateTime(2026, 6, 5),
-      maxTeamSize: 1,
+      maxTeamSize: 5,
       rules: 'Rules',
       prize: 'Prize',
       latitude: 10,
       longitude: 106,
     );
-    final provider = TeamProvider()
-      ..teams = const [
-        Team(
-          id: 'team-id',
-          name: 'Full Team',
-          leaderId: 'leader-id',
-          eventId: 'event-id',
-          members: [
-            AppUser(
-              id: 'leader-id',
-              fullName: 'Leader',
-              email: 'leader@example.com',
-              role: AppRoles.participant,
-              university: 'FPT University',
-            ),
-          ],
-        ),
-      ];
+    final provider = TeamProvider();
 
     await provider.joinTeam('team-id', user, event: event);
 
-    expect(provider.error, AppStrings.teamFullForEventError('Full Team'));
+    expect(provider.error, L10nService.strings.teamInviteOnlyError);
   });
 
-  test('TeamProvider blocks joining second team on same event', () async {
+  test('TeamProvider blocks accepting invitation for second team on same event', () async {
     const user = AppUser(
       id: 'user-id',
       fullName: 'Member',
@@ -333,6 +365,29 @@ void main() {
       prize: 'Prize',
       latitude: 10,
       longitude: 106,
+    );
+    final invitation = TeamInvitation(
+      id: 'invitation-id',
+      teamId: 'team-b',
+      inviterId: 'leader-2',
+      inviteeId: 'user-id',
+      status: 'pending',
+      createdAt: DateTime(2026, 6, 1),
+      team: const Team(
+        id: 'team-b',
+        name: 'Other Team',
+        leaderId: 'leader-2',
+        eventId: 'event-id',
+        members: [
+          AppUser(
+            id: 'leader-2',
+            fullName: 'Leader 2',
+            email: 'leader2@example.com',
+            role: AppRoles.participant,
+            university: 'FPT University',
+          ),
+        ],
+      ),
     );
     final provider = TeamProvider()
       ..teams = const [
@@ -368,11 +423,11 @@ void main() {
         ),
       ];
 
-    await provider.joinTeam('team-b', user, event: event);
+    await provider.acceptInvitation(invitation, user, event: event);
 
     expect(
       provider.error,
-      AppStrings.alreadyOnEventTeamNamedError('Seal Builders'),
+      L10nService.strings.alreadyOnEventTeamNamedError('Seal Builders'),
     );
   });
 
@@ -422,7 +477,7 @@ void main() {
 
     expect(
       provider.error,
-      AppStrings.alreadyOnEventTeamNamedError('Seal Builders'),
+      L10nService.strings.alreadyOnEventTeamNamedError('Seal Builders'),
     );
   });
 
@@ -484,11 +539,11 @@ void main() {
       final at = DateTime(2026, 6, 20);
 
       expect(event.registrationOpen(at), isFalse);
-      expect(event.registrationBlockReason(at), AppStrings.errorEventEnded);
+      expect(event.registrationBlockReason(at), L10nService.strings.errorEventEnded);
 
       await provider.createTeam('Late Team', event, user);
 
-      expect(provider.error, AppStrings.errorEventEnded);
+      expect(provider.error, L10nService.strings.errorEventEnded);
     },
   );
 
@@ -546,7 +601,39 @@ void main() {
       ),
       event: event,
     );
-    expect(provider.error, AppStrings.errorSubmissionClosed);
+    expect(provider.error, L10nService.strings.errorSubmissionClosed);
+  });
+
+  test('SubmissionProvider blocks submit before event starts', () async {
+    final event = HackathonEvent(
+      id: 'event-id',
+      title: 'Upcoming Event',
+      description: 'Not started.',
+      startDate: DateTime(2030, 6, 12),
+      endDate: DateTime(2030, 6, 14),
+      location: 'HCMC',
+      bannerUrl: 'https://example.com/banner.jpg',
+      registrationDeadline: DateTime(2030, 6, 5),
+      maxTeamSize: 5,
+      rules: 'Rules',
+      prize: 'Prize',
+      latitude: 10,
+      longitude: 106,
+    );
+    final provider = SubmissionProvider();
+    await provider.submit(
+      ProjectSubmission(
+        id: 'submission-1',
+        teamId: 'team-1',
+        projectName: 'Demo Project',
+        githubUrl: 'https://github.com/demo/repo',
+        videoUrl: 'https://youtube.com/watch?v=demo',
+        description: 'Demo description long enough.',
+        status: 'submitted',
+      ),
+      event: event,
+    );
+    expect(provider.error, L10nService.strings.errorSubmissionNotStarted);
   });
 
   test('ScoreProvider blocks judging before event starts', () async {
@@ -577,7 +664,38 @@ void main() {
       ),
       event: event,
     );
-    expect(provider.error, AppStrings.errorJudgingNotStarted);
+    expect(provider.error, L10nService.strings.errorJudgingNotStarted);
+  });
+
+  test('ScoreProvider blocks judging after event ends', () async {
+    final event = HackathonEvent(
+      id: 'event-id',
+      title: 'Closed Event',
+      description: 'Finished.',
+      startDate: DateTime(2020, 6, 1),
+      endDate: DateTime(2020, 6, 3),
+      location: 'HCMC',
+      bannerUrl: 'https://example.com/banner.jpg',
+      registrationDeadline: DateTime(2020, 6, 1),
+      maxTeamSize: 5,
+      rules: 'Rules',
+      prize: 'Prize',
+      latitude: 10,
+      longitude: 106,
+    );
+    final provider = ScoreProvider();
+    await provider.addScore(
+      ProjectScore(
+        submissionId: 'submission-1',
+        judgeId: 'judge-1',
+        technicalScore: 8,
+        uiScore: 8,
+        innovationScore: 8,
+        feedback: 'Good work overall.',
+      ),
+      event: event,
+    );
+    expect(provider.error, L10nService.strings.errorJudgingClosed);
   });
 
   test('EventProvider filters by phase and search keyword', () {
@@ -627,15 +745,205 @@ void main() {
   test('RouteQuery builds event-scoped navigation paths', () {
     expect(
       RouteQuery.teamsForEvent('event-1'),
-      '${AppRoutes.teams}?event=event-1',
+      '/events/event-1/team',
+    );
+    expect(
+      RouteQuery.overviewForEvent('event-1'),
+      '/events/event-1/overview',
     );
     expect(
       RouteQuery.judgeForEvent('event-1'),
-      '${AppRoutes.judge}?event=event-1',
+      '/events/event-1/judge',
+    );
+    expect(
+      RouteQuery.submitForTeam('team-1', eventId: 'event-1'),
+      '/events/event-1/submit?team=team-1',
     );
     expect(
       RouteQuery.submitForTeam('team-1'),
       '${AppRoutes.submit}?team=team-1',
+    );
+  });
+
+  test('ParticipantJourney marks missed submission when window closed', () {
+    final now = DateTime.now();
+    final event = HackathonEvent(
+      id: 'event-1',
+      title: 'Hackathon',
+      description: 'Demo',
+      location: 'HCM',
+      bannerUrl: 'https://example.com/banner.jpg',
+      latitude: 10.0,
+      longitude: 106.0,
+      startDate: now.subtract(const Duration(days: 2)),
+      endDate: now.subtract(const Duration(hours: 1)),
+      registrationDeadline: now.subtract(const Duration(days: 3)),
+      maxTeamSize: 4,
+      rules: 'Rules',
+      prize: 'Prize',
+    );
+    final team = Team(
+      id: 'team-1',
+      name: 'Alpha',
+      eventId: event.id,
+      leaderId: 'user-1',
+      members: const [
+        AppUser(
+          id: 'user-1',
+          fullName: 'Leader',
+          email: 'leader@example.com',
+          role: 'participant',
+          university: 'SEAL',
+        ),
+      ],
+    );
+    final journey = ParticipantJourney.forUser(
+      event: event,
+      userId: 'user-1',
+      teams: [team],
+      submissions: const [],
+      scores: ScoreProvider(),
+    );
+
+    expect(journey?.step, ParticipantJourneyStep.missedSubmission);
+  });
+
+  test('ParticipantJourney uses registrationClosed without team', () {
+    final now = DateTime.now();
+    final event = HackathonEvent(
+      id: 'event-1',
+      title: 'Hackathon',
+      description: 'Demo',
+      location: 'HCM',
+      bannerUrl: 'https://example.com/banner.jpg',
+      latitude: 10.0,
+      longitude: 106.0,
+      startDate: now.add(const Duration(days: 1)),
+      endDate: now.add(const Duration(days: 3)),
+      registrationDeadline: now.subtract(const Duration(days: 1)),
+      maxTeamSize: 4,
+      rules: 'Rules',
+      prize: 'Prize',
+    );
+    final journey = ParticipantJourney.forUser(
+      event: event,
+      userId: 'user-1',
+      teams: const [],
+      submissions: const [],
+      scores: ScoreProvider(),
+    );
+
+    expect(journey?.step, ParticipantJourneyStep.registrationClosed);
+  });
+
+  test('RouteQuery score view builds query param', () {
+    expect(
+      RouteQuery.submitForEvent('event-1', teamId: 'team-1', view: RouteQuery.viewScore),
+      '/events/event-1/submit?team=team-1&view=score',
+    );
+  });
+
+  test('HackathonEvent splits submission and judging windows', () {
+    final now = DateTime.now();
+    final event = HackathonEvent(
+      id: 'event-1',
+      title: 'Hackathon',
+      description: 'Demo',
+      location: 'HCM',
+      bannerUrl: 'https://example.com/banner.jpg',
+      latitude: 10.0,
+      longitude: 106.0,
+      startDate: now.subtract(const Duration(days: 2)),
+      endDate: now.add(const Duration(days: 2)),
+      registrationDeadline: now.subtract(const Duration(days: 3)),
+      submissionDeadline: now.add(const Duration(days: 1)),
+      maxTeamSize: 4,
+      rules: 'Rules',
+      prize: 'Prize',
+    );
+
+    expect(event.submissionOpen(now), isTrue);
+    expect(event.judgingOpen(now), isFalse);
+
+    final afterSubmission = event.submissionDeadline!.add(const Duration(hours: 1));
+    expect(event.submissionOpen(afterSubmission), isFalse);
+    expect(event.judgingOpen(afterSubmission), isTrue);
+  });
+
+  test('ActiveEventResolver skips events without team membership', () {
+    final now = DateTime.now();
+    final events = [
+      HackathonEvent(
+        id: 'event-1',
+        title: 'Open Event',
+        description: 'Demo',
+        location: 'HCM',
+        bannerUrl: 'https://example.com/banner.jpg',
+        latitude: 10.0,
+        longitude: 106.0,
+        startDate: now.subtract(const Duration(days: 1)),
+        endDate: now.add(const Duration(days: 3)),
+        registrationDeadline: now.add(const Duration(days: 1)),
+        maxTeamSize: 4,
+        rules: 'Rules',
+        prize: 'Prize',
+      ),
+    ];
+
+    expect(
+      ActiveEventResolver.resolveId(
+        events: events,
+        userId: 'user-1',
+        teams: const [],
+      ),
+      isNull,
+    );
+  });
+
+  test('eventPhaseFor shows active while submissions are open', () {
+    final now = DateTime.now();
+    final event = HackathonEvent(
+      id: 'event-1',
+      title: 'Hackathon',
+      description: 'Demo',
+      location: 'HCM',
+      bannerUrl: 'https://example.com/banner.jpg',
+      latitude: 10.0,
+      longitude: 106.0,
+      startDate: now.subtract(const Duration(days: 1)),
+      endDate: now.add(const Duration(days: 3)),
+      registrationDeadline: now.add(const Duration(days: 1)),
+      submissionDeadline: now.add(const Duration(days: 2)),
+      maxTeamSize: 4,
+      rules: 'Rules',
+      prize: 'Prize',
+    );
+
+    expect(event.submissionOpen(now), isTrue);
+    expect(event.judgingOpen(now), isFalse);
+  });
+
+  test('AppNotification parses action metadata from database rows', () {
+    final notification = AppNotification.fromJson({
+      'id': 'notification-id',
+      'title': 'Score published',
+      'content': 'Your team has a new score.',
+      'notification_type': 'score',
+      'is_read': false,
+      'created_at': '2026-05-30T10:15:00',
+      'action_label': 'Xem điểm',
+      'deep_route': '/events/event-1/submit?team=team-1',
+    });
+
+    expect(notification.actionLabel, 'Xem điểm');
+    expect(notification.deepRoute, '/events/event-1/submit?team=team-1');
+    expect(
+      NotificationLink.routeFor(notification, role: AppRoles.participant),
+      '/events/event-1/submit?team=team-1',
+    );
+    expect(
+      NotificationLink.actionLabelFor(notification, role: AppRoles.participant),
+      'Xem điểm',
     );
   });
 
@@ -796,5 +1104,22 @@ void main() {
     final provider = NotificationProvider();
     await provider.push('', 'content', 'announcement', userId: 'user-1');
     expect(provider.error, contains('tiêu đề'));
+  });
+
+  test('AppLocalizations supports Japanese locale', () {
+  L10nService.setLocale(const Locale('ja'));
+  addTearDown(() => L10nService.setLocale(const Locale('vi')));
+
+  expect(AppLocalizations.supportedLocales, contains(const Locale('ja')));
+  expect(L10nService.strings.loginTitle, 'ログイン');
+  expect(L10nService.strings.languageJa, '日本語');
+  expect(
+    L10nService.strings.scorePublishedNotificationBody(
+      'Team Alpha',
+      average: 8.5,
+      feedback: 'Good work',
+    ),
+    'Team Alphaに新しいスコアがあります：8.5点。フィードバック：Good work。',
+  );
   });
 }
