@@ -1,0 +1,1276 @@
+{
+  "@@locale": "en",
+  "sessionBootstrapMessage": "Restoring sign-in session...",
+  "statusRegistrationClosing": "Registration closing soon",
+  "statusJudging": "Judging in progress",
+  "allEventsFilter": "All events",
+  "myTeamReadyBadge": "On a team",
+  "myTeamPendingBadge": "No team yet",
+  "weightedScoreHint": "Displayed score is a weighted rubric average saved to the system.",
+  "scorePublishedWithHintSnackBar": "Scores published. Participants will be notified in their inbox.",
+  "demoResetTitle": "Reset demo data",
+  "demoResetDescription": "Deletes all users, events, teams, submissions and scores in the current environment. Demo local only.",
+  "demoResetConfirmLabel": "Type RESET to confirm",
+  "demoResetSuccess": "Demo data reset.",
+  "eventSupportHotline": "Contact organizers via Chat or notifications",
+  "demoOnboardingTitle": "Quick demo guide",
+  "demoOnboardingStartButton": "Start demo",
+  "demoOnboardingParticipantTitle": "Participant",
+  "demoOnboardingParticipantBody": "Event → Team → Submit. Use a demo account if the environment is seeded.",
+  "demoOnboardingJudgeTitle": "Judge",
+  "demoOnboardingJudgeBody": "Scoring tab → pick a submission → enter criteria and feedback → Submit score.",
+  "demoOnboardingAlertsTitle": "Notifications",
+  "demoOnboardingAlertsBody": "Bell icon top-right. Tap a score notification to view details.",
+  "appName": "SEAL Hackathon",
+  "cancelButton": "Cancel",
+  "saveButton": "Save",
+  "deleteButton": "Delete",
+  "sendButton": "Send",
+  "doneButton": "Done",
+  "resetButton": "Reset",
+  "updateButton": "Update",
+  "retryButton": "Retry",
+  "stayButton": "Stay",
+  "confirmButton": "Confirm",
+  "confirmDelete": "Are you sure you want to delete?",
+  "detailsButton": "Details",
+  "editButton": "Edit",
+  "inviteButton": "Invite",
+  "allFilter": "All",
+  "sortLabel": "Sort",
+  "unknownLabel": "Unknown",
+  "leaderBadge": "Leader",
+  "meLabel": "Me",
+  "statusActive": "Open",
+  "statusUpcoming": "Upcoming",
+  "statusClosed": "Closed",
+  "filterRegistrationOpen": "Registration open",
+  "networkOfflineMessage": "No network connection. Check your connection and try again.",
+  "networkError": "Cannot connect to server",
+  "unknownError": "Something went wrong",
+  "accessDeniedTitle": "Access denied",
+  "accessDeniedSubtitle": "This feature is not available for your role.",
+  "accessDeniedDefaultMessage": "Please sign in with an appropriate account.",
+  "backToEventsButton": "Back to events",
+  "loginRequiredTitle": "Please sign in",
+  "loginRequiredSubtitle": "Sign in to continue using SEAL Hackathon.",
+  "goToLoginButton": "Go to sign in",
+  "supabaseRequiredTitle": "Cannot connect to system",
+  "supabaseRequiredBody": "The app is not ready to load data. Try again later or contact organizers.",
+  "notLoggedInMessage": "You are not signed in.",
+  "logoutFailedMessage": "Could not sign out. Try again.",
+  "saveSuccess": "Data saved successfully",
+  "updateSuccess": "Updated successfully",
+  "deleteSuccess": "Deleted successfully",
+  "roleParticipant": "Participant",
+  "roleJudge": "Judge",
+  "roleMentor": "Mentor",
+  "roleOrganizer": "Organizer",
+  "eventsNavLabel": "Events",
+  "myHomeNavLabel": "My home",
+  "teamNavLabel": "Team",
+  "submitNavLabel": "Submit",
+  "judgeNavLabel": "Scoring",
+  "dashboardNavLabel": "Dashboard",
+  "chatNavLabel": "Chat",
+  "mapNavLabel": "Map",
+  "eventSubNavOverview": "Overview",
+  "eventScopedSubtitle": "Active event",
+  "backToEventsAction": "Back to My home",
+  "backToEventListAction": "Back to event list",
+  "profileNavLabel": "Profile",
+  "notificationsNavLabel": "Notifications",
+  "accountMenuTooltip": "Account",
+  "logoutButton": "Sign out",
+  "helpTooltip": "Help",
+  "helpDialogTitle": "Need help?",
+  "helpDialogBody": "Contact organizers at the support desk or send a message in Chat.",
+  "loginTitle": "Sign in",
+  "registerTitle": "Create account",
+  "verifyEmailTitle": "Verify email",
+  "loginHeroSubtitle": "Manage events, teams, submissions, scoring, messages and venue in one mobile app.",
+  "emailLabel": "Email",
+  "passwordLabel": "Password",
+  "confirmPasswordLabel": "Confirm password",
+  "fullNameLabel": "Full name",
+  "universityLabel": "University",
+  "otpLabel": "OTP code (6 digits)",
+  "registerRoleHint": "New accounts are created as Participant. Verify email with OTP or link after sign-up.",
+  "roleManagedHint": "Role is managed on your account profile.",
+  "forgotPasswordButton": "Forgot password?",
+  "hidePasswordTooltip": "Hide password",
+  "showPasswordTooltip": "Show password",
+  "loginButton": "Sign in",
+  "registerButton": "Register",
+  "confirmOtpButton": "Confirm OTP",
+  "backToLoginButton": "Back to sign in",
+  "haveAccountButton": "I already have an account",
+  "createAccountButton": "Create new account",
+  "loginSuccess": "Signed in successfully",
+  "loginFailed": "Invalid email or password",
+  "emailConfirmedWelcomeBack": "Email confirmed. Welcome back!",
+  "noPendingVerificationEmail": "No email pending verification.",
+  "registerSuccessPrefix": "Registration successful with",
+  "eventsTitle": "Events",
+  "participantHomeTitle": "Your events",
+  "participantHomeSubtitle": "Tap an event below to start — or continue from the progress card.",
+  "participantPickEventTitle": "Pick an event to start",
+  "participantPickEventBody": "You are not on a team yet. Tap an event in the list to view details and register.",
+  "judgeEventListHint": "Tap an open event to open the scoring queue.",
+  "mentorEventListHint": "Tap an assigned event to open chat with participants.",
+  "allEventsSectionTitle": "All events",
+  "journeyStepNeedsTeam": "No team yet",
+  "journeyStepNeedsSubmission": "Not submitted",
+  "journeyStepAwaitingScore": "Awaiting score",
+  "journeyStepHasScore": "Scored",
+  "journeyStepRegistrationClosed": "Registration closed",
+  "journeyStepMissedSubmission": "Submission deadline passed",
+  "journeyNextStepTitle": "Next step",
+  "journeyActionJoinTeam": "Create or join a team",
+  "journeyActionBrowseEvents": "Browse other events",
+  "journeyActionContactOrganizer": "Contact organizers",
+  "journeyActionSubmit": "Submit now",
+  "journeyActionViewSubmission": "View submission",
+  "journeyActionViewScore": "View score",
+  "journeyActionOpenMap": "View venue",
+  "journeyHelperRegistrationClosed": "Team registration is closed. Browse other events or contact organizers.",
+  "journeyHelperMissedSubmission": "Submission deadline passed. Contact organizers if you need help.",
+  "submissionReadOnlyScoreTitle": "Scoring result",
+  "notificationActionGoTeams": "Go to Teams",
+  "notificationActionSubmit": "Submit",
+  "notificationActionViewScore": "View score",
+  "notificationActionViewEvent": "View event",
+  "notificationActionOpenJudge": "Open scoring",
+  "submissionDraftAutoSaving": "Auto-saving draft",
+  "clearDraftButton": "Clear draft",
+  "draftClearedMessage": "Draft cleared.",
+  "submitWizardStepTeam": "Choose team",
+  "submitWizardStepProject": "Project info",
+  "submitWizardStepLinks": "Links & submit",
+  "submitWizardNext": "Next",
+  "submitWizardBack": "Back",
+  "submitWizardReviewTitle": "Review before submit",
+  "organizerTodayModeTitle": "Today",
+  "organizerShowDetailsButton": "Show details",
+  "organizerHideDetailsButton": "Collapse",
+  "roleOnboardingSkip": "Skip",
+  "roleOnboardingStart": "Start",
+  "roleOnboardingParticipantTitle": "Welcome participant",
+  "roleOnboardingParticipantBody": "Tap an event to start → create or accept a team invite → submit before the deadline.",
+  "roleOnboardingJudgeTitle": "Welcome judge",
+  "roleOnboardingJudgeBody": "Pick an open event → Scoring tab → select unscored submissions.",
+  "roleOnboardingOrganizerTitle": "Welcome organizer",
+  "roleOnboardingOrganizerBody": "Track unscored work, assign mentors and send announcements from Today.",
+  "roleOnboardingMentorTitle": "Welcome mentor",
+  "roleOnboardingMentorBody": "Pick your assigned event → open Chat to reply to participants.",
+  "chatMentorRequestTemplate": "Hello organizers, I need a mentor assigned for my current event.",
+  "eventsSubtitle": "Track hackathons, deadlines and details.",
+  "eventSearchHint": "Search by name, location or topic",
+  "sortStartAsc": "Start date: earliest",
+  "sortStartDesc": "Start date: latest",
+  "sortTitleAsc": "Name A → Z",
+  "sortTitleDesc": "Name Z → A",
+  "sortDeadlineAsc": "Deadline: soonest",
+  "sortDeadlineDesc": "Deadline: latest",
+  "noMatchingEvents": "No matching events.",
+  "noEventsYet": "No events yet.",
+  "eventQuickActionsTitle": "Quick actions",
+  "clearSearchAction": "Clear search",
+  "reloadEventsAction": "Reload events",
+  "registerTeamPill": "Register team",
+  "registrationClosedPill": "Registration closed",
+  "eventDetailTitle": "Event details",
+  "eventDetailSubtitle": "Timeline, rules, venue and leaderboard.",
+  "eventDetailLoadingSubtitle": "Loading event data.",
+  "eventNotFound": "Event not found.",
+  "rulesTitle": "Rules",
+  "prizeTitle": "Prizes",
+  "leaderboardTitle": "Leaderboard",
+  "noScoredSubmissionsYet": "No scored submissions yet.",
+  "noSubmissionsForEventYet": "No submissions for this event yet.",
+  "eventDetailStatsTitle": "Event stats",
+  "eventTeamsMetric": "Teams",
+  "eventSubmissionsMetric": "Submissions",
+  "eventUnscoredMetric": "Unscored",
+  "organizerShowAllEventsButton": "Show all events",
+  "timelineTitle": "Timeline",
+  "timelineRegistration": "Registration",
+  "timelineKickoff": "Kickoff",
+  "timelineFinal": "Final",
+  "openJudgeQueueButton": "View unscored",
+  "openOrganizerDashboardButton": "Open organizer dashboard",
+  "openMentorChatButton": "Open mentor chat",
+  "manageTeamButton": "Create or manage team",
+  "viewMyTeamButton": "View my team",
+  "joinOrCreateTeamButton": "Create or join team",
+  "submitForEventButton": "Submit for this event",
+  "myTeamForEventTitle": "Your team",
+  "leaderboardPendingTitle": "Unscored",
+  "awaitingScoreBadge": "Awaiting score",
+  "judgeQueueFilteredSubtitle": "Unscored submissions for the selected event.",
+  "viewVenueButton": "View venue",
+  "eventCreatedSuccess": "Event created.",
+  "eventUpdatedSuccess": "Event updated.",
+  "teamTitle": "Team",
+  "teamSubtitle": "Create teams, invite members and manage participation.",
+  "teamOverviewTitle": "Team overview",
+  "noTeamsYet": "No teams yet",
+  "teamsAvailable": "Available teams",
+  "checkInLabel": "Check-in",
+  "checkInPending": "Pending",
+  "checkInConfirmed": "Confirmed",
+  "submitProjectButton": "Submit",
+  "createTeamButton": "Create team",
+  "createTeamTitle": "Create team",
+  "eventLabel": "Event",
+  "teamNameLabel": "Team name",
+  "loadEventsBeforeCreateTeam": "No events loaded. Load events before creating a team.",
+  "roleViewOnlyTeams": "This role can only view teams.",
+  "emptyTeamsMessage": "No teams yet. Create a team to continue.",
+  "myTeamsGroup": "My teams",
+  "otherTeamsGroup": "Other teams",
+  "teamFullBadge": "Team full",
+  "updateTeamDialogTitle": "Update team",
+  "leaveTeamDialogTitle": "Leave team?",
+  "leaveTeamButton": "Leave team",
+  "joinTeamButton": "Join team",
+  "inviteMemberTitle": "Invite member",
+  "memberEmailLabel": "Member email",
+  "sendInvitationButton": "Send invitation",
+  "invitationSendingStatus": "Sending invitation...",
+  "teamInvitationTitle": "Team invitation",
+  "teamCreatedNotificationTitle": "Team created",
+  "teamCreatedSuccess": "Team created.",
+  "teamJoinedSuccess": "Joined team.",
+  "invitationSentSuccess": "Invitation sent.",
+  "invitationAcceptedSuccess": "Joined team.",
+  "invitationDeclinedSuccess": "Invitation declined.",
+  "pendingInvitationsTitle": "Pending invitations",
+  "pendingInvitationsEmpty": "No team invitations.",
+  "acceptInvitationButton": "Accept",
+  "declineInvitationButton": "Decline",
+  "invitationStatusPending": "Pending",
+  "invitationStatusAccepted": "Accepted",
+  "invitationStatusDeclined": "Declined",
+  "teamUpdatedSuccess": "Team updated.",
+  "teamLeftSuccess": "Left team.",
+  "invalidTeamError": "Invalid team.",
+  "inviteUserNotFound": "No account found with this email.",
+  "invitationAlreadyPending": "This person already has a pending invite for the team.",
+  "alreadyTeamMemberError": "You are already a member of this team.",
+  "alreadyOnEventTeamError": "You are already on another team for this event. Leave your current team before joining a new one.",
+  "oneTeamPerEventBadge": "Already on a team for event",
+  "cannotChangeOwnRole": "You cannot change your own role.",
+  "leaveTeamRegistrationClosedError": "Cannot leave team after registration closes.",
+  "invitationNoLongerPending": "This invitation is no longer valid.",
+  "errorEventContextRequired": "Could not determine event. Try again from the event screen.",
+  "errorEventEnded": "Event ended. Cannot create or join teams.",
+  "errorRegistrationDeadlinePassed": "Team registration deadline passed for this event.",
+  "errorSubmissionClosed": "Event ended. Cannot submit or update.",
+  "errorSubmissionNotStarted": "Event has not started. Cannot submit yet.",
+  "errorJudgingNotStarted": "Event has not started. Cannot score yet.",
+  "errorJudgingClosed": "Event ended. Cannot score.",
+  "teamInviteOnlyError": "You can only join a team via leader invitation.",
+  "teamInviteOnlyBadge": "Invite only",
+  "teamInviteOnlyHelper": "Contact the team leader for an invitation.",
+  "submissionsRoleGateMessage": "Only participants can submit.",
+  "submitScreenTitle": "Submit",
+  "submitScreenSubtitle": "Send GitHub link, demo video and project description for judges.",
+  "projectInfoSection": "Project info",
+  "linksSection": "Links",
+  "descriptionSection": "Description",
+  "projectNameLabel": "Project name",
+  "githubUrlLabel": "GitHub link",
+  "demoVideoUrlLabel": "Demo video link",
+  "projectDescriptionHint": "What problem does the project solve?",
+  "submissionDescriptionTip": "Tip: problem, solution, key features, tech stack and measurable impact.",
+  "joinTeamBeforeSubmit": "Create or join a team before submitting.",
+  "updateSubmissionButton": "Update submission",
+  "submitProjectAction": "Submit",
+  "needsSubmissionStatus": "Submission needed",
+  "noProjectSubmittedHelper": "No submission yet.",
+  "reviewedStatus": "Reviewed",
+  "reviewedHelper": "Judge published feedback.",
+  "submittedStatus": "Submitted",
+  "submittedHelper": "Waiting for judge scoring.",
+  "notSubmittedYet": "Not submitted",
+  "latestSubmissionTitle": "Latest submission",
+  "selectTeamToSubmit": "Select or create a team to submit.",
+  "goToTeamAction": "Go to Teams",
+  "createTeamNowAction": "Create team now",
+  "teamHasNoSubmission": "This team has not submitted yet.",
+  "updateHistoryTitle": "Update history",
+  "judgeFeedbackTitle": "Judge feedback",
+  "submissionSavedNotificationTitle": "Submission saved",
+  "submissionCreatedSuccess": "Submitted.",
+  "submissionUpdatedSuccess": "Submission updated.",
+  "submissionStatusReviewed": "Reviewed",
+  "submissionStatusSubmitted": "Submitted",
+  "submissionStatusDraft": "Draft",
+  "submissionDraftRestored": "Unsent draft restored.",
+  "chatRoleGateMessage": "Chat is available for participants and mentors.",
+  "chatTitle": "Mentor chat",
+  "chatSubtitle": "Talk with mentors assigned to your event.",
+  "chatContactLabel": "Chat with mentor",
+  "noChatContactsMessage": "No mentor assigned to your event yet. Contact organizers for support.",
+  "contactOrganizerForMentorAction": "Copy message",
+  "sendMentorRequestAction": "Send request",
+  "mentorRequestSentSuccess": "Mentor assignment request sent to organizers.",
+  "contactOrganizerHint": "Contact organizers to get a mentor for the event.",
+  "chatInputHint": "Ask mentor...",
+  "chatRealtimeConnected": "Realtime connected",
+  "chatRealtimeConnecting": "Connecting realtime",
+  "chatRealtimeOffline": "Manual sync",
+  "reloadChatTooltip": "Reload conversation",
+  "messageSentStatus": "Sent",
+  "sendMessageTooltip": "Send",
+  "yourMessageSemantic": "Your message",
+  "deleteMessageTitle": "Delete message?",
+  "deleteMessageBody": "Your message will be removed from the conversation.",
+  "noMessagesYet": "No messages yet.",
+  "selectConversationBeforeSend": "Select a conversation before sending.",
+  "judgeRoleGateMessage": "Only judges can access scoring.",
+  "judgeTitle": "Scoring",
+  "judgeSubtitle": "Score submissions on technical depth, UX and innovation.",
+  "filterUnscored": "Unscored",
+  "filterScored": "Scored",
+  "judgeSearchLabel": "Search submission or team",
+  "noMatchingSubmissions": "No matching submissions.",
+  "showAllSubmissions": "Show all",
+  "selectSubmissionTitle": "Select submission",
+  "nextUnscoredButton": "Next unscored",
+  "selectSubmissionToScore": "Select a submission to score.",
+  "needsScoringBadge": "Needs scoring",
+  "repositoryButton": "Source code",
+  "demoButton": "Demo video",
+  "rubricEvaluationTitle": "Rubric",
+  "feedbackLabel": "Feedback",
+  "updateScoreDialogTitle": "Update old score?",
+  "currentScoreLabel": "Current score",
+  "feedbackReady": "Ready",
+  "feedbackMissing": "Missing",
+  "submitScoreButton": "Submit score",
+  "updateScoreButton": "Update score",
+  "scoringProgressTitle": "Scoring progress",
+  "scorePublishedNotificationTitle": "Score published",
+  "scorePublishedSnackBar": "Score published for submission.",
+  "scoreSavedSuccess": "Score saved.",
+  "judgeScoreParticipantHint": "Participants open notifications to view score and feedback.",
+  "scoreNotificationDialogTitle": "Scoring result",
+  "announcementNotificationDialogTitle": "Announcement from organizers",
+  "viewSubmissionButton": "View submission",
+  "closeDialogButton": "Close",
+  "organizerRoleGateMessage": "Only organizers can access operations.",
+  "organizerTitle": "Organizer",
+  "organizerSubtitle": "Track events, team progress and scoring status.",
+  "sectionOverview": "Overview",
+  "sectionOperations": "Operations",
+  "sectionSubmissions": "Submissions",
+  "sectionEvents": "Events",
+  "sectionTeams": "Teams",
+  "sendAnnouncementButton": "Send announcement",
+  "sendAnnouncementDialogTitle": "Send announcement",
+  "recipientLabel": "Recipients",
+  "notificationTitleLabel": "Title",
+  "notificationContentLabel": "Content",
+  "announcementPreviewTitle": "Preview announcement",
+  "confirmSendAnnouncementButton": "Confirm send",
+  "announcementSendingStatus": "Sending announcement...",
+  "recipientCountLabel": "Recipient count",
+  "createEventTitle": "Create event",
+  "editEventTitle": "Edit event",
+  "eventFieldTitle": "Title",
+  "eventFieldDescription": "Description",
+  "eventFieldLocation": "Location",
+  "eventFieldBannerUrl": "Banner URL",
+  "eventFieldStartDate": "Start date",
+  "eventFieldEndDate": "End date",
+  "eventFieldRegistrationDeadline": "Registration deadline",
+  "eventFieldSubmissionDeadline": "Submission deadline",
+  "eventFieldSupportHotline": "Support hotline",
+  "eventFieldOpeningHours": "Opening hours",
+  "eventFieldMaxTeamSize": "Max team size",
+  "eventFieldRules": "Rules",
+  "eventFieldPrize": "Prize",
+  "eventFieldLatitude": "Latitude",
+  "eventFieldLongitude": "Longitude",
+  "selectOnMapButton": "Pick on map",
+  "eventStepInfo": "Info",
+  "eventStepBanner": "Banner",
+  "eventStepLocation": "Location",
+  "eventStepTime": "Schedule",
+  "uploadBannerTooltip": "Upload image",
+  "uploadBannerButton": "Upload image",
+  "changeBannerButton": "Change image",
+  "removeBannerButton": "Remove image",
+  "bannerUploadSuccess": "Banner uploaded successfully.",
+  "uploadBannerFailed": "Could not upload image. Check Storage configuration.",
+  "advancedCoordinatesTitle": "Advanced: coordinates",
+  "invalidEventDatesSnackBar": "Invalid event dates. Check the format.",
+  "closeRegistrationTitle": "Close registration?",
+  "closeRegistrationSuccess": "Registration closed for this event.",
+  "recentSubmissionsTitle": "Recent submissions",
+  "noSubmissionsYet": "No submissions yet.",
+  "openTeamAction": "Open team",
+  "teamDetailsTitle": "Team details",
+  "noTeamsToView": "No teams to view.",
+  "leaderboardCopiedSuccess": "Leaderboard copied.",
+  "manageUserRolesTitle": "Manage user roles",
+  "createStaffAccountTitle": "Create judge/mentor account",
+  "createStaffAccountButton": "Create account",
+  "createStaffAccountFailed": "Could not create account. Check admin-create-user Edge Function.",
+  "noUsersYet": "No users yet.",
+  "changeRoleDialogTitle": "Change account role?",
+  "exportLeaderboardTitle": "Export leaderboard",
+  "userRolesTitle": "User roles",
+  "userSearchLabel": "Search name or email",
+  "roleFilterLabel": "Filter role",
+  "noMatchingUsers": "No matching accounts.",
+  "manageScoreCriteriaTitle": "Manage scoring criteria",
+  "manageEventMentorsTitle": "Assign event mentors",
+  "manageEventMentorsDescription": "Pick mentors to support participants per hackathon",
+  "noEventsForMentorAssignment": "No events to assign mentors.",
+  "noMentorsAvailableMessage": "No mentor accounts. Create or assign roles first.",
+  "mentorAssignmentLoadFailed": "Could not load assigned mentors.",
+  "manageScoreCriteriaDescription": "Create a custom rubric per event",
+  "addScoreCriterionButton": "Add criterion",
+  "scoreCriterionLabel": "Criterion name",
+  "scoreCriterionDescription": "Criterion description",
+  "scoreCriteriaSavedSuccess": "Scoring criteria saved.",
+  "defaultRubricHint": "This event uses the default rubric. Organizers can edit and save a custom rubric.",
+  "useDefaultRubricButton": "Use default rubric",
+  "unscoredMetricLabel": "Unscored",
+  "organizerTodayTasksTitle": "Tasks for today",
+  "organizerUnscoredTasksLabel": "Unscored submissions",
+  "organizerTeamsNeedMembersLabel": "Teams need members",
+  "organizerClosingSoonLabel": "Registration closing soon",
+  "organizerSendReminderButton": "Send reminder",
+  "organizerAssignMentorButton": "Assign mentor",
+  "organizerTaskUnscoredLabel": "Scoring reminder",
+  "organizerTaskTeamsLabel": "Team reminder",
+  "organizerTaskClosingLabel": "Registration reminder",
+  "otherActionsTitle": "Other actions",
+  "dashboardChartTitle": "Scoring overview",
+  "scoredBarLabel": "Scored",
+  "unscoredBarLabel": "Unscored",
+  "loadMoreButton": "Load more",
+  "announcementEventLabel": "Link event (optional)",
+  "announcementNoEvent": "No linked event",
+  "viewEventFromAnnouncementButton": "View event",
+  "announcementTemplatesLabel": "Quick templates",
+  "announcementTemplateJudgingLabel": "Open judging",
+  "announcementTemplateJudgingTitle": "Judging room open",
+  "announcementTemplateJudgingBody": "Judges please open the Scoring tab. Official judging session is open.",
+  "announcementTemplateDeadlineLabel": "Deadline",
+  "announcementTemplateDeadlineTitle": "Submission deadline reminder",
+  "announcementTemplateDeadlineBody": "Teams that have not submitted please finish GitHub, demo video and description before the deadline.",
+  "announcementTemplateKickoffLabel": "Kickoff",
+  "announcementTemplateKickoffTitle": "Hackathon kickoff",
+  "announcementTemplateKickoffBody": "Welcome teams to SEAL Innovation Hackathon 2026. Check Events for schedule and rules.",
+  "newScoreSnackBar": "New score available. Open notifications to view.",
+  "openInboxAction": "View notifications",
+  "inboxTitle": "Notifications",
+  "inboxSubtitle": "Scores, team invites and system updates.",
+  "inboxEmpty": "No notifications yet.",
+  "reloadInboxAction": "Reload notifications",
+  "unreadGroup": "Unread",
+  "readGroup": "Read",
+  "markAsReadAction": "Mark as read",
+  "deleteNotificationTitle": "Delete notification?",
+  "deleteNotificationBody": "This item will be removed from the list.",
+  "profileTitle": "Profile",
+  "profileSubtitle": "Manage account info used across role flows.",
+  "noActiveSession": "No active session.",
+  "roleLabel": "Role",
+  "accountInfoTitle": "Account info",
+  "saveProfileButton": "Save profile",
+  "profileUpdatedSuccess": "Profile updated.",
+  "profileSecurityTitle": "Security",
+  "profileSecuritySubtitle": "Send password reset email to registered address. Contact organizers to change email.",
+  "themeModeTitle": "Appearance",
+  "themeModeDark": "Dark",
+  "themeModeLight": "Light",
+  "themeModeSystem": "System",
+  "languageTitle": "Language",
+  "languageVi": "Vietnamese",
+  "languageEn": "English",
+  "languageJa": "Japanese",
+  "sessionSectionTitle": "Session",
+  "logoutDescription": "Signing out clears local state and returns to sign in.",
+  "mapTitle": "Venue",
+  "mapSubtitle": "Map, address and directions.",
+  "noVenueYet": "No event venue yet.",
+  "addressLabel": "Address",
+  "openingHoursLabel": "Opening hours",
+  "hotlineLabel": "Hotline",
+  "coordinatesLabel": "Coordinates",
+  "defaultOpeningHours": "08:00 - 18:00",
+  "defaultHotline": "0900 000 000",
+  "copyAddressButton": "Copy address",
+  "addressCopiedSuccess": "Address copied.",
+  "openMapsButton": "Open Maps",
+  "openExternalMapsTitle": "Open external Maps?",
+  "openExternalMapsBody": "You will temporarily leave SEAL Hackathon to open Maps.",
+  "mapPickerTitle": "Pick event location",
+  "mapPickerInstruction": "Drag the map to place the pin at the event location",
+  "openMapsFailed": "Could not open Maps on this device.",
+  "validationEmailRequired": "Enter email.",
+  "validationEmailInvalid": "Enter a valid email.",
+  "validationPasswordRequired": "Enter password.",
+  "validationPasswordMinLength": "Password must be at least 6 characters.",
+  "validationConfirmPasswordRequired": "Confirm password.",
+  "validationPasswordMismatch": "Passwords do not match.",
+  "validationOtpRequired": "Enter OTP from email.",
+  "validationOtpInvalid": "OTP must be 6 digits.",
+  "validationFullNameRequired": "Enter full name.",
+  "validationFullNameMinLength": "Full name must be at least 2 characters.",
+  "validationUniversityRequired": "Enter university.",
+  "validationUniversityMinLength": "University must be at least 2 characters.",
+  "validationSupabaseNotReady": "Cannot connect to system. Try again later.",
+  "validationTeamNameRequired": "Enter team name.",
+  "validationTeamNameMinLength": "Team name must be at least 2 characters.",
+  "validationInviteEmailInvalid": "Enter a valid member email.",
+  "validationProjectNameRequired": "Enter project name.",
+  "validationProjectNameMinLength": "Project name must be at least 2 characters.",
+  "validationDescriptionRequired": "Enter project description.",
+  "validationDescriptionMinLength": "Description must be at least 10 characters.",
+  "validationJoinTeamBeforeSubmit": "Create or join a team before submitting.",
+  "eventNotLoadedForSubmit": "Could not load team event info. Try reloading events.",
+  "validationChatMessageRequired": "Message cannot be empty.",
+  "validationNotificationTitleRequired": "Enter notification title.",
+  "validationNotificationBodyRequired": "Enter notification body.",
+  "validationNotificationTypeInvalid": "Invalid notification type.",
+  "validationRecipientLabel": "Recipients",
+  "validationEventTitleRequired": "Enter event title.",
+  "validationEventTitleMinLength": "Event title must be at least 2 characters.",
+  "validationEventLocationRequired": "Enter event location.",
+  "validationEventLocationMinLength": "Location must be at least 2 characters.",
+  "validationLatitudeRequired": "Enter latitude.",
+  "validationLatitudeInvalid": "Latitude must be a valid number.",
+  "validationLatitudeRange": "Latitude must be between -90 and 90.",
+  "validationLongitudeRequired": "Enter longitude.",
+  "validationLongitudeInvalid": "Longitude must be a valid number.",
+  "validationLongitudeRange": "Longitude must be between -180 and 180.",
+  "validationMaxTeamSizeRequired": "Enter max team size.",
+  "validationMaxTeamSizeInvalid": "Max team size must be a valid integer.",
+  "validationEndAfterStart": "End date must be after start date.",
+  "validationDeadlineBeforeEnd": "Registration deadline cannot be after event end.",
+  "validationSubmissionAfterStart": "Submission deadline must be after event start.",
+  "validationSubmissionBeforeEnd": "Submission deadline cannot be after event end.",
+  "validationScoreRange": "Score must be between 0 and 10.",
+  "validationScoreCriteriaRequired": "At least one scoring criterion required.",
+  "validationScoreCriteriaLimit": "Maximum 8 scoring criteria per event.",
+  "validationScoreCriteriaLabelRequired": "Enter criterion name.",
+  "validationScoreCriteriaDuplicate": "Duplicate criterion id. Remove and add again.",
+  "validationScoreCriteriaWeight": "Criterion weight must be greater than 0.",
+  "validationNoSubmissionSelected": "No submission selected to score.",
+  "validationInvalidJudgeSession": "Invalid judge session.",
+  "validationFeedbackRequired": "Enter feedback before submitting score.",
+  "validationInvalidRole": "Invalid role.",
+  "validationUserLabel": "User",
+  "validationBannerUrlLabel": "Banner URL",
+  "openLinkTooltip": "Open link to verify",
+  "openLinkFailed": "Could not open this link.",
+  "openExternalLinkFailed": "Could not open link on this device.",
+  "reloadTeamsTooltip": "Reload teams",
+  "reloadJudgeQueueTooltip": "Reload unscored queue",
+  "reloadDashboardTooltip": "Reload dashboard",
+  "judgePreviewOnlyMessage": "Sign in as Judge to submit official scores.",
+  "judgeQueueSortLabel": "Sort unscored queue",
+  "sortNewestFirst": "Newest first",
+  "sortProjectName": "Project name",
+  "sortTeamName": "Team",
+  "sortAverageScore": "Average score",
+  "judgeSubmissionToScoreLabel": "Submission to score",
+  "unknownTeamLabel": "Unknown team",
+  "teamNotLoadedYet": "Team not loaded",
+  "eventNotLoadedYet": "Event not loaded",
+  "averageScoreAbbrev": "Avg",
+  "judgeReviewReminder": "Review source code, demo quality, implementation depth and product impact before submitting.",
+  "rubricTechnicalLabel": "Technical depth",
+  "rubricTechnicalDescription": "Architecture, correctness, reliability and implementation depth.",
+  "rubricUiLabel": "User experience",
+  "rubricUiDescription": "Mobile flow, clarity, accessibility and polish.",
+  "rubricInnovationLabel": "Innovation",
+  "rubricInnovationDescription": "Novelty, impact, useful AI/automation and product fit.",
+  "decreaseScoreTooltip": "Decrease",
+  "increaseScoreTooltip": "Increase",
+  "editEventMenuItem": "Edit event",
+  "closeRegistrationMenuItem": "Close registration",
+  "closeRegistrationConfirmButton": "Close registration",
+  "notificationActionsTooltip": "Notification options",
+  "eventActionsTooltip": "Event actions",
+  "submissionsMetricLabel": "Submissions",
+  "scoresMetricLabel": "Score count",
+  "systemStatusTitle": "System status",
+  "systemStatusSubtitle": "Track data loading and sync.",
+  "chatSuggestionSubmission": "Ask about submission",
+  "chatSuggestionGithub": "Help review GitHub link",
+  "chatSuggestionChecklist": "Submission checklist",
+  "emailPrefix": "Email:",
+  "averageScoreTitle": "Average score",
+  "judgeQueueTitle": "Unscored queue",
+  "judgeQueueWaitingSuffix": " unscored submissions",
+  "exportLeaderboardDescription": "Copy leaderboard data to clipboard",
+  "userRolesDescription": "View and update account roles",
+  "databaseConnectedLabel": "Data ready",
+  "databaseMissingLabel": "No data yet",
+  "operationsDataLabel": "Operations data",
+  "syncingLabel": "Syncing",
+  "stateReadyLabel": "Ready",
+  "notLoggedInShortLabel": "Not signed in",
+  "noApiErrorsLabel": "No data load errors",
+  "systemStatusSemanticLabel": "System operations status",
+  "profileFullNameFieldSemantic": "Profile full name field",
+  "profileUniversityFieldSemantic": "Profile university field",
+  "errorInvalidCredentials": "Incorrect email or password. Use your registered email or tap \"Create new account\".",
+  "errorEmailNotConfirmed": "Email not confirmed. Check inbox or spam.",
+  "errorInvalidOtp": "Invalid or expired OTP. Request a new activation email.",
+  "errorConnectionTimeout": "Connection timed out. Check network and try again.",
+  "errorRlsPermissionDenied": "Your account cannot perform this action.",
+  "errorDuplicateRecord": "This data already exists. Reload and update the existing record.",
+  "errorCheckConstraint": "Invalid data. Check your input and try again.",
+  "otpHelpText": "The OTP is in your activation email. Check inbox or spam if you do not see it.",
+  "teamOverviewForEvent": "Team — {title}",
+  "@teamOverviewForEvent": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "scopedTeamsAvailable": "{count} teams in this event",
+  "@scopedTeamsAvailable": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pendingInvitationsCount": "{count} pending invitations",
+  "@pendingInvitationsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "eventScheduleHours": "{start} - {end}",
+  "@eventScheduleHours": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "activationEmailSent": "Activation email sent to {email}. Open the link or enter the 6-digit OTP below.",
+  "@activationEmailSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "emailActivatedWelcome": "Email activated. Welcome {email}!",
+  "@emailActivatedWelcome": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "passwordResetEmailSent": "Password reset link sent to {email}. Check your inbox or spam folder.",
+  "@passwordResetEmailSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "registerSuccess": "Registration successful with {email}.",
+  "@registerSuccess": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "organizerFocusEventSubtitle": "Filtering by {title}.",
+  "@organizerFocusEventSubtitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionEventLabel": "Event: {title}",
+  "@submissionEventLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "judgeQueueForEventTitle": "Scoring: {title}",
+  "@judgeQueueForEventTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "openEventSemanticLabel": "Open event {title}",
+  "@openEventSemanticLabel": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "registerBeforeDate": "Register before {date}",
+  "@registerBeforeDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "registrationClosedByDate": "Registration closed {date}",
+  "@registrationClosedByDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "registrationOpenUntilDate": "Registration open until {date}",
+  "@registrationOpenUntilDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "maxMembersChip": "Up to {count} members",
+  "@maxMembersChip": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "leaderPrefix": "Leader: {name}",
+  "@leaderPrefix": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "memberCountLabel": "{count} members",
+  "@memberCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "teamSemanticLabel": "Team {name}, {memberCount} members, Leader: {leader}",
+  "@teamSemanticLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "memberCount": {
+        "type": "String"
+      },
+      "leader": {
+        "type": "String"
+      }
+    }
+  },
+  "inviteTeamPrefix": "Team: {name}",
+  "@inviteTeamPrefix": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "leaveTeamDialogBody": "You will leave {teamName}. After registration closes you cannot rejoin.",
+  "@leaveTeamDialogBody": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "teamInvitationBody": "You are invited to {teamName}. Open Teams to view and join if spots remain.",
+  "@teamInvitationBody": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "invitedByLabel": "Invited by: {name}",
+  "@invitedByLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "teamCreatedNotificationBody": "{teamName} joined {eventTitle}.",
+  "@teamCreatedNotificationBody": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      },
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "alreadyOnEventTeamNamedError": "You are already on team {teamName} for this event.",
+  "@alreadyOnEventTeamNamedError": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "teamFullForEventError": "{teamName} is full for this event.",
+  "@teamFullForEventError": {
+    "placeholders": {
+      "teamName": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionSavedNotificationBody": "{projectName} was submitted successfully.",
+  "@submissionSavedNotificationBody": {
+    "placeholders": {
+      "projectName": {
+        "type": "String"
+      }
+    }
+  },
+  "chatEventScopedSubtitle": "Conversation for event {eventTitle}",
+  "@chatEventScopedSubtitle": {
+    "placeholders": {
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "mentorRequestNotificationTitle": "Mentor request: {participantName}",
+  "@mentorRequestNotificationTitle": {
+    "placeholders": {
+      "participantName": {
+        "type": "String"
+      }
+    }
+  },
+  "todayTimestamp": "Today, {time}",
+  "@todayTimestamp": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreOutOfTenLabel": "{score}/10",
+  "@scoreOutOfTenLabel": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "scoreWeightLabel": "Weight x{weight}",
+  "@scoreWeightLabel": {
+    "placeholders": {
+      "weight": {
+        "type": "String"
+      }
+    }
+  },
+  "updateScoreDialogBody": "Your previous score for {projectName} will be replaced.",
+  "@updateScoreDialogBody": {
+    "placeholders": {
+      "projectName": {
+        "type": "String"
+      }
+    }
+  },
+  "closeRegistrationBody": "Registration deadline for {title} will be set to now.",
+  "@closeRegistrationBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "announcementSentSuccess": "Announcement sent to {count} users.",
+  "@announcementSentSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "announcementRolePreview": "Send to: {role}",
+  "@announcementRolePreview": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "recipientCountValue": "{count} accounts",
+  "@recipientCountValue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "changeRoleDialogBody": "Assign {name} as {role}.",
+  "@changeRoleDialogBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "roleUpdatedSuccess": "Updated role for {name}.",
+  "@roleUpdatedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "cannotChangeOwnRoleSubtitle": "{email}\nYou cannot change your own role.",
+  "@cannotChangeOwnRoleSubtitle": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "sendPasswordResetTo": "Send password reset link to {email}",
+  "@sendPasswordResetTo": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "mapPickerCoordinates": "Coordinates: {latitude}, {longitude}",
+  "@mapPickerCoordinates": {
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "coordinatesPreview": "{latitude}, {longitude}",
+  "@coordinatesPreview": {
+    "placeholders": {
+      "latitude": {
+        "type": "String"
+      },
+      "longitude": {
+        "type": "String"
+      }
+    }
+  },
+  "staffAccountCreatedSuccess": "Created account for {name}.",
+  "@staffAccountCreatedSuccess": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "mentorAssignmentSavedSuccess": "Assigned {count} mentors to the event.",
+  "@mentorAssignmentSavedSuccess": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "organizerTaskUnscoredTitle": "Scoring reminder — {eventTitle}",
+  "@organizerTaskUnscoredTitle": {
+    "placeholders": {
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "organizerTaskUnscoredBody": "{count} submissions still unscored. Please finish scoring today.",
+  "@organizerTaskUnscoredBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "organizerTaskTeamsTitle": "Team reminder — {eventTitle}",
+  "@organizerTaskTeamsTitle": {
+    "placeholders": {
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "organizerTaskTeamsBody": "{count} teams still need members. Invite participants before the deadline.",
+  "@organizerTaskTeamsBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "organizerTaskClosingTitle": "Registration closing — {eventTitle}",
+  "@organizerTaskClosingTitle": {
+    "placeholders": {
+      "eventTitle": {
+        "type": "String"
+      }
+    }
+  },
+  "organizerTaskClosingBody": "{count} events close registration within 3 days. Finish registration early.",
+  "@organizerTaskClosingBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "organizerNotificationSuggestions": "{count} suggested announcements",
+  "@organizerNotificationSuggestions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "journeyScoreSummary": "Average score: {score}",
+  "@journeyScoreSummary": {
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionDraftSavedAt": "Draft saved at {time}",
+  "@submissionDraftSavedAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "validationSearchMaxLength": "Search keyword max {max} characters.",
+  "@validationSearchMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationInvalidUser": "{label} is invalid.",
+  "@validationInvalidUser": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "validationFieldRequired": "Enter {label}.",
+  "@validationFieldRequired": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "validationInvalidUrl": "{label} must be a valid http/https URL.",
+  "@validationInvalidUrl": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "validationTeamNameMaxLength": "Team name max {max} characters.",
+  "@validationTeamNameMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationProjectNameMaxLength": "Project name max {max} characters.",
+  "@validationProjectNameMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationDescriptionMaxLength": "Description max {max} characters.",
+  "@validationDescriptionMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationChatMessageMaxLength": "Message max {max} characters.",
+  "@validationChatMessageMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationNotificationTitleMaxLength": "Title max {max} characters.",
+  "@validationNotificationTitleMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationNotificationBodyMaxLength": "Body max {max} characters.",
+  "@validationNotificationBodyMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationFeedbackMaxLength": "Feedback max {max} characters.",
+  "@validationFeedbackMaxLength": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationMaxTeamSizeRange": "Max team size must be between {min} and {max}.",
+  "@validationMaxTeamSizeRange": {
+    "placeholders": {
+      "min": {
+        "type": "int"
+      },
+      "max": {
+        "type": "int"
+      }
+    }
+  },
+  "validationDateTimeFormat": "{label} must use format {format} (e.g. 2026-06-15 09:00).",
+  "@validationDateTimeFormat": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "submissionQueueCountLabel": "{count} submissions in this queue",
+  "@submissionQueueCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scoreCountLabel": "{count} scores",
+  "@scoreCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scoringProgressSemantic": "Scoring progress: {scored} scored and {unscored} unscored",
+  "@scoringProgressSemantic": {
+    "placeholders": {
+      "scored": {
+        "type": "int"
+      },
+      "unscored": {
+        "type": "int"
+      }
+    }
+  },
+  "memberCountWithLimit": "{current}/{limit} members",
+  "@memberCountWithLimit": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "apiErrorCountLabel": "{count} errors",
+  "@apiErrorCountLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "judgeQueueWaitingLabel": "{count} unscored submissions",
+  "@judgeQueueWaitingLabel": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "scoreSliderSemantic": "{label} {value} points. {description}",
+  "@scoreSliderSemantic": {
+    "placeholders": {
+      "label": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      },
+      "description": {
+        "type": "String"
+      }
+    }
+  },
+  "messageTimestampSemantic": "{senderLabel} at {time}",
+  "@messageTimestampSemantic": {
+    "placeholders": {
+      "senderLabel": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  }
+}
