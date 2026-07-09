@@ -16,6 +16,9 @@ ThemeData buildSealTheme({Brightness brightness = Brightness.dark}) {
           onPrimaryContainer: SealPalette.onPrimaryContainer,
           secondary: SealPalette.secondary,
           onSecondary: SealPalette.onSecondary,
+          secondaryContainer: SealPalette.secondaryContainer,
+          tertiary: SealPalette.tertiary,
+          onTertiary: SealPalette.onSecondary,
           surface: SealPalette.surface,
           onSurface: SealPalette.onSurface,
           error: SealPalette.error,
@@ -23,17 +26,20 @@ ThemeData buildSealTheme({Brightness brightness = Brightness.dark}) {
           onErrorContainer: SealPalette.onErrorContainer,
         )
       : ColorScheme.light(
-          primary: SealPalette.primary,
+          primary: const Color(0xFF1570EF),
           onPrimary: Colors.white,
-          primaryContainer: SealPalette.primaryContainer,
+          primaryContainer: const Color(0xFF2E90FA),
           onPrimaryContainer: Colors.white,
-          secondary: SealPalette.secondary,
+          secondary: const Color(0xFF12B76A),
           onSecondary: Colors.white,
+          secondaryContainer: const Color(0xFF027A48),
+          tertiary: const Color(0xFFF79009),
+          onTertiary: const Color(0xFF1D2939),
           surface: const Color(0xFFF7F9FC),
           onSurface: const Color(0xFF101828),
           onSurfaceVariant: const Color(0xFF475467),
           outlineVariant: const Color(0xFFD0D5DD),
-          error: SealPalette.error,
+          error: const Color(0xFFF04438),
           errorContainer: const Color(0xFFFFE4E6),
           onErrorContainer: const Color(0xFF7F1D1D),
         );
@@ -68,12 +74,12 @@ ThemeData buildSealTheme({Brightness brightness = Brightness.dark}) {
     ),
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: surfaceLow,
-      indicatorColor: SealPalette.primary.withValues(alpha: 0.16),
+      indicatorColor: colors.primary.withValues(alpha: 0.16),
       surfaceTintColor: Colors.transparent,
       labelTextStyle: WidgetStateProperty.resolveWith(
         (states) => TextStyle(
           color: states.contains(WidgetState.selected)
-              ? SealPalette.primary
+              ? colors.primary
               : onSurfaceVariant,
           fontSize: 12,
           fontWeight: FontWeight.w700,
@@ -82,7 +88,7 @@ ThemeData buildSealTheme({Brightness brightness = Brightness.dark}) {
       iconTheme: WidgetStateProperty.resolveWith(
         (states) => IconThemeData(
           color: states.contains(WidgetState.selected)
-              ? SealPalette.primary
+              ? colors.primary
               : onSurfaceVariant,
         ),
       ),
@@ -90,7 +96,7 @@ ThemeData buildSealTheme({Brightness brightness = Brightness.dark}) {
     inputDecorationTheme:
         OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSizes.radiusSmall),
-          borderSide: const BorderSide(color: SealPalette.outlineVariant),
+          borderSide: BorderSide(color: outlineVariant),
         ).let(
           (border) => InputDecorationTheme(
             filled: true,
@@ -108,13 +114,13 @@ ThemeData buildSealTheme({Brightness brightness = Brightness.dark}) {
               borderSide: BorderSide(color: outlineVariant),
             ),
             focusedBorder: border.copyWith(
-              borderSide: const BorderSide(
-                color: SealPalette.primary,
+              borderSide: BorderSide(
+                color: colors.primary,
                 width: 2,
               ),
             ),
             errorBorder: border.copyWith(
-              borderSide: const BorderSide(color: SealPalette.error),
+              borderSide: BorderSide(color: colors.error),
             ),
           ),
         ),
@@ -134,7 +140,7 @@ ThemeData buildSealTheme({Brightness brightness = Brightness.dark}) {
       backgroundColor: isDark
           ? SealPalette.surfaceContainerHigh
           : const Color(0xFFF2F4F7),
-      selectedColor: SealPalette.primaryContainer,
+      selectedColor: colors.primaryContainer,
       side: BorderSide(color: outlineVariant),
       labelStyle: TextStyle(
         color: colors.onSurface,
@@ -144,7 +150,7 @@ ThemeData buildSealTheme({Brightness brightness = Brightness.dark}) {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: SealPalette.primaryContainer,
+        backgroundColor: colors.primaryContainer,
         foregroundColor: Colors.white,
         minimumSize: const Size.fromHeight(AppSizes.buttonHeight),
         shape: RoundedRectangleBorder(
@@ -155,7 +161,7 @@ ThemeData buildSealTheme({Brightness brightness = Brightness.dark}) {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: SealPalette.primary,
+        foregroundColor: colors.primary,
         side: BorderSide(color: outlineVariant),
         minimumSize: const Size.fromHeight(AppSizes.buttonHeightCompact),
         shape: RoundedRectangleBorder(
@@ -176,7 +182,7 @@ ThemeData buildSealTheme({Brightness brightness = Brightness.dark}) {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: SealPalette.primary,
+        foregroundColor: colors.primary,
         textStyle: const TextStyle(fontWeight: FontWeight.w700),
       ),
     ),

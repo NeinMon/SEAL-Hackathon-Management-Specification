@@ -116,6 +116,34 @@ extension SealThemeContext on BuildContext {
 
   Color get onSurfaceColor => Theme.of(this).colorScheme.onSurface;
 
+  Color get sealPrimary => Theme.of(this).colorScheme.primary;
+
+  Color get sealSecondary => Theme.of(this).colorScheme.secondary;
+
+  Color get sealError => Theme.of(this).colorScheme.error;
+
+  Color get sealTertiary => Theme.of(this).colorScheme.tertiary;
+
+  Color get sealOnSecondary => Theme.of(this).colorScheme.onSecondary;
+
+  Color get sealPrimaryContainer =>
+      Theme.of(this).colorScheme.primaryContainer;
+
+  Color get sealSecondaryContainer =>
+      Theme.of(this).colorScheme.secondaryContainer;
+
+  Color get sealOnPrimaryContainer =>
+      Theme.of(this).colorScheme.onPrimaryContainer;
+
+  Color get sealErrorContainer => Theme.of(this).colorScheme.errorContainer;
+
+  Color get sealOnErrorContainer =>
+      Theme.of(this).colorScheme.onErrorContainer;
+
+  Color get sealIndigo => Theme.of(this).brightness == Brightness.dark
+      ? AppColors.indigo
+      : const Color(0xFF6941C6);
+
   LinearGradient get sealBackgroundGradient => LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
