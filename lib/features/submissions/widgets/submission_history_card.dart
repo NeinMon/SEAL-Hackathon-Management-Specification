@@ -15,6 +15,7 @@ class SubmissionHistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = DateFormat('dd/MM/yyyy HH:mm');
+    final muted = context.sealTheme.onSurfaceVariant;
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
       child: Padding(
@@ -24,7 +25,7 @@ class SubmissionHistoryCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.code_outlined, color: SealPalette.primary),
+                Icon(Icons.code_outlined, color: context.sealPrimary),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -46,12 +47,12 @@ class SubmissionHistoryCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               '${formatter.format(submission.submittedAt)}\n${submission.githubUrl}',
-              style: const TextStyle(color: SealPalette.onSurfaceVariant),
+              style: TextStyle(color: muted),
             ),
             if (history.isNotEmpty) ...[
               const SizedBox(height: 12),
-              const Text(
-                AppStrings.updateHistoryTitle,
+              Text(
+                L10nService.strings.updateHistoryTitle,
                 style: TextStyle(fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 6),
@@ -63,15 +64,15 @@ class SubmissionHistoryCard extends StatelessWidget {
                   final item = history[index];
                   return Text(
                     '${formatter.format(item.changedAt)} - ${AppLabels.submissionStatus(item.status)} - ${item.projectName}',
-                    style: const TextStyle(color: SealPalette.onSurfaceVariant),
+                    style: TextStyle(color: muted),
                   );
                 },
               ),
             ],
             if (scores.isNotEmpty) ...[
               const SizedBox(height: 12),
-              const Text(
-                AppStrings.judgeFeedbackTitle,
+              Text(
+                L10nService.strings.judgeFeedbackTitle,
                 style: TextStyle(fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 6),
@@ -85,9 +86,7 @@ class SubmissionHistoryCard extends StatelessWidget {
                     padding: const EdgeInsets.only(bottom: 6),
                     child: Text(
                       '${score.average.toStringAsFixed(1)} - ${score.feedback}',
-                      style: const TextStyle(
-                        color: SealPalette.onSurfaceVariant,
-                      ),
+                      style: TextStyle(color: muted),
                     ),
                   );
                 },

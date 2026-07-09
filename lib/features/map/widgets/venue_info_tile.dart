@@ -14,6 +14,8 @@ class VenueInfoTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final accent = context.sealPrimary;
+    final muted = context.sealTheme.onSurfaceVariant;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -22,10 +24,10 @@ class VenueInfoTile extends StatelessWidget {
             width: 34,
             height: 34,
             decoration: BoxDecoration(
-              color: SealPalette.primary.withValues(alpha: 0.12),
+              color: accent.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: SealPalette.primary, size: 18),
+            child: Icon(icon, color: accent, size: 18),
           ),
           const SizedBox(width: AppSizes.paddingSmall + 2),
           Expanded(
@@ -34,8 +36,8 @@ class VenueInfoTile extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: SealPalette.onSurfaceVariant,
+                  style: TextStyle(
+                    color: muted,
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
                   ),

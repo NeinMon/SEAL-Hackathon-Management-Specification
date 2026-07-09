@@ -11,16 +11,16 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = DateFormat('dd/MM/yyyy');
-    final phase = eventPhaseFor(event);
+    final phase = eventPhaseFor(event, null, EventPhaseColors.from(context));
     final registrationOpen = eventRegistrationOpen(event);
     return Semantics(
       button: true,
-      label: AppStrings.openEventSemanticLabel(event.title),
+      label: L10nService.strings.openEventSemanticLabel(event.title),
       child: Card(
         margin: const EdgeInsets.only(bottom: AppSizes.sectionGap),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          onTap: () => context.go('/events/${event.id}'),
+          onTap: () => context.go(RouteQuery.overviewForEvent(event.id)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -62,8 +62,10 @@ class EventCard extends StatelessWidget {
                     const SizedBox(height: 6),
                     Text(
                       event.description,
-                      style: const TextStyle(
-                        color: SealPalette.onSurfaceVariant,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: context.sealTheme.onSurfaceVariant,
                         height: 1.35,
                       ),
                     ),
@@ -79,7 +81,7 @@ class EventCard extends StatelessWidget {
                         ),
                         EventMetaPill(
                           icon: Icons.schedule_outlined,
-                          value: AppStrings.registerBeforeDate(
+                          value: L10nService.strings.registerBeforeDate(
                             formatter.format(event.registrationDeadline),
                           ),
                         ),
@@ -95,20 +97,21 @@ class EventCard extends StatelessWidget {
                         Expanded(
                           child: StatusPill(
                             label: registrationOpen
-                                ? AppStrings.registerTeamPill
-                                : AppStrings.registrationClosedPill,
+                                ? L10nService.strings.registerTeamPill
+                                : L10nService.strings.registrationClosedPill,
                             color: registrationOpen
-                                ? SealPalette.secondary
-                                : SealPalette.onSurfaceVariant,
+                                ? context.sealSecondary
+                                : context.sealTheme.onSurfaceVariant,
                             icon: registrationOpen
                                 ? Icons.groups_2_outlined
                                 : Icons.lock_clock_outlined,
                           ),
                         ),
                         TextButton.icon(
-                          onPressed: () => context.go('/events/${event.id}'),
-                          icon: const Icon(Icons.arrow_forward),
-                          label: const Text(AppStrings.detailsButton),
+                          onPressed: () =>
+                              context.go(RouteQuery.overviewForEvent(event.id)),
+                          icon: Icon(Icons.arrow_forward),
+                          label: Text(context.l10n.detailsButton),
                         ),
                       ],
                     ),

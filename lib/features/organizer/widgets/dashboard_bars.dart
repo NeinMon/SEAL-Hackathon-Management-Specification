@@ -6,16 +6,17 @@ class DashboardBarRow extends StatelessWidget {
     required this.label,
     required this.value,
     required this.maxValue,
-    this.color = SealPalette.primary,
+    this.color,
   });
 
   final String label;
   final int value;
   final int maxValue;
-  final Color color;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
+    final resolvedColor = color ?? context.sealPrimary;
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -34,7 +35,7 @@ class DashboardBarRow extends StatelessWidget {
                 value: value / maxValue,
                 minHeight: 12,
                 backgroundColor: context.sealTheme.surfaceContainerLow,
-                color: color,
+                color: resolvedColor,
               ),
             ),
           ),
@@ -82,32 +83,32 @@ class DashboardBars extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              AppStrings.dashboardChartTitle,
+            Text(
+              L10nService.strings.dashboardChartTitle,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: AppSizes.paddingCompact),
             DashboardBarRow(
-              label: AppStrings.teamTitle,
+              label: L10nService.strings.teamTitle,
               value: teams,
               maxValue: maxValue,
             ),
             DashboardBarRow(
-              label: AppStrings.submissionsMetricLabel,
+              label: L10nService.strings.submissionsMetricLabel,
               value: submissions,
               maxValue: maxValue,
             ),
             DashboardBarRow(
-              label: AppStrings.scoredBarLabel,
+              label: L10nService.strings.scoredBarLabel,
               value: scored,
               maxValue: maxValue,
-              color: SealPalette.secondary,
+              color: context.sealSecondary,
             ),
             DashboardBarRow(
-              label: AppStrings.unscoredBarLabel,
+              label: L10nService.strings.unscoredBarLabel,
               value: unscored,
               maxValue: maxValue,
-              color: SealPalette.tertiary,
+              color: context.sealTertiary,
             ),
           ],
         ),

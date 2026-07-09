@@ -19,7 +19,7 @@ class EventMetaPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: SealPalette.primary),
+          Icon(icon, size: 16, color: context.sealPrimary),
           const SizedBox(width: 7),
           Flexible(
             child: Text(

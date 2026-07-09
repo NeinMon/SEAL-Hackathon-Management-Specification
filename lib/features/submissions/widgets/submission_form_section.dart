@@ -23,7 +23,7 @@ class SubmissionFormSection extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, color: SealPalette.primary, size: 20),
+                Icon(icon, color: context.sealPrimary, size: 20),
                 const SizedBox(width: 8),
                 Text(
                   title,

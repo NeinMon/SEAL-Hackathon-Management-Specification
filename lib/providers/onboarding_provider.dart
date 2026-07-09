@@ -2,25 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class OnboardingProvider extends ChangeNotifier {
-  static const _storageKey = 'seal_demo_onboarding_v1';
+  static const _storageVersion = 'v2';
+  String? _role;
+  bool _completed = false;
+  bool _loaded = false;
 
-  bool _completed = true;
+  bool get shouldShow => _loaded && !_completed;
 
-  bool get shouldShow => !_completed;
-
-  Future<void> load() async {
+  Future<void> loadForRole(String? role) async {
+    if (role == null) {
+      _role = null;
+      _completed = true;
+      _loaded = true;
+      notifyListeners();
+      return;
+    }
+    if (_role == role && _loaded) return;
+    _role = role;
     final prefs = await SharedPreferences.getInstance();
-    // Do not show internal demo onboarding by default.
-    // Only show it when explicitly enabled in local storage (set to false).
-    _completed = prefs.getBool(_storageKey) ?? true;
+    _completed = prefs.getBool(_key(role)) ?? false;
+    _loaded = true;
     notifyListeners();
   }
 
   Future<void> complete() async {
-    if (_completed) return;
+    final role = _role;
+    if (role == null || _completed) return;
     _completed = true;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_storageKey, true);
+    await prefs.setBool(_key(role), true);
   }
+
+  Future<void> clear() async {
+    _role = null;
+    _completed = false;
+    _loaded = false;
+    notifyListeners();
+  }
+
+  String _key(String role) => 'seal_onboarding_${_storageVersion}_$role';
 }

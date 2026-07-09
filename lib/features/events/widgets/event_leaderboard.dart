@@ -21,16 +21,16 @@ class EventLeaderboard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          AppStrings.leaderboardTitle,
+        Text(
+          L10nService.strings.leaderboardTitle,
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 8),
         if (scoredSubmissions.isEmpty)
           EmptyState(
             message: hasSubmissions
-                ? AppStrings.noScoredSubmissionsYet
-                : AppStrings.noSubmissionsForEventYet,
+                ? L10nService.strings.noScoredSubmissionsYet
+                : L10nService.strings.noSubmissionsForEventYet,
           )
         else
           ListView.builder(
@@ -48,7 +48,7 @@ class EventLeaderboard extends StatelessWidget {
         if (pendingSubmissions.isNotEmpty) ...[
           const SizedBox(height: 16),
           Text(
-            AppStrings.leaderboardPendingTitle,
+            L10nService.strings.leaderboardPendingTitle,
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w800,
@@ -62,20 +62,9 @@ class EventLeaderboard extends StatelessWidget {
             itemCount: pendingSubmissions.length,
             itemBuilder: (context, index) {
               final submission = pendingSubmissions[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                child: ListTile(
-                  leading: const CircleAvatar(
-                    child: Icon(Icons.hourglass_top_outlined, size: 18),
-                  ),
-                  title: Text(submission.projectName),
-                  subtitle: Text(_teamName(submission.teamId, teams)),
-                  trailing: const StatusPill(
-                    label: AppStrings.awaitingScoreBadge,
-                    color: SealPalette.tertiary,
-                    icon: Icons.pending_outlined,
-                  ),
-                ),
+              return _LeaderboardPendingTile(
+                submission: submission,
+                teamName: _teamName(submission.teamId, teams),
               );
             },
           ),
@@ -88,7 +77,36 @@ class EventLeaderboard extends StatelessWidget {
     for (final team in teams) {
       if (team.id == teamId) return team.name;
     }
-    return AppStrings.teamNotLoadedYet;
+    return L10nService.strings.teamNotLoadedYet;
+  }
+}
+
+class _LeaderboardPendingTile extends StatelessWidget {
+  const _LeaderboardPendingTile({
+    required this.submission,
+    required this.teamName,
+  });
+
+  final ProjectSubmission submission;
+  final String teamName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: const CircleAvatar(
+          child: Icon(Icons.hourglass_top_outlined, size: 18),
+        ),
+        title: Text(submission.projectName),
+        subtitle: Text(teamName),
+        trailing: StatusPill(
+          label: L10nService.strings.awaitingScoreBadge,
+          color: context.sealTertiary,
+          icon: Icons.pending_outlined,
+        ),
+      ),
+    );
   }
 }
 
@@ -113,17 +131,17 @@ class _LeaderboardTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: SealPalette.primary.withValues(alpha: 0.14),
+          backgroundColor: context.sealPrimary.withValues(alpha: 0.14),
           child: Text(
             '#$rank',
-            style: const TextStyle(
-              color: SealPalette.primary,
+            style: TextStyle(
+              color: context.sealPrimary,
               fontWeight: FontWeight.w900,
             ),
           ),
         ),
         title: Text(submission.projectName),
-        subtitle: Text('$teamName\n${AppStrings.scoreCountLabel(scoreCount)}'),
+        subtitle: Text('$teamName\n${L10nService.strings.scoreCountLabel(scoreCount)}'),
         isThreeLine: true,
         trailing: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -134,7 +152,7 @@ class _LeaderboardTile extends StatelessWidget {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
             ),
             Text(
-              AppStrings.averageScoreAbbrev,
+              L10nService.strings.averageScoreAbbrev,
               style: TextStyle(
                 color: context.sealTheme.onSurfaceVariant,
                 fontSize: 12,

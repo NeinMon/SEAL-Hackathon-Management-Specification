@@ -1,4 +1,5 @@
 import '../../../shared.dart';
+import 'organizer_submission_tile.dart';
 
 class OrganizerSubmissionsSection extends StatelessWidget {
   const OrganizerSubmissionsSection({
@@ -31,16 +32,16 @@ class OrganizerSubmissionsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          AppStrings.recentSubmissionsTitle,
+        Text(
+          L10nService.strings.recentSubmissionsTitle,
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 8),
         if (visible.isEmpty)
           EmptyState(
-            message: AppStrings.noSubmissionsYet,
+            message: L10nService.strings.noSubmissionsYet,
             icon: Icons.assignment_outlined,
-            actionLabel: AppStrings.openTeamAction,
+            actionLabel: L10nService.strings.openTeamAction,
             onAction: () => context.go(AppRoutes.teams),
           )
         else
@@ -50,24 +51,12 @@ class OrganizerSubmissionsSection extends StatelessWidget {
             itemCount: visible.take(5).length,
             itemBuilder: (context, index) {
               final submission = visible[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 10),
-                child: ListTile(
-                  leading: const Icon(Icons.assignment_turned_in_outlined),
-                  title: Text(submission.projectName),
-                  subtitle: Text(
-                    '${AppLabels.submissionStatus(submission.status)} - ${AppStrings.scoreCountLabel(scores.scoreCountFor(submission.id))}',
-                  ),
-                  trailing: Text(
-                    scores.averageFor(submission.id).toStringAsFixed(1),
-                    style: const TextStyle(
-                      color: SealPalette.primary,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                    ),
-                  ),
-                  onTap: () => onTapSubmission(submission),
-                ),
+              return OrganizerSubmissionTile(
+                submission: submission,
+                subtitle:
+                    '${AppLabels.submissionStatus(submission.status)} - ${L10nService.strings.scoreCountLabel(scores.scoreCountFor(submission.id))}',
+                averageLabel: scores.averageFor(submission.id).toStringAsFixed(1),
+                onTap: () => onTapSubmission(submission),
               );
             },
           ),

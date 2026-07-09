@@ -18,7 +18,7 @@ class OrganizerAction extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      leading: Icon(icon, color: SealPalette.primary),
+      leading: Icon(icon, color: context.sealPrimary),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w800)),
       subtitle: Text(value),
       trailing: const Icon(Icons.chevron_right),

@@ -36,14 +36,14 @@ class OrganizerOverviewSection extends StatelessWidget {
       children: [
         if (focusEvent != null) ...[
           StatusBanner(
-            message: AppStrings.organizerFocusEventSubtitle(focusEvent!.title),
+            message: L10nService.strings.organizerFocusEventSubtitle(focusEvent!.title),
           ),
           Align(
             alignment: Alignment.centerRight,
             child: TextButton.icon(
               onPressed: () => context.go(AppRoutes.organizer),
-              icon: const Icon(Icons.filter_alt_off_outlined),
-              label: const Text(AppStrings.organizerShowAllEventsButton),
+              icon: Icon(Icons.filter_alt_off_outlined),
+              label: Text(context.l10n.organizerShowAllEventsButton),
             ),
           ),
           const SizedBox(height: AppSizes.paddingCompact),
@@ -52,16 +52,16 @@ class OrganizerOverviewSection extends StatelessWidget {
           children: [
             Expanded(
               child: MetricCard(
-                label: AppStrings.eventsTitle,
+                label: L10nService.strings.eventsTitle,
                 value: focusEvent == null ? '${events.events.length}' : '1',
               ),
             ),
             const SizedBox(width: AppSizes.paddingSmall + 2),
             Expanded(
               child: MetricCard(
-                label: AppStrings.statusActive,
+                label: L10nService.strings.statusActive,
                 value: '$activeEvents',
-                accent: SealPalette.secondary,
+                accent: context.sealSecondary,
               ),
             ),
           ],
@@ -71,18 +71,18 @@ class OrganizerOverviewSection extends StatelessWidget {
           children: [
             Expanded(
               child: MetricCard(
-                label: AppStrings.teamTitle,
+                label: L10nService.strings.teamTitle,
                 value: '$teamsTotal',
               ),
             ),
             const SizedBox(width: AppSizes.paddingSmall + 2),
             Expanded(
               child: MetricCard(
-                label: AppStrings.unscoredMetricLabel,
+                label: L10nService.strings.unscoredMetricLabel,
                 value: '$unscored',
                 accent: unscored == 0
-                    ? SealPalette.secondary
-                    : SealPalette.tertiary,
+                    ? context.sealSecondary
+                    : context.sealTertiary,
               ),
             ),
           ],
