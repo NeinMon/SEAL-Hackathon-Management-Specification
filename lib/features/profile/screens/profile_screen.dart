@@ -1,7 +1,10 @@
 import '../../../shared.dart';
 import '../widgets/profile_account_card.dart';
 import '../widgets/profile_form.dart';
+import '../widgets/profile_language_section.dart';
+import '../widgets/profile_security_section.dart';
 import '../widgets/profile_session_section.dart';
+import '../widgets/profile_theme_section.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -60,7 +63,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       initialUniversity = university.text.trim();
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text(AppStrings.profileUpdatedSuccess)),
+      SnackBar(content: Text(context.l10n.profileUpdatedSuccess)),
     );
   }
 
@@ -71,54 +74,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return ListView(
       padding: const EdgeInsets.all(AppSizes.paddingMedium),
       children: [
-        const SealSectionHeader(
-          title: AppStrings.profileTitle,
-          subtitle: AppStrings.profileSubtitle,
+        SealSectionHeader(
+          title: L10nService.strings.profileTitle,
+          subtitle: L10nService.strings.profileSubtitle,
           icon: Icons.person_outline,
         ),
         if (user == null)
-          const EmptyState(message: AppStrings.noActiveSession)
+          EmptyState(message: context.l10n.noActiveSession)
         else ...[
           ProfileAccountCard(user: user),
           const SizedBox(height: AppSizes.paddingCompact),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSizes.paddingMedium),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    AppStrings.themeModeTitle,
-                    style: TextStyle(fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 10),
-                  SegmentedButton<ThemeMode>(
-                    segments: const [
-                      ButtonSegment(
-                        value: ThemeMode.dark,
-                        label: Text(AppStrings.themeModeDark),
-                        icon: Icon(Icons.dark_mode_outlined),
-                      ),
-                      ButtonSegment(
-                        value: ThemeMode.light,
-                        label: Text(AppStrings.themeModeLight),
-                        icon: Icon(Icons.light_mode_outlined),
-                      ),
-                      ButtonSegment(
-                        value: ThemeMode.system,
-                        label: Text(AppStrings.themeModeSystem),
-                        icon: Icon(Icons.brightness_auto_outlined),
-                      ),
-                    ],
-                    selected: {context.watch<ThemeProvider>().mode},
-                    onSelectionChanged: (selection) {
-                      context.read<ThemeProvider>().setMode(selection.first);
-                    },
-                  ),
-                ],
-              ),
-            ),
+          ProfileSecuritySection(
+            email: user.email,
+            isLoading: auth.isLoading,
+            onRequestPasswordReset: () => _requestPasswordReset(context, user.email),
           ),
+          const SizedBox(height: AppSizes.paddingCompact),
+          const ProfileThemeSection(),
+          const SizedBox(height: AppSizes.paddingCompact),
+          const ProfileLanguageSection(),
           const SizedBox(height: AppSizes.paddingCompact),
           ProfileForm(
             formKey: formKey,
@@ -139,12 +113,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> _requestPasswordReset(BuildContext context, String email) async {
+    final auth = context.read<AuthProvider>();
+    final sent = await auth.requestPasswordReset(email);
+    if (!context.mounted) return;
+    final message = sent
+        ? (auth.infoMessage ?? L10nService.strings.passwordResetEmailSent(email))
+        : (auth.error ?? L10nService.strings.unknownError);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future<void> _logout(BuildContext context) async {
     final auth = context.read<AuthProvider>();
     if (auth.user == null) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(AppStrings.notLoggedInMessage)),
+        SnackBar(content: Text(context.l10n.notLoggedInMessage)),
       );
       context.go(AppRoutes.login);
       return;
@@ -159,7 +143,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!context.mounted) return;
     if (!loggedOut) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(auth.error ?? AppStrings.logoutFailedMessage)),
+        SnackBar(content: Text(auth.error ?? L10nService.strings.logoutFailedMessage)),
       );
       return;
     }
