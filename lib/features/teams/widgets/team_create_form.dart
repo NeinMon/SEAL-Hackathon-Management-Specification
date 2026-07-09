@@ -39,8 +39,8 @@ class TeamCreateForm extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                AppStrings.createTeamTitle,
+              Text(
+                L10nService.strings.createTeamTitle,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: AppSizes.paddingCompact),
@@ -49,8 +49,8 @@ class TeamCreateForm extends StatelessWidget {
                   'team-event-${selectedEvent?.id}-${events.length}',
                 ),
                 initialValue: selectedEvent?.id,
-                decoration: const InputDecoration(
-                  labelText: AppStrings.eventLabel,
+                decoration: InputDecoration(
+                  labelText: L10nService.strings.eventLabel,
                   prefixIcon: Icon(Icons.event_outlined),
                 ),
                 items: [
@@ -64,8 +64,8 @@ class TeamCreateForm extends StatelessWidget {
                 controller: nameController,
                 textInputAction: TextInputAction.done,
                 validator: AppValidators.teamName,
-                decoration: const InputDecoration(
-                  labelText: AppStrings.teamNameLabel,
+                decoration: InputDecoration(
+                  labelText: L10nService.strings.teamNameLabel,
                   prefixIcon: Icon(Icons.groups_outlined),
                 ),
               ),
@@ -76,8 +76,8 @@ class TeamCreateForm extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton.icon(
                         onPressed: loading ? null : onCancel,
-                        icon: const Icon(Icons.close),
-                        label: const Text(AppStrings.cancelButton),
+                        icon: Icon(Icons.close),
+                        label: Text(context.l10n.cancelButton),
                       ),
                     ),
                     const SizedBox(width: AppSizes.paddingSmall + 2),
@@ -90,8 +90,8 @@ class TeamCreateForm extends StatelessWidget {
                               dimension: 18,
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
-                          : const Icon(Icons.add),
-                      label: const Text(AppStrings.createTeamButton),
+                          : Icon(Icons.add),
+                      label: Text(context.l10n.createTeamButton),
                     ),
                   ),
                 ],
@@ -101,23 +101,23 @@ class TeamCreateForm extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   selectedEvent!.registrationBlockReason() ??
-                      AppStrings.registrationClosedPill,
-                  style: const TextStyle(color: SealPalette.error),
+                      L10nService.strings.registrationClosedPill,
+                  style: TextStyle(color: context.sealError),
                 ),
               ],
               if (events.isEmpty) ...[
                 const SizedBox(height: 10),
-                const Text(
-                  AppStrings.loadEventsBeforeCreateTeam,
-                  style: TextStyle(color: SealPalette.error),
+                Text(
+                  L10nService.strings.loadEventsBeforeCreateTeam,
+                  style: TextStyle(color: context.sealError),
                 ),
               ],
               if (user != null &&
                   !AppRoles.participantCreators.contains(user!.role)) ...[
                 const SizedBox(height: 10),
-                const Text(
-                  AppStrings.roleViewOnlyTeams,
-                  style: TextStyle(color: SealPalette.onSurfaceVariant),
+                Text(
+                  L10nService.strings.roleViewOnlyTeams,
+                  style: TextStyle(color: context.sealTheme.onSurfaceVariant),
                 ),
               ],
             ],

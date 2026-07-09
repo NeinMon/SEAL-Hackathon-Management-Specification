@@ -1,5 +1,6 @@
 import '../../../shared.dart';
 import 'team_actions.dart';
+import 'team_dialogs.dart';
 import 'team_invite_flow.dart';
 import 'team_member_avatar.dart';
 
@@ -26,7 +27,7 @@ class TeamCard extends StatelessWidget {
         user != null && team.members.any((member) => member.id == user.id);
     final isLeader = user != null && team.leaderId == user.id;
     final leaderName = _leaderName(team);
-    final eventTitle = event?.title ?? AppStrings.eventNotLoadedYet;
+    final eventTitle = event?.title ?? L10nService.strings.eventNotLoadedYet;
     final memberLimit = event?.maxTeamSize ?? 0;
     final teamIsFull = memberLimit > 0 && team.members.length >= memberLimit;
     final registrationClosed = event != null && !event!.registrationOpen();
@@ -39,11 +40,14 @@ class TeamCard extends StatelessWidget {
           )
         : false;
     return Semantics(
-      label:
-          'Team ${team.name}, ${AppStrings.memberCountLabel(team.members.length)}, ${AppStrings.leaderPrefix(leaderName)}',
+      label: context.l10n.teamSemanticLabelFor(
+        team.name,
+        team.members.length,
+        leaderName,
+      ),
       child: Card(
         margin: const EdgeInsets.only(bottom: AppSizes.sectionGap),
-        color: highlighted ? SealPalette.primary.withValues(alpha: 0.08) : null,
+        color: highlighted ? context.sealPrimary.withValues(alpha: 0.08) : null,
         child: Padding(
           padding: const EdgeInsets.all(14),
           child: Column(
@@ -68,31 +72,31 @@ class TeamCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           eventTitle,
-                          style: const TextStyle(
-                            color: SealPalette.onSurfaceVariant,
+                          style: TextStyle(
+                            color: context.sealTheme.onSurfaceVariant,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          AppStrings.leaderPrefix(leaderName),
-                          style: const TextStyle(
-                            color: SealPalette.onSurfaceVariant,
+                          L10nService.strings.leaderPrefix(leaderName),
+                          style: TextStyle(
+                            color: context.sealTheme.onSurfaceVariant,
                           ),
                         ),
                       ],
                     ),
                   ),
                   if (isLeader)
-                    const StatusPill(
-                      label: AppStrings.leaderBadge,
-                      color: SealPalette.secondary,
+                    StatusPill(
+                      label: L10nService.strings.leaderBadge,
+                      color: context.sealSecondary,
                       icon: Icons.verified_outlined,
                     )
                   else if (teamIsFull)
-                    const StatusPill(
-                      label: AppStrings.teamFullBadge,
-                      color: SealPalette.tertiary,
+                    StatusPill(
+                      label: L10nService.strings.teamFullBadge,
+                      color: context.sealTertiary,
                       icon: Icons.lock_outline,
                     ),
                 ],
@@ -103,7 +107,7 @@ class TeamCard extends StatelessWidget {
                 runSpacing: 6,
                 children: [
                   StatusPill(
-                    label: AppStrings.memberCountWithLimit(
+                    label: context.l10n.memberCountWithLimitLabel(
                       team.members.length,
                       memberLimit,
                     ),
@@ -121,15 +125,10 @@ class TeamCard extends StatelessWidget {
                 registrationClosed: registrationClosed,
                 alreadyOnEventTeam: alreadyOnEventTeam,
                 user: user,
-                onSubmit: () => context.go(AppRoutes.submit),
-                onJoin: user == null || registrationClosed || alreadyOnEventTeam
-                    ? null
-                    : () => context.read<TeamProvider>().joinTeam(
-                        team.id,
-                        user,
-                        event: event,
-                      ),
-                onLeave: user == null
+                onSubmit: () => context.go(
+                  RouteQuery.submitForTeam(team.id, eventId: team.eventId),
+                ),
+                onLeave: user == null || registrationClosed
                     ? null
                     : () => _confirmLeaveTeam(context, team, user),
                 onEdit: () => _showEditTeamDialog(context, team),
@@ -152,33 +151,11 @@ class TeamCard extends StatelessWidget {
     for (final member in team.members) {
       if (member.id == team.leaderId) return member.fullName;
     }
-    return AppStrings.unknownLabel;
+    return L10nService.strings.unknownLabel;
   }
 
   Future<void> _showEditTeamDialog(BuildContext context, Team team) async {
-    final controller = TextEditingController(text: team.name);
-    final newName = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(AppStrings.updateTeamDialogTitle),
-        content: TextField(
-          controller: controller,
-          decoration: const InputDecoration(
-            labelText: AppStrings.teamNameLabel,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text(AppStrings.cancelButton),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(controller.text.trim()),
-            child: const Text(AppStrings.saveButton),
-          ),
-        ],
-      ),
-    );
+    final newName = await TeamDialogs.editTeamName(context, team);
     if (newName == null || newName.isEmpty || !context.mounted) return;
     await context.read<TeamProvider>().updateTeamName(team.id, newName);
   }
@@ -188,24 +165,8 @@ class TeamCard extends StatelessWidget {
     Team team,
     AppUser user,
   ) async {
-    final shouldLeave = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(AppStrings.leaveTeamDialogTitle),
-        content: Text(AppStrings.leaveTeamDialogBody(team.name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text(AppStrings.cancelButton),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(AppStrings.leaveTeamButton),
-          ),
-        ],
-      ),
-    );
-    if (shouldLeave != true || !context.mounted) return;
+    final shouldLeave = await TeamDialogs.confirmLeave(context, team);
+    if (!shouldLeave || !context.mounted) return;
     await context.read<TeamProvider>().leaveTeam(team.id, user);
   }
 }

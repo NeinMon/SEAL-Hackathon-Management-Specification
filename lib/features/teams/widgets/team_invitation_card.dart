@@ -26,14 +26,14 @@ class TeamInvitationCard extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.mail_outline, color: SealPalette.primary),
+                Icon(Icons.mail_outline, color: context.sealPrimary),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        team?.name ?? AppStrings.unknownTeamLabel,
+                        team?.name ?? L10nService.strings.unknownTeamLabel,
                         style: const TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.w900,
@@ -41,22 +41,22 @@ class TeamInvitationCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        event?.title ?? AppStrings.eventNotLoadedYet,
-                        style: const TextStyle(
-                          color: SealPalette.onSurfaceVariant,
+                        event?.title ?? L10nService.strings.eventNotLoadedYet,
+                        style: TextStyle(
+                          color: context.sealTheme.onSurfaceVariant,
                         ),
                       ),
                       if (inviter != null) ...[
                         const SizedBox(height: 4),
-                        Text(AppStrings.invitedByLabel(inviter.fullName)),
+                        Text(context.l10n.invitedByLabel(inviter.fullName)),
                       ],
                     ],
                   ),
                 ),
-                const StatusPill(
-                  label: AppStrings.invitationStatusPending,
+                StatusPill(
+                  label: L10nService.strings.invitationStatusPending,
                   icon: Icons.schedule_outlined,
-                  color: SealPalette.tertiary,
+                  color: context.sealTertiary,
                 ),
               ],
             ),
@@ -73,15 +73,15 @@ class TeamInvitationCard extends StatelessWidget {
                           currentUser,
                           event: event,
                         ),
-                  icon: const Icon(Icons.check),
-                  label: const Text(AppStrings.acceptInvitationButton),
+                  icon: Icon(Icons.check),
+                  label: Text(context.l10n.acceptInvitationButton),
                 ),
                 OutlinedButton.icon(
                   onPressed: () => context
                       .read<TeamProvider>()
                       .declineInvitation(invitation.id, currentUser),
-                  icon: const Icon(Icons.close),
-                  label: const Text(AppStrings.declineInvitationButton),
+                  icon: Icon(Icons.close),
+                  label: Text(context.l10n.declineInvitationButton),
                 ),
               ],
             ),
