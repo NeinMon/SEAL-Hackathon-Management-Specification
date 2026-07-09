@@ -1,4 +1,5 @@
 import '../../../shared.dart';
+import 'notification_dialogs.dart';
 
 class NotificationVisual {
   const NotificationVisual(this.icon, this.color);
@@ -7,29 +8,33 @@ class NotificationVisual {
   final Color color;
 }
 
-NotificationVisual notificationVisualFor(String type, bool isRead) {
-  final muted = isRead ? SealPalette.onSurfaceVariant : null;
+NotificationVisual notificationVisualFor(
+  BuildContext context,
+  String type,
+  bool isRead,
+) {
+  final muted = isRead ? context.sealTheme.onSurfaceVariant : null;
   switch (type) {
     case 'score':
       return NotificationVisual(
         Icons.leaderboard_outlined,
-        muted ?? SealPalette.secondary,
+        muted ?? context.sealSecondary,
       );
     case 'invitation':
       return NotificationVisual(
         Icons.group_add_outlined,
-        muted ?? SealPalette.primary,
+        muted ?? context.sealPrimary,
       );
     case 'announcement':
       return NotificationVisual(
         Icons.campaign_outlined,
-        muted ?? SealPalette.tertiary,
+        muted ?? context.sealTertiary,
       );
     case 'system':
     default:
       return NotificationVisual(
         Icons.shield_outlined,
-        muted ?? SealPalette.indigo,
+        muted ?? context.sealIndigo,
       );
   }
 }
@@ -41,108 +46,139 @@ class NotificationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = notificationVisualFor(notification.type, notification.isRead);
+    final style = notificationVisualFor(
+      context,
+      notification.type,
+      notification.isRead,
+    );
+    final auth = context.watch<AuthProvider>();
+    final role = auth.user?.role ?? AppRoles.participant;
+    final teams = context.watch<TeamProvider>().teams;
+    final actionLabel = NotificationLink.actionLabelFor(
+      notification,
+      role: role,
+    );
+    final actionRoute = NotificationLink.routeFor(
+      notification,
+      role: role,
+      teams: teams,
+      userId: auth.user?.id,
+    );
     return Semantics(
       button: true,
       label:
-          '${notification.isRead ? AppStrings.readGroup : AppStrings.unreadGroup} ${notification.title}',
+          '${notification.isRead ? L10nService.strings.readGroup : L10nService.strings.unreadGroup} ${notification.title}',
       child: Card(
         margin: const EdgeInsets.only(bottom: 12),
-        child: ListTile(
-          onTap: () => _handleTap(context),
-          leading: Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: style.color.withValues(
-                alpha: notification.isRead ? 0.08 : 0.16,
+        child: Column(
+          children: [
+            ListTile(
+              onTap: () => _handleTap(context),
+              leading: Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: style.color.withValues(
+                    alpha: notification.isRead ? 0.08 : 0.16,
+                  ),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: style.color.withValues(alpha: 0.32)),
+                ),
+                child: Icon(style.icon, color: style.color),
               ),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: style.color.withValues(alpha: 0.32)),
+              title: Text(
+                notification.title,
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+              subtitle: Text(
+                '${NotificationLink.displayContent(notification.content)}\n${DateFormat('dd/MM HH:mm').format(notification.createdAt)}',
+              ),
+              isThreeLine: true,
+              trailing: PopupMenuButton<String>(
+                tooltip: context.l10n.notificationActionsTooltip,
+                onSelected: (value) {
+                  if (value == 'read') {
+                    context.read<NotificationProvider>().markRead(notification.id);
+                  }
+                  if (value == 'delete') {
+                    _confirmDelete(context);
+                  }
+                },
+                itemBuilder: (context) => [
+                  if (!notification.isRead)
+                    PopupMenuItem(
+                      value: 'read',
+                      child: ListTile(
+                        leading: Icon(Icons.done),
+                        title: Text(context.l10n.markAsReadAction),
+                      ),
+                    ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: ListTile(
+                      leading: Icon(Icons.delete_outline),
+                      title: Text(context.l10n.deleteButton),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: Icon(style.icon, color: style.color),
-          ),
-          title: Text(
-            notification.title,
-            style: const TextStyle(fontWeight: FontWeight.w800),
-          ),
-          subtitle: Text(
-            '${NotificationLink.displayContent(notification.content)}\n${DateFormat('dd/MM HH:mm').format(notification.createdAt)}',
-          ),
-          isThreeLine: true,
-          trailing: PopupMenuButton<String>(
-            tooltip: AppStrings.notificationActionsTooltip,
-            onSelected: (value) {
-              if (value == 'read') {
-                context.read<NotificationProvider>().markRead(notification.id);
-              }
-              if (value == 'delete') {
-                _confirmDelete(context);
-              }
-            },
-            itemBuilder: (context) => [
-              if (!notification.isRead)
-                const PopupMenuItem(
-                  value: 'read',
-                  child: ListTile(
-                    leading: Icon(Icons.done),
-                    title: Text(AppStrings.markAsReadAction),
+            if (actionLabel != null)
+              Align(
+                alignment: Alignment.centerRight,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+                  child: FilledButton.tonal(
+                    onPressed: () => _openAction(context, actionRoute),
+                    child: Text(actionLabel),
                   ),
                 ),
-              const PopupMenuItem(
-                value: 'delete',
-                child: ListTile(
-                  leading: Icon(Icons.delete_outline),
-                  title: Text(AppStrings.deleteButton),
-                ),
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );
   }
 
+  Future<void> _openAction(BuildContext context, String route) async {
+    await context.read<NotificationProvider>().markRead(notification.id);
+    if (!context.mounted) return;
+    context.go(route);
+  }
+
   Future<void> _handleTap(BuildContext context) async {
     await context.read<NotificationProvider>().markRead(notification.id);
     if (!context.mounted) return;
-    final role =
-        context.read<AuthProvider>().user?.role ?? AppRoles.participant;
+    final auth = context.read<AuthProvider>();
+    final role = auth.user?.role ?? AppRoles.participant;
+    final teams = context.read<TeamProvider>().teams;
+    final destination = NotificationLink.routeFor(
+      notification,
+      role: role,
+      teams: teams,
+      userId: auth.user?.id,
+    );
     switch (notification.type) {
       case 'score':
-        await _showDetailDialog(
-          context,
-          title: AppStrings.scoreNotificationDialogTitle,
-          actionLabel: role == AppRoles.participant
-              ? AppStrings.viewSubmissionButton
-              : AppStrings.detailsButton,
-          destination: AppValidators.notificationRoute(
-            type: notification.type,
-            role: role,
-          ),
-          body: NotificationLink.displayContent(notification.content),
-        );
-        return;
       case 'announcement':
-        final linkedEventId = NotificationLink.eventId(notification.content);
         await _showDetailDialog(
           context,
-          title: AppStrings.announcementNotificationDialogTitle,
-          actionLabel: linkedEventId == null
-              ? AppStrings.closeDialogButton
-              : AppStrings.viewEventFromAnnouncementButton,
-          destination: linkedEventId == null ? null : '/events/$linkedEventId',
+          title: notification.type == 'score'
+              ? L10nService.strings.scoreNotificationDialogTitle
+              : L10nService.strings.announcementNotificationDialogTitle,
+          actionLabel: notification.type == 'score'
+              ? (role == AppRoles.participant
+                    ? L10nService.strings.viewSubmissionButton
+                    : L10nService.strings.detailsButton)
+              : (NotificationLink.eventId(notification.content) == null
+                    ? L10nService.strings.closeDialogButton
+                    : L10nService.strings.viewEventFromAnnouncementButton),
+          destination: destination,
           body: NotificationLink.displayContent(notification.content),
         );
         return;
       default:
-        final destination = AppValidators.notificationRoute(
-          type: notification.type,
-          role: role,
-        );
-        if (destination != null) {
-          context.go(destination);
-        }
+        context.go(destination);
     }
   }
 
@@ -153,72 +189,23 @@ class NotificationTile extends StatelessWidget {
     String? destination,
     String? body,
   }) async {
-    final message =
-        body ?? NotificationLink.displayContent(notification.content);
-    final shouldNavigate = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: Text(title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              notification.title,
-              style: const TextStyle(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 10),
-            Text(message),
-            const SizedBox(height: 8),
-            Text(
-              DateFormat('dd/MM/yyyy HH:mm').format(notification.createdAt),
-              style: const TextStyle(color: SealPalette.onSurfaceVariant),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text(AppStrings.closeDialogButton),
-          ),
-          if (destination != null)
-            FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(actionLabel),
-            )
-          else
-            FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(actionLabel),
-            ),
-        ],
-      ),
+    final shouldNavigate = await NotificationDialogs.showDetail(
+      context,
+      notification: notification,
+      title: title,
+      actionLabel: actionLabel,
+      destination: destination,
+      body: body,
     );
-    if (!context.mounted || shouldNavigate != true || destination == null) {
+    if (!context.mounted || !shouldNavigate || destination == null) {
       return;
     }
     context.go(destination);
   }
 
   Future<void> _confirmDelete(BuildContext context) async {
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(AppStrings.deleteNotificationTitle),
-        content: const Text(AppStrings.confirmDelete),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text(AppStrings.cancelButton),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text(AppStrings.deleteButton),
-          ),
-        ],
-      ),
-    );
-    if (shouldDelete != true || !context.mounted) return;
+    final shouldDelete = await NotificationDialogs.confirmDelete(context);
+    if (!shouldDelete || !context.mounted) return;
     await context.read<NotificationProvider>().deleteNotification(
       notification.id,
     );
