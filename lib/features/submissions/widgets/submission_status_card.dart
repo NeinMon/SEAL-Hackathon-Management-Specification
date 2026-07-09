@@ -15,30 +15,31 @@ class SubmissionStatusInfo {
 }
 
 SubmissionStatusInfo resolveSubmissionStatus(
+  BuildContext context,
   ProjectSubmission? submission,
   ScoreProvider scores,
 ) {
   if (submission == null) {
-    return const SubmissionStatusInfo(
-      label: AppStrings.needsSubmissionStatus,
-      helper: AppStrings.noProjectSubmittedHelper,
-      color: SealPalette.tertiary,
+    return SubmissionStatusInfo(
+      label: L10nService.strings.needsSubmissionStatus,
+      helper: L10nService.strings.noProjectSubmittedHelper,
+      color: context.sealTertiary,
       icon: Icons.pending_actions_outlined,
     );
   }
   final scoreCount = scores.scoreCountFor(submission.id);
   if (scoreCount > 0 || submission.status == 'reviewed') {
-    return const SubmissionStatusInfo(
-      label: AppStrings.reviewedStatus,
-      helper: AppStrings.reviewedHelper,
-      color: SealPalette.secondary,
+    return SubmissionStatusInfo(
+      label: L10nService.strings.reviewedStatus,
+      helper: L10nService.strings.reviewedHelper,
+      color: context.sealSecondary,
       icon: Icons.verified_outlined,
     );
   }
-  return const SubmissionStatusInfo(
-    label: AppStrings.submittedStatus,
-    helper: AppStrings.submittedHelper,
-    color: SealPalette.primary,
+  return SubmissionStatusInfo(
+    label: L10nService.strings.submittedStatus,
+    helper: L10nService.strings.submittedHelper,
+    color: context.sealPrimary,
     icon: Icons.task_alt_outlined,
   );
 }
@@ -49,11 +50,15 @@ class SubmissionStatusCard extends StatelessWidget {
     required this.submission,
     required this.status,
     required this.scoreCount,
+    this.averageScore,
+    this.highlightScore = false,
   });
 
   final ProjectSubmission? submission;
   final SubmissionStatusInfo status;
   final int scoreCount;
+  final double? averageScore;
+  final bool highlightScore;
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +90,7 @@ class SubmissionStatusCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    current?.projectName ?? AppStrings.notSubmittedYet,
+                    current?.projectName ?? L10nService.strings.notSubmittedYet,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.w900,
@@ -95,10 +100,15 @@ class SubmissionStatusCard extends StatelessWidget {
                   Text(
                     current == null
                         ? status.helper
-                        : '${DateFormat('dd/MM HH:mm').format(current.submittedAt)} - ${AppStrings.scoreCountLabel(scoreCount)}',
-                    style: const TextStyle(
-                      color: SealPalette.onSurfaceVariant,
+                        : averageScore != null
+                        ? context.l10n.journeyScoreSummaryFormatted(averageScore!)
+                        : '${DateFormat('dd/MM HH:mm').format(current.submittedAt)} - ${L10nService.strings.scoreCountLabel(scoreCount)}',
+                    style: TextStyle(
+                      color: highlightScore && averageScore != null
+                          ? context.sealSecondary
+                          : context.sealTheme.onSurfaceVariant,
                       fontWeight: FontWeight.w700,
+                      fontSize: highlightScore && averageScore != null ? 16 : null,
                     ),
                   ),
                 ],
