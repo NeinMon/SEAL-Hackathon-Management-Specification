@@ -325,11 +325,12 @@ if ($ServiceRoleKey) {
   $upcomingStart = (Get-Date).AddDays(30).ToString("yyyy-MM-ddTHH:mm:ss")
   $upcomingEnd = (Get-Date).AddDays(32).ToString("yyyy-MM-ddTHH:mm:ss")
   $upcomingDeadline = (Get-Date).AddDays(29).ToString("yyyy-MM-ddTHH:mm:ss")
+  $upcomingActiveStart = (Get-Date).AddDays(-1).ToString("yyyy-MM-ddTHH:mm:ss")
   $upcomingEventBody = @{
     id = $upcomingEventId
     title = "Upcoming Lifecycle Event $runId"
     description = "Upcoming event for judging negative smoke."
-    start_date = $upcomingStart
+    start_date = $upcomingActiveStart
     end_date = $upcomingEnd
     location = "HCMC"
     banner_url = "https://example.com/upcoming.jpg"
@@ -384,6 +385,12 @@ if ($ServiceRoleKey) {
       -Body $upcomingSubmissionBody) `
     "upcoming submission"
 
+  Invoke-RestMethod `
+    -Method Patch `
+    -Uri "$ProjectUrl/rest/v1/events?id=eq.$upcomingEventId" `
+    -Headers $serviceHeaders `
+    -Body (@{ start_date = $upcomingStart } | ConvertTo-Json) | Out-Null
+
   Assert-Blocked -Name "judge cannot score before event starts" -Action {
     Invoke-RestMethod `
       -Method Post `
@@ -396,6 +403,193 @@ if ($ServiceRoleKey) {
         ui_score = 8
         innovation_score = 8
         feedback = "Too early to score."
+        average_score = 8
+      } | ConvertTo-Json)
+  }
+
+  $maxTeamEventId = "00000000-0000-4000-8000-000000009997"
+  $maxTeamEventBody = @{
+    id = $maxTeamEventId
+    title = "Max Team Size Event $runId"
+    description = "Event for max team size negative smoke."
+    start_date = (Get-Date).AddDays(-1).ToString("yyyy-MM-ddTHH:mm:ss")
+    end_date = (Get-Date).AddDays(2).ToString("yyyy-MM-ddTHH:mm:ss")
+    location = "HCMC"
+    banner_url = "https://example.com/max-team.jpg"
+    registration_deadline = (Get-Date).AddDays(1).ToString("yyyy-MM-ddTHH:mm:ss")
+    max_team_size = 2
+    rules = "Max team size"
+    prize = "Max team size"
+    latitude = 10.8411
+    longitude = 106.8100
+  } | ConvertTo-Json -Depth 4
+  Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ProjectUrl/rest/v1/events" `
+    -Headers $serviceHeaders `
+    -Body $maxTeamEventBody | Out-Null
+
+  $maxTeamBody = @{
+    name = "Max Team Size Team $runId"
+    leader_id = $participant.user.id
+    event_id = $maxTeamEventId
+  } | ConvertTo-Json
+  $maxTeam = First-Item `
+    (Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/teams?select=*" `
+      -Headers $serviceHeaders `
+      -Body $maxTeamBody) `
+    "max team size team"
+
+  Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ProjectUrl/rest/v1/team_members" `
+    -Headers $serviceHeaders `
+    -Body (@{
+      team_id = $maxTeam.id
+      user_id = $participant.user.id
+    } | ConvertTo-Json) | Out-Null
+
+  Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ProjectUrl/rest/v1/team_members" `
+    -Headers $serviceHeaders `
+    -Body (@{
+      team_id = $maxTeam.id
+      user_id = $mentor.user.id
+    } | ConvertTo-Json) | Out-Null
+
+  Assert-Blocked -Name "participant cannot join team when max size reached" -Action {
+    Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/team_members" `
+      -Headers (New-AuthHeaders $judge.access_token "resolution=merge-duplicates") `
+      -Body (@{
+        team_id = $maxTeam.id
+        user_id = $judge.user.id
+      } | ConvertTo-Json)
+  }
+
+  Assert-Blocked -Name "participant cannot create score notifications for others" -Action {
+    Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/notifications?select=*" `
+      -Headers $participantReturnHeaders `
+      -Body (@{
+        user_id = $judge.user.id
+        title = "Fake score"
+        content = "Unauthorized score alert"
+        notification_type = "score"
+      } | ConvertTo-Json)
+  }
+
+  Assert-Blocked -Name "participant cannot join team without invitation" -Action {
+    Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/team_members" `
+      -Headers (New-AuthHeaders $judge.access_token "resolution=merge-duplicates") `
+      -Body (@{
+        team_id = $maxTeam.id
+        user_id = $judge.user.id
+      } | ConvertTo-Json)
+  }
+
+  Assert-Blocked -Name "participant cannot submit before event starts" -Action {
+    Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/submissions?select=*" `
+      -Headers $participantReturnHeaders `
+      -Body (@{
+        team_id = $upcomingTeam.id
+        project_name = "Too Early Project $runId"
+        github_url = "https://github.com/seal-demo/too-early"
+        video_url = "https://example.com/demo"
+        description = "Submission before event start."
+        status = "submitted"
+      } | ConvertTo-Json)
+  }
+
+  $endedEventId = "00000000-0000-4000-8000-000000009996"
+  $endedActiveStart = (Get-Date).AddDays(-3).ToString("yyyy-MM-ddTHH:mm:ss")
+  $endedActiveEnd = (Get-Date).AddDays(1).ToString("yyyy-MM-ddTHH:mm:ss")
+  $endedEventBody = @{
+    id = $endedEventId
+    title = "Ended Judging Event $runId"
+    description = "Event for post-end judging negative smoke."
+    start_date = $endedActiveStart
+    end_date = $endedActiveEnd
+    location = "HCMC"
+    banner_url = "https://example.com/ended.jpg"
+    registration_deadline = (Get-Date).AddDays(-2).ToString("yyyy-MM-ddTHH:mm:ss")
+    max_team_size = 5
+    rules = "Ended"
+    prize = "Ended"
+    latitude = 10.8411
+    longitude = 106.8100
+  } | ConvertTo-Json -Depth 4
+  Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ProjectUrl/rest/v1/events" `
+    -Headers $serviceHeaders `
+    -Body $endedEventBody | Out-Null
+
+  $endedTeamBody = @{
+    name = "Ended Event Team $runId"
+    leader_id = $participant.user.id
+    event_id = $endedEventId
+  } | ConvertTo-Json
+  $endedTeam = First-Item `
+    (Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/teams?select=*" `
+      -Headers $serviceHeaders `
+      -Body $endedTeamBody) `
+    "ended event team"
+
+  Invoke-RestMethod `
+    -Method Post `
+    -Uri "$ProjectUrl/rest/v1/team_members" `
+    -Headers $serviceHeaders `
+    -Body (@{
+      team_id = $endedTeam.id
+      user_id = $participant.user.id
+    } | ConvertTo-Json) | Out-Null
+
+  $endedSubmissionBody = @{
+    team_id = $endedTeam.id
+    project_name = "Ended Event Project $runId"
+    github_url = "https://github.com/seal-demo/ended"
+    video_url = "https://example.com/ended-demo"
+    description = "Submission for ended judging negative smoke."
+    status = "submitted"
+  } | ConvertTo-Json
+  $endedSubmission = First-Item `
+    (Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/submissions?select=*" `
+      -Headers $serviceHeaders `
+      -Body $endedSubmissionBody) `
+    "ended event submission"
+
+  Invoke-RestMethod `
+    -Method Patch `
+    -Uri "$ProjectUrl/rest/v1/events?id=eq.$endedEventId" `
+    -Headers $serviceHeaders `
+    -Body (@{ end_date = (Get-Date).AddDays(-1).ToString("yyyy-MM-ddTHH:mm:ss") } | ConvertTo-Json) | Out-Null
+
+  Assert-Blocked -Name "judge cannot score after event ends" -Action {
+    Invoke-RestMethod `
+      -Method Post `
+      -Uri "$ProjectUrl/rest/v1/scores?select=*" `
+      -Headers $judgeReturnHeaders `
+      -Body (@{
+        submission_id = $endedSubmission.id
+        judge_id = $judge.user.id
+        technical_score = 8
+        ui_score = 8
+        innovation_score = 8
+        feedback = "Too late to score."
         average_score = 8
       } | ConvertTo-Json)
   }
