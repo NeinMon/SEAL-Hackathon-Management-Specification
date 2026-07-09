@@ -1,3 +1,4 @@
+import '../core/l10n/l10n_service.dart';
 import 'package:flutter/foundation.dart';
 
 import '../core/app_helpers.dart';
@@ -146,8 +147,8 @@ class EventProvider extends ChangeNotifier {
       await _service.saveEvent(event, existingEventId: existingEventId);
       await loadEvents();
       message = existingEventId == null
-          ? AppStrings.eventCreatedSuccess
-          : AppStrings.eventUpdatedSuccess;
+          ? L10nService.strings.eventCreatedSuccess
+          : L10nService.strings.eventUpdatedSuccess;
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
     }

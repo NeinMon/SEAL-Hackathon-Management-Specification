@@ -1,3 +1,4 @@
+import '../core/l10n/l10n_service.dart';
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
@@ -16,12 +17,14 @@ class ChatProvider extends ChangeNotifier {
   List<ChatMessage> messages = [];
   bool isLoading = false;
   bool isSending = false;
+  bool isRealtimeConnected = false;
+  bool isRealtimeConnecting = false;
   String? error;
   RealtimeChannel? _conversationChannel;
   String? _watchedUserId;
   String? _watchedContactId;
 
-  Future<void> loadContacts(AppUser currentUser) async {
+  Future<void> loadContacts(AppUser currentUser, {String? eventId}) async {
     final configError = AppValidators.requireSupabaseReady();
     if (configError != null) {
       error = configError;
@@ -32,8 +35,10 @@ class ChatProvider extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      contacts = await _service.fetchContacts(currentUser);
-      if (selectedContact == null ||
+      contacts = await _service.fetchContacts(currentUser, eventId: eventId);
+      if (eventId != null && contacts.isNotEmpty) {
+        selectedContact = contacts.first;
+      } else if (selectedContact == null ||
           !contacts.any((contact) => contact.id == selectedContact!.id)) {
         selectedContact = contacts.isEmpty ? null : contacts.first;
       }
@@ -75,6 +80,9 @@ class ChatProvider extends ChangeNotifier {
     _stopConversationRealtime();
     _watchedUserId = userId;
     _watchedContactId = receiverId;
+    isRealtimeConnecting = true;
+    isRealtimeConnected = false;
+    notifyListeners();
     _conversationChannel = SupabaseGateway.client
         .channel('messages-$userId-$receiverId')
         .onPostgresChanges(
@@ -94,7 +102,11 @@ class ChatProvider extends ChangeNotifier {
             unawaited(_refreshConversationSilently(userId, receiverId));
           },
         )
-        .subscribe();
+        .subscribe((status, [_]) {
+          isRealtimeConnecting = false;
+          isRealtimeConnected = status == RealtimeSubscribeStatus.subscribed;
+          notifyListeners();
+        });
     unawaited(load(userId, receiverId));
   }
 
@@ -126,7 +138,7 @@ class ChatProvider extends ChangeNotifier {
     }
     error = null;
     if (senderId == null || receiverId == null) {
-      error = AppStrings.selectConversationBeforeSend;
+      error = L10nService.strings.selectConversationBeforeSend;
       notifyListeners();
       return;
     }
@@ -168,6 +180,8 @@ class ChatProvider extends ChangeNotifier {
     _conversationChannel = null;
     _watchedUserId = null;
     _watchedContactId = null;
+    isRealtimeConnected = false;
+    isRealtimeConnecting = false;
     if (channel != null) {
       unawaited(SupabaseGateway.client.removeChannel(channel));
     }
@@ -181,6 +195,8 @@ class ChatProvider extends ChangeNotifier {
     error = null;
     isLoading = false;
     isSending = false;
+    isRealtimeConnected = false;
+    isRealtimeConnecting = false;
     notifyListeners();
   }
 }

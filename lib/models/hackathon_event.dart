@@ -1,4 +1,4 @@
-import '../core/constants/app_strings.dart';
+import '../core/l10n/l10n_service.dart';
 
 class HackathonEvent {
   const HackathonEvent({
@@ -15,6 +15,9 @@ class HackathonEvent {
     required this.prize,
     required this.latitude,
     required this.longitude,
+    this.submissionDeadline,
+    this.supportHotline,
+    this.openingHours,
   });
 
   final String id;
@@ -30,6 +33,31 @@ class HackathonEvent {
   final String prize;
   final double latitude;
   final double longitude;
+  final DateTime? submissionDeadline;
+  final String? supportHotline;
+  final String? openingHours;
+
+  String get displayHotline {
+    final value = supportHotline?.trim();
+    if (value != null && value.isNotEmpty) return value;
+    return L10nService.strings.defaultHotline;
+  }
+
+  String get displayOpeningHours {
+    final value = openingHours?.trim();
+    if (value != null && value.isNotEmpty) return value;
+    return L10nService.strings.defaultOpeningHours;
+  }
+
+  DateTime get effectiveSubmissionDeadline {
+    final explicit = submissionDeadline;
+    if (explicit != null) return explicit;
+    final duration = endDate.difference(startDate);
+    if (duration.inMilliseconds <= 0) return endDate;
+    return startDate.add(
+      Duration(milliseconds: (duration.inMilliseconds * 0.7).round()),
+    );
+  }
 
   factory HackathonEvent.fromJson(Map<String, dynamic> json) {
     return HackathonEvent(
@@ -52,6 +80,11 @@ class HackathonEvent {
       prize: (json['prize'] ?? '') as String,
       latitude: ((json['latitude'] ?? 0) as num).toDouble(),
       longitude: ((json['longitude'] ?? 0) as num).toDouble(),
+      submissionDeadline: DateTime.tryParse(
+        (json['submission_deadline'] ?? '').toString(),
+      ),
+      supportHotline: (json['support_hotline'] as String?)?.trim(),
+      openingHours: (json['opening_hours'] as String?)?.trim(),
     );
   }
 
@@ -69,6 +102,12 @@ class HackathonEvent {
       'prize': prize,
       'latitude': latitude,
       'longitude': longitude,
+      if (submissionDeadline != null)
+        'submission_deadline': submissionDeadline!.toIso8601String(),
+      if (supportHotline != null && supportHotline!.trim().isNotEmpty)
+        'support_hotline': supportHotline!.trim(),
+      if (openingHours != null && openingHours!.trim().isNotEmpty)
+        'opening_hours': openingHours!.trim(),
     };
   }
 
@@ -80,36 +119,47 @@ class HackathonEvent {
   String? registrationBlockReason([DateTime? at]) {
     final now = at ?? DateTime.now();
     if (endDate.isBefore(now)) {
-      return AppStrings.errorEventEnded;
+      return L10nService.strings.errorEventEnded;
     }
     if (registrationDeadline.isBefore(now)) {
-      return AppStrings.errorRegistrationDeadlinePassed;
+      return L10nService.strings.errorRegistrationDeadlinePassed;
     }
     return null;
   }
 
   bool submissionOpen([DateTime? at]) {
     final now = at ?? DateTime.now();
-    return !endDate.isBefore(now);
+    return !startDate.isAfter(now) &&
+        effectiveSubmissionDeadline.isAfter(now);
   }
 
   String? submissionBlockReason([DateTime? at]) {
     final now = at ?? DateTime.now();
-    if (endDate.isBefore(now)) {
-      return AppStrings.errorSubmissionClosed;
+    if (startDate.isAfter(now)) {
+      return L10nService.strings.errorSubmissionNotStarted;
+    }
+    if (!effectiveSubmissionDeadline.isAfter(now)) {
+      return L10nService.strings.errorSubmissionClosed;
     }
     return null;
   }
 
   bool judgingOpen([DateTime? at]) {
     final now = at ?? DateTime.now();
-    return !startDate.isAfter(now);
+    return !effectiveSubmissionDeadline.isAfter(now) &&
+        !endDate.isBefore(now);
   }
 
   String? judgingBlockReason([DateTime? at]) {
     final now = at ?? DateTime.now();
     if (startDate.isAfter(now)) {
-      return AppStrings.errorJudgingNotStarted;
+      return L10nService.strings.errorJudgingNotStarted;
+    }
+    if (effectiveSubmissionDeadline.isAfter(now)) {
+      return L10nService.strings.errorJudgingNotStarted;
+    }
+    if (endDate.isBefore(now)) {
+      return L10nService.strings.errorJudgingClosed;
     }
     return null;
   }
