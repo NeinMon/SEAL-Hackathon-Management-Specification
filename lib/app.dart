@@ -1,6 +1,7 @@
 import 'core/auth_deep_link.dart';
 import 'shared.dart';
-import 'features/shell/app_shell.dart';
+import 'features/shell/screens/app_shell.dart';
+import 'features/shell/screens/event_shell.dart';
 import 'features/auth/screens/login_screen.dart';
 import 'features/chat/screens/chat_screen.dart';
 import 'features/events/screens/event_detail_screen.dart';
@@ -20,17 +21,22 @@ class SealApp extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!SupabaseConfig.isConfigured) {
       return MaterialApp(
-        title: AppStrings.appName,
+        title: 'SEAL Hackathon',
         debugShowCheckedModeBanner: false,
         theme: buildSealTheme(brightness: Brightness.dark),
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('vi'),
         home: const SupabaseRequiredScreen(),
       );
     }
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => LocaleProvider()..load()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()..load()),
-        ChangeNotifierProvider(create: (_) => OnboardingProvider()..load()),
+        ChangeNotifierProvider(create: (_) => OnboardingProvider()),
+        ChangeNotifierProvider(create: (_) => ActiveEventProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
         ChangeNotifierProvider(create: (_) => TeamProvider()),
@@ -50,13 +56,17 @@ class _SealRouterApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.watch<ThemeProvider>();
+    final locale = context.watch<LocaleProvider>();
     return MaterialApp.router(
-      title: AppStrings.appName,
+      title: L10nService.strings.appName,
       debugShowCheckedModeBanner: false,
       routerConfig: buildSealRouter(),
       theme: buildSealTheme(brightness: Brightness.light),
       darkTheme: buildSealTheme(brightness: Brightness.dark),
       themeMode: theme.mode,
+      locale: locale.locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
     );
   }
 }
@@ -98,6 +108,35 @@ class _AuthDeepLinkScopeState extends State<_AuthDeepLinkScope> {
 GoRouter buildSealRouter() {
   return GoRouter(
     initialLocation: AppRoutes.login,
+    redirect: (context, state) {
+      final path = state.uri.path;
+      final eventId = state.uri.queryParameters[RouteQuery.eventKey];
+      if (eventId != null && eventId.isNotEmpty) {
+        if (path == AppRoutes.teams) {
+          return RouteQuery.teamsForEvent(eventId);
+        }
+        if (path == AppRoutes.map) {
+          return RouteQuery.mapForEvent(eventId);
+        }
+        if (path == AppRoutes.judge) {
+          return RouteQuery.judgeForEvent(eventId);
+        }
+      }
+      final teamId = state.uri.queryParameters[RouteQuery.teamKey];
+      if (teamId != null &&
+          teamId.isNotEmpty &&
+          path == AppRoutes.submit &&
+          !RouteQuery.isEventScopedPath(path)) {
+        try {
+          final redirect = RouteQuery.redirectFlatSubmit(
+            context.read<TeamProvider>().teams,
+            teamId,
+          );
+          if (redirect != null) return redirect;
+        } catch (_) {}
+      }
+      return null;
+    },
     routes: [
       GoRoute(
         path: AppRoutes.login,
@@ -111,9 +150,51 @@ GoRouter buildSealRouter() {
             builder: (context, state) => const EventListScreen(),
           ),
           GoRoute(
-            path: '/events/:id',
-            builder: (context, state) =>
-                EventDetailScreen(eventId: state.pathParameters['id']!),
+            path: '/events/:eventId',
+            redirect: (context, state) {
+              if (state.uri.pathSegments.length == 2) {
+                return RouteQuery.overviewForEvent(
+                  state.pathParameters['eventId']!,
+                );
+              }
+              return null;
+            },
+            routes: [
+              ShellRoute(
+                builder: (context, state, child) => EventShell(
+                  eventId: state.pathParameters['eventId']!,
+                  child: child,
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'overview',
+                    builder: (context, state) => EventDetailScreen(
+                      eventId: state.pathParameters['eventId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'team',
+                    builder: (context, state) => const TeamScreen(),
+                  ),
+                  GoRoute(
+                    path: 'submit',
+                    builder: (context, state) => const SubmissionScreen(),
+                  ),
+                  GoRoute(
+                    path: 'chat',
+                    builder: (context, state) => const ChatScreen(),
+                  ),
+                  GoRoute(
+                    path: 'map',
+                    builder: (context, state) => const MapScreen(),
+                  ),
+                  GoRoute(
+                    path: 'judge',
+                    builder: (context, state) => const JudgeScreen(),
+                  ),
+                ],
+              ),
+            ],
           ),
           GoRoute(
             path: AppRoutes.teams,
