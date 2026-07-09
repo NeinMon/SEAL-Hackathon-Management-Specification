@@ -8,6 +8,7 @@ class OrganizerDialogField extends StatelessWidget {
     this.lines = 1,
     this.keyboardType,
     this.hintText,
+    this.suffixIcon,
     this.validator,
   });
 
@@ -16,6 +17,7 @@ class OrganizerDialogField extends StatelessWidget {
   final int lines;
   final TextInputType? keyboardType;
   final String? hintText;
+  final Widget? suffixIcon;
   final FormFieldValidator<String>? validator;
 
   @override
@@ -28,7 +30,11 @@ class OrganizerDialogField extends StatelessWidget {
         minLines: lines,
         maxLines: lines == 1 ? 1 : lines + 1,
         validator: validator,
-        decoration: InputDecoration(labelText: label, hintText: hintText),
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: hintText,
+          suffixIcon: suffixIcon,
+        ),
       ),
     );
   }

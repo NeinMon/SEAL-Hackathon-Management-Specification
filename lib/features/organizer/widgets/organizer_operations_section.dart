@@ -9,7 +9,10 @@ class OrganizerOperationsSection extends StatelessWidget {
     required this.onSendAnnouncement,
     required this.onExportLeaderboard,
     required this.onOpenJudge,
+    required this.onManageMentors,
     required this.onManageRoles,
+    required this.onResetDemo,
+    required this.onManageCriteria,
   });
 
   final int unscored;
@@ -17,7 +20,10 @@ class OrganizerOperationsSection extends StatelessWidget {
   final VoidCallback onSendAnnouncement;
   final VoidCallback onExportLeaderboard;
   final VoidCallback onOpenJudge;
+  final VoidCallback onManageMentors;
   final VoidCallback onManageRoles;
+  final VoidCallback onResetDemo;
+  final VoidCallback onManageCriteria;
 
   @override
   Widget build(BuildContext context) {
@@ -27,8 +33,8 @@ class OrganizerOperationsSection extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              AppStrings.sectionOperations,
+            Text(
+              L10nService.strings.sectionOperations,
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: AppSizes.paddingCompact),
@@ -38,13 +44,13 @@ class OrganizerOperationsSection extends StatelessWidget {
               children: [
                 FilledButton.icon(
                   onPressed: onCreateEvent,
-                  icon: const Icon(Icons.add_circle_outline),
-                  label: const Text(AppStrings.createEventTitle),
+                  icon: Icon(Icons.add_circle_outline),
+                  label: Text(context.l10n.createEventTitle),
                 ),
                 OutlinedButton.icon(
                   onPressed: onSendAnnouncement,
-                  icon: const Icon(Icons.notifications_outlined),
-                  label: const Text(AppStrings.sendAnnouncementButton),
+                  icon: Icon(Icons.notifications_outlined),
+                  label: Text(context.l10n.sendAnnouncementButton),
                 ),
               ],
             ),
@@ -52,27 +58,45 @@ class OrganizerOperationsSection extends StatelessWidget {
             ExpansionTile(
               tilePadding: EdgeInsets.zero,
               childrenPadding: EdgeInsets.zero,
-              title: const Text(
-                AppStrings.otherActionsTitle,
+              title: Text(
+                L10nService.strings.otherActionsTitle,
                 style: TextStyle(fontWeight: FontWeight.w800),
               ),
               children: [
                 OrganizerAction(
                   icon: Icons.download_outlined,
-                  title: AppStrings.exportLeaderboardTitle,
-                  value: AppStrings.exportLeaderboardDescription,
+                  title: L10nService.strings.exportLeaderboardTitle,
+                  value: L10nService.strings.exportLeaderboardDescription,
                   onTap: onExportLeaderboard,
                 ),
                 OrganizerAction(
                   icon: Icons.rate_review_outlined,
-                  title: AppStrings.judgeQueueTitle,
-                  value: AppStrings.judgeQueueWaitingLabel(unscored),
+                  title: L10nService.strings.judgeQueueTitle,
+                  value: L10nService.strings.judgeQueueWaitingLabel(unscored),
                   onTap: onOpenJudge,
                 ),
                 OrganizerAction(
+                  icon: Icons.school_outlined,
+                  title: L10nService.strings.manageEventMentorsTitle,
+                  value: L10nService.strings.manageEventMentorsDescription,
+                  onTap: onManageMentors,
+                ),
+                OrganizerAction(
+                  icon: Icons.rule_folder_outlined,
+                  title: L10nService.strings.manageScoreCriteriaTitle,
+                  value: L10nService.strings.manageScoreCriteriaDescription,
+                  onTap: onManageCriteria,
+                ),
+                OrganizerAction(
+                  icon: Icons.restart_alt_outlined,
+                  title: L10nService.strings.demoResetTitle,
+                  value: L10nService.strings.demoResetDescription,
+                  onTap: onResetDemo,
+                ),
+                OrganizerAction(
                   icon: Icons.manage_accounts_outlined,
-                  title: AppStrings.userRolesTitle,
-                  value: AppStrings.userRolesDescription,
+                  title: L10nService.strings.userRolesTitle,
+                  value: L10nService.strings.userRolesDescription,
                   onTap: onManageRoles,
                 ),
               ],

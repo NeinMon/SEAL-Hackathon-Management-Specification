@@ -14,7 +14,7 @@ class OrganizerTeamDetailsDialog {
             shrinkWrap: true,
             children: [
               StatusPill(
-                label: AppStrings.memberCountLabel(team.members.length),
+                label: L10nService.strings.memberCountLabel(team.members.length),
                 icon: Icons.groups_outlined,
               ),
               const SizedBox(height: AppSizes.paddingCompact),
@@ -37,7 +37,7 @@ class OrganizerTeamDetailsDialog {
         actions: [
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text(AppStrings.doneButton),
+            child: Text(context.l10n.doneButton),
           ),
         ],
       ),

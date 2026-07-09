@@ -1,4 +1,5 @@
 import '../../../shared.dart';
+import 'organizer_event_tile.dart';
 
 class OrganizerEventsSection extends StatelessWidget {
   const OrganizerEventsSection({
@@ -24,16 +25,16 @@ class OrganizerEventsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Text(
-          AppStrings.sectionEvents,
+        Text(
+          L10nService.strings.sectionEvents,
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
         ),
         const SizedBox(height: 8),
         if (events.events.isEmpty)
           EmptyState(
-            message: AppStrings.noEventsYet,
+            message: L10nService.strings.noEventsYet,
             icon: Icons.event_busy_outlined,
-            actionLabel: AppStrings.createEventTitle,
+            actionLabel: L10nService.strings.createEventTitle,
             onAction: onCreateEvent,
           )
         else
@@ -43,43 +44,11 @@ class OrganizerEventsSection extends StatelessWidget {
             itemCount: events.events.take(4).length,
             itemBuilder: (context, index) {
               final event = events.events[index];
-              return Card(
-                margin: const EdgeInsets.only(bottom: 10),
-                child: ListTile(
-                  leading: const Icon(Icons.event_available_outlined),
-                  title: Text(event.title),
-                  subtitle: Text(
-                    '${event.location}\n${formatDateRange(event)}',
-                  ),
-                  isThreeLine: true,
-                  trailing: PopupMenuButton<String>(
-                    tooltip: AppStrings.eventActionsTooltip,
-                    onSelected: (value) {
-                      if (value == 'edit') {
-                        onEditEvent(event);
-                      }
-                      if (value == 'close') {
-                        onCloseRegistration(event);
-                      }
-                    },
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(
-                        value: 'edit',
-                        child: ListTile(
-                          leading: Icon(Icons.edit_outlined),
-                          title: Text(AppStrings.editEventMenuItem),
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'close',
-                        child: ListTile(
-                          leading: Icon(Icons.lock_clock_outlined),
-                          title: Text(AppStrings.closeRegistrationMenuItem),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              return OrganizerEventTile(
+                event: event,
+                dateRangeLabel: formatDateRange(event),
+                onEdit: () => onEditEvent(event),
+                onCloseRegistration: () => onCloseRegistration(event),
               );
             },
           ),

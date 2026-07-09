@@ -24,23 +24,23 @@ class OrganizerSubmissionDetailsDialog {
               ),
               const SizedBox(height: AppSizes.paddingCompact),
               DetailTile(
-                title: AppStrings.teamTitle,
+                title: L10nService.strings.teamTitle,
                 value: teamName(submission.teamId, teams),
               ),
               DetailTile(
-                title: AppStrings.repositoryButton,
+                title: L10nService.strings.repositoryButton,
                 value: submission.githubUrl,
               ),
               DetailTile(
-                title: AppStrings.demoButton,
+                title: L10nService.strings.demoButton,
                 value: submission.videoUrl,
               ),
               DetailTile(
-                title: AppStrings.eventFieldDescription,
+                title: L10nService.strings.eventFieldDescription,
                 value: submission.description,
               ),
               DetailTile(
-                title: AppStrings.averageScoreTitle,
+                title: L10nService.strings.averageScoreTitle,
                 value: scores.averageFor(submission.id).toStringAsFixed(1),
               ),
             ],
@@ -49,7 +49,7 @@ class OrganizerSubmissionDetailsDialog {
         actions: [
           FilledButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text(AppStrings.doneButton),
+            child: Text(context.l10n.doneButton),
           ),
         ],
       ),
@@ -60,6 +60,6 @@ class OrganizerSubmissionDetailsDialog {
     for (final team in teams) {
       if (team.id == teamId) return team.name;
     }
-    return AppStrings.unknownTeamLabel;
+    return L10nService.strings.unknownTeamLabel;
   }
 }

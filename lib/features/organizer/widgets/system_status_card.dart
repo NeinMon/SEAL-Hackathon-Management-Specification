@@ -29,21 +29,21 @@ class SystemStatusCard extends StatelessWidget {
       scores.error,
     ].whereType<String>().toList();
     return Semantics(
-      label: AppStrings.systemStatusSemanticLabel,
+      label: L10nService.strings.systemStatusSemanticLabel,
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(AppSizes.paddingMedium),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                AppStrings.systemStatusTitle,
+              Text(
+                L10nService.strings.systemStatusTitle,
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
               ),
               const SizedBox(height: 6),
-              const Text(
-                AppStrings.systemStatusSubtitle,
-                style: TextStyle(color: SealPalette.onSurfaceVariant),
+              Text(
+                L10nService.strings.systemStatusSubtitle,
+                style: TextStyle(color: context.sealTheme.onSurfaceVariant),
               ),
               const SizedBox(height: AppSizes.paddingCompact),
               Wrap(
@@ -51,42 +51,44 @@ class SystemStatusCard extends StatelessWidget {
                 runSpacing: 8,
                 children: [
                   StatusPill(
-                    label: AppStrings.operationsDataLabel,
+                    label: L10nService.strings.operationsDataLabel,
                     icon: Icons.dns_outlined,
                   ),
                   StatusPill(
                     label: SupabaseConfig.isConfigured
-                        ? AppStrings.databaseConnectedLabel
-                        : AppStrings.databaseMissingLabel,
+                        ? L10nService.strings.databaseConnectedLabel
+                        : L10nService.strings.databaseMissingLabel,
                     color: SupabaseConfig.isConfigured
-                        ? SealPalette.secondary
-                        : SealPalette.error,
+                        ? context.sealSecondary
+                        : context.sealError,
                     icon: SupabaseConfig.isConfigured
                         ? Icons.cloud_done_outlined
                         : Icons.cloud_off_outlined,
                   ),
                   StatusPill(
                     label: loading
-                        ? AppStrings.syncingLabel
-                        : AppStrings.stateReadyLabel,
-                    color: loading ? SealPalette.tertiary : SealPalette.primary,
+                        ? L10nService.strings.syncingLabel
+                        : L10nService.strings.stateReadyLabel,
+                    color: loading
+                        ? context.sealTertiary
+                        : context.sealPrimary,
                     icon: loading
                         ? Icons.sync_outlined
                         : Icons.check_circle_outline,
                   ),
                   StatusPill(
                     label: auth.user == null
-                        ? AppStrings.notLoggedInShortLabel
+                        ? L10nService.strings.notLoggedInShortLabel
                         : AppRoles.label(auth.user!.role),
                     icon: Icons.verified_user_outlined,
                   ),
                   StatusPill(
                     label: errors.isEmpty
-                        ? AppStrings.noApiErrorsLabel
-                        : AppStrings.apiErrorCountLabel(errors.length),
+                        ? L10nService.strings.noApiErrorsLabel
+                        : L10nService.strings.apiErrorCountLabel(errors.length),
                     color: errors.isEmpty
-                        ? SealPalette.secondary
-                        : SealPalette.error,
+                        ? context.sealSecondary
+                        : context.sealError,
                     icon: errors.isEmpty
                         ? Icons.verified_outlined
                         : Icons.error_outline,
@@ -98,14 +100,14 @@ class SystemStatusCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: MetricCard(
-                      label: AppStrings.eventsTitle,
+                      label: L10nService.strings.eventsTitle,
                       value: '${events.events.length}',
                     ),
                   ),
                   const SizedBox(width: AppSizes.paddingSmall + 2),
                   Expanded(
                     child: MetricCard(
-                      label: AppStrings.teamTitle,
+                      label: L10nService.strings.teamTitle,
                       value: '${teams.teams.length}',
                     ),
                   ),
@@ -116,14 +118,14 @@ class SystemStatusCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: MetricCard(
-                      label: AppStrings.submissionsMetricLabel,
+                      label: L10nService.strings.submissionsMetricLabel,
                       value: '${submissions.submissions.length}',
                     ),
                   ),
                   const SizedBox(width: AppSizes.paddingSmall + 2),
                   Expanded(
                     child: MetricCard(
-                      label: AppStrings.scoresMetricLabel,
+                      label: L10nService.strings.scoresMetricLabel,
                       value: '${scores.scores.length}',
                     ),
                   ),

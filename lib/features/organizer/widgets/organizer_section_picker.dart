@@ -17,35 +17,35 @@ class OrganizerSectionPicker extends StatelessWidget {
       child: Row(
         children: [
           CommandChip(
-            label: AppStrings.sectionOverview,
+            label: L10nService.strings.sectionOverview,
             selected: value == 'overview',
             onTap: () => onChanged('overview'),
             icon: Icons.dashboard_outlined,
           ),
           const SizedBox(width: AppSizes.paddingSmall),
           CommandChip(
-            label: AppStrings.sectionOperations,
+            label: L10nService.strings.sectionOperations,
             selected: value == 'operations',
             onTap: () => onChanged('operations'),
             icon: Icons.tune_outlined,
           ),
           const SizedBox(width: AppSizes.paddingSmall),
           CommandChip(
-            label: AppStrings.sectionEvents,
+            label: L10nService.strings.sectionEvents,
             selected: value == 'events',
             onTap: () => onChanged('events'),
             icon: Icons.event_outlined,
           ),
           const SizedBox(width: AppSizes.paddingSmall),
           CommandChip(
-            label: AppStrings.sectionTeams,
+            label: L10nService.strings.sectionTeams,
             selected: value == 'teams',
             onTap: () => onChanged('teams'),
             icon: Icons.groups_outlined,
           ),
           const SizedBox(width: AppSizes.paddingSmall),
           CommandChip(
-            label: AppStrings.sectionSubmissions,
+            label: L10nService.strings.sectionSubmissions,
             selected: value == 'submissions',
             onTap: () => onChanged('submissions'),
             icon: Icons.assignment_outlined,
