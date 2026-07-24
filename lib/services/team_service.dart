@@ -74,6 +74,12 @@ class TeamService {
         'inviter_id': inviterId,
         'invitee_id': user['id'],
       });
+      await SupabaseGateway.client.auth.signInWithOtp(
+        email: email.trim(),
+        emailRedirectTo: SupabaseConfig.teamInviteRedirectUrl,
+        shouldCreateUser: false,
+        data: {'team_id': teamId, 'invite_type': 'team_invitation'},
+      );
     });
   }
 
@@ -85,6 +91,7 @@ class TeamService {
             '*,team:teams(id,name,leader_id,event_id,team_members(users(id,full_name,email,role,university))),inviter:users!team_invitations_inviter_id_fkey(id,full_name,email,role,university)',
           )
           .eq('invitee_id', userId)
+          .eq('status', 'pending')
           .order('created_at', ascending: false);
       return rows
           .whereType<Map<String, dynamic>>()
@@ -99,13 +106,37 @@ class TeamService {
         'team_id': invitation.teamId,
         'user_id': invitation.inviteeId,
       });
-      await SupabaseGateway.client
+      final updated = await SupabaseGateway.client
           .from('team_invitations')
           .update({
             'status': 'accepted',
             'responded_at': DateTime.now().toUtc().toIso8601String(),
           })
-          .eq('id', invitation.id);
+          .eq('id', invitation.id)
+          .eq('status', 'pending')
+          .select();
+      if (updated.isEmpty) {
+        throw Exception(L10nService.strings.invitationNoLongerPending);
+      }
+    });
+  }
+
+  Future<TeamInvitation?> acceptLatestInvitationForUser(String userId) {
+    return AppOperation.run('team_invitations.accept_latest', () async {
+      final rows = await SupabaseGateway.client
+          .from('team_invitations')
+          .select(
+            '*,team:teams(id,name,leader_id,event_id,team_members(users(id,full_name,email,role,university))),inviter:users!team_invitations_inviter_id_fkey(id,full_name,email,role,university)',
+          )
+          .eq('invitee_id', userId)
+          .eq('status', 'pending')
+          .order('created_at', ascending: false)
+          .limit(1);
+      final row = rows.isEmpty ? null : rows.first;
+      if (row == null) return null;
+      final invitation = TeamInvitation.fromJson(row);
+      await acceptInvitation(invitation);
+      return invitation;
     });
   }
 
@@ -117,7 +148,8 @@ class TeamService {
             'status': 'declined',
             'responded_at': DateTime.now().toUtc().toIso8601String(),
           })
-          .eq('id', invitationId);
+          .eq('id', invitationId)
+          .eq('status', 'pending');
     });
   }
 

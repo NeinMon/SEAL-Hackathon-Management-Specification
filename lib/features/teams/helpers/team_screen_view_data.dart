@@ -44,7 +44,8 @@ class TeamScreenViewData {
                 (team) => team.members.any((member) => member.id == user.id),
               )
               .toList();
-    final pendingInvitations = user == null
+    final filterEventId = selectedEvent?.id ?? routeEventId;
+    final allPendingInvitations = user == null
         ? <TeamInvitation>[]
         : teams.invitations
               .where(
@@ -52,7 +53,13 @@ class TeamScreenViewData {
                     invitation.isPending && invitation.inviteeId == user.id,
               )
               .toList();
-    final filterEventId = selectedEvent?.id ?? routeEventId;
+    final pendingInvitations = filterEventId == null
+        ? allPendingInvitations
+        : allPendingInvitations
+              .where(
+                (invitation) => invitation.team?.eventId == filterEventId,
+              )
+              .toList();
     final scopedTeams = filterEventId == null
         ? teams.teams
         : teams.teams.where((team) => team.eventId == filterEventId).toList();

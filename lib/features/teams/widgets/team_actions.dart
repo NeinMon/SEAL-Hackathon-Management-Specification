@@ -9,7 +9,6 @@ class TeamActions extends StatelessWidget {
     required this.registrationClosed,
     required this.alreadyOnEventTeam,
     required this.user,
-    required this.onSubmit,
     required this.onLeave,
     required this.onEdit,
     required this.onInvite,
@@ -21,7 +20,6 @@ class TeamActions extends StatelessWidget {
   final bool registrationClosed;
   final bool alreadyOnEventTeam;
   final AppUser? user;
-  final VoidCallback onSubmit;
   final VoidCallback? onLeave;
   final VoidCallback onEdit;
   final VoidCallback onInvite;
@@ -44,11 +42,6 @@ class TeamActions extends StatelessWidget {
             icon: Icon(Icons.edit_outlined),
             label: Text(context.l10n.editButton),
           ),
-          TextButton.icon(
-            onPressed: onSubmit,
-            icon: Icon(Icons.upload_file_outlined),
-            label: Text(context.l10n.submitNavLabel),
-          ),
         ],
       );
     }
@@ -57,11 +50,6 @@ class TeamActions extends StatelessWidget {
         spacing: 8,
         runSpacing: 8,
         children: [
-          FilledButton.icon(
-            onPressed: onSubmit,
-            icon: Icon(Icons.upload_file_outlined),
-            label: Text(context.l10n.submitProjectButton),
-          ),
           OutlinedButton.icon(
             onPressed: onLeave,
             icon: Icon(Icons.exit_to_app_outlined),

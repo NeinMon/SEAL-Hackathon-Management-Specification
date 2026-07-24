@@ -178,12 +178,21 @@ class TeamProvider extends ChangeNotifier {
     }
     if (team != null) {
       final normalizedEmail = email.trim().toLowerCase();
+      if (team.members.any(
+        (member) => member.email.toLowerCase() == normalizedEmail,
+      )) {
+        error = L10nService.strings.alreadyTeamMemberError;
+        notifyListeners();
+        return;
+      }
       for (final candidate in teams) {
         if (candidate.eventId != resolvedEvent.id) continue;
+        if (candidate.id == teamId) continue;
         for (final member in candidate.members) {
           if (member.email.toLowerCase() != normalizedEmail) continue;
-          if (candidate.id == teamId) continue;
-          error = L10nService.strings.alreadyOnEventTeamNamedError(candidate.name);
+          error = L10nService.strings.alreadyOnEventTeamNamedError(
+            candidate.name,
+          );
           notifyListeners();
           return;
         }
@@ -275,6 +284,37 @@ class TeamProvider extends ChangeNotifier {
       isLoading = false;
     }
     notifyListeners();
+  }
+
+  Future<bool> acceptLatestInvitationFromEmail(AppUser user) async {
+    if (isLoading) return false;
+    final configError = AppValidators.requireSupabaseReady();
+    if (configError != null) {
+      error = configError;
+      notifyListeners();
+      return false;
+    }
+    isLoading = true;
+    error = null;
+    message = null;
+    notifyListeners();
+    try {
+      final accepted = await _service.acceptLatestInvitationForUser(user.id);
+      await loadTeamWorkspace(user);
+      if (accepted == null) {
+        message = 'Khong co loi moi dang cho cho tai khoan nay.';
+        notifyListeners();
+        return false;
+      }
+      message = L10nService.strings.invitationAcceptedSuccess;
+      notifyListeners();
+      return true;
+    } catch (exception) {
+      error = FriendlyErrorMapper.message(exception);
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 
   Future<void> declineInvitation(String invitationId, AppUser user) async {
