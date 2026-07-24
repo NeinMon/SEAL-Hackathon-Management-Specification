@@ -11,7 +11,6 @@ class OrganizerOperationsSection extends StatelessWidget {
     required this.onOpenJudge,
     required this.onManageMentors,
     required this.onManageRoles,
-    required this.onResetDemo,
     required this.onManageCriteria,
   });
 
@@ -22,7 +21,6 @@ class OrganizerOperationsSection extends StatelessWidget {
   final VoidCallback onOpenJudge;
   final VoidCallback onManageMentors;
   final VoidCallback onManageRoles;
-  final VoidCallback onResetDemo;
   final VoidCallback onManageCriteria;
 
   @override
@@ -86,12 +84,6 @@ class OrganizerOperationsSection extends StatelessWidget {
                   title: L10nService.strings.manageScoreCriteriaTitle,
                   value: L10nService.strings.manageScoreCriteriaDescription,
                   onTap: onManageCriteria,
-                ),
-                OrganizerAction(
-                  icon: Icons.restart_alt_outlined,
-                  title: L10nService.strings.demoResetTitle,
-                  value: L10nService.strings.demoResetDescription,
-                  onTap: onResetDemo,
                 ),
                 OrganizerAction(
                   icon: Icons.manage_accounts_outlined,

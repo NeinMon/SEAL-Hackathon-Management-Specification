@@ -13,11 +13,15 @@ class OrganizerEventDialog {
       return showModalBottomSheet<HackathonEvent>(
         context: context,
         isScrollControlled: true,
-        useSafeArea: true,
-        builder: (_) => FractionallySizedBox(
-          heightFactor: 0.95,
-          child: OrganizerEventDialogForm(existing: existing, compact: true),
-        ),
+        useSafeArea: false,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        builder: (sheetContext) {
+          final height = MediaQuery.sizeOf(sheetContext).height;
+          return SizedBox(
+            height: height,
+            child: OrganizerEventDialogForm(existing: existing, compact: true),
+          );
+        },
       );
     }
     return showDialog<HackathonEvent>(

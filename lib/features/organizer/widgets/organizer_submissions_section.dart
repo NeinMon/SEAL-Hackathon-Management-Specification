@@ -41,8 +41,8 @@ class OrganizerSubmissionsSection extends StatelessWidget {
           EmptyState(
             message: L10nService.strings.noSubmissionsYet,
             icon: Icons.assignment_outlined,
-            actionLabel: L10nService.strings.openTeamAction,
-            onAction: () => context.go(AppRoutes.teams),
+            actionLabel: L10nService.strings.sectionTeams,
+            onAction: () => context.go(AppRoutes.organizer),
           )
         else
           ListView.builder(

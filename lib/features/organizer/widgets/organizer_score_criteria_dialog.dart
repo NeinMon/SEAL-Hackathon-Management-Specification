@@ -143,6 +143,7 @@ class _OrganizerScoreCriteriaFormState
         mainAxisSize: MainAxisSize.min,
         children: [
           DropdownButtonFormField<String>(
+            isExpanded: true,
             initialValue: eventId,
             decoration: InputDecoration(
               labelText: L10nService.strings.eventLabel,
@@ -150,7 +151,10 @@ class _OrganizerScoreCriteriaFormState
             ),
             items: [
               for (final event in widget.events)
-                DropdownMenuItem(value: event.id, child: Text(event.title)),
+                DropdownMenuItem(
+                  value: event.id,
+                  child: Text(event.title, overflow: TextOverflow.ellipsis),
+                ),
             ],
             onChanged: isSaving
                 ? null

@@ -156,21 +156,25 @@ class OrganizerEventTimeFields extends StatelessWidget {
         _DatePickerField(
           controller: start,
           label: L10nService.strings.eventFieldStartDate,
+          helperText: 'Ngày bắt đầu event và mở luồng nộp/chấm bài.',
           onPickDateTime: onPickDateTime,
         ),
         _DatePickerField(
           controller: end,
           label: L10nService.strings.eventFieldEndDate,
+          helperText: 'Ngày kết thúc event.',
           onPickDateTime: onPickDateTime,
         ),
         _DatePickerField(
           controller: deadline,
-          label: L10nService.strings.eventFieldRegistrationDeadline,
+          label: 'Ngày đóng đăng ký',
+          helperText: 'Sau thời điểm này thí sinh không thể tạo/tham gia team.',
           onPickDateTime: onPickDateTime,
         ),
         _DatePickerField(
           controller: submissionDeadline,
           label: L10nService.strings.eventFieldSubmissionDeadline,
+          helperText: 'Sau thời điểm này team không thể nộp hoặc sửa bài.',
           onPickDateTime: onPickDateTime,
         ),
       ],
@@ -182,11 +186,13 @@ class _DatePickerField extends StatelessWidget {
   const _DatePickerField({
     required this.controller,
     required this.label,
+    this.helperText,
     required this.onPickDateTime,
   });
 
   final TextEditingController controller;
   final String label;
+  final String? helperText;
   final ValueChanged<TextEditingController> onPickDateTime;
 
   @override
@@ -199,6 +205,7 @@ class _DatePickerField extends StatelessWidget {
           child: OrganizerDialogField(
             controller: controller,
             label: label,
+            helperText: helperText,
             suffixIcon: Icon(Icons.calendar_today_outlined, size: 20),
             validator: (value) =>
                 AppValidators.eventDateTimeField(value, label: label),

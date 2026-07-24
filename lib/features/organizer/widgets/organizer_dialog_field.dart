@@ -8,6 +8,7 @@ class OrganizerDialogField extends StatelessWidget {
     this.lines = 1,
     this.keyboardType,
     this.hintText,
+    this.helperText,
     this.suffixIcon,
     this.validator,
   });
@@ -17,6 +18,7 @@ class OrganizerDialogField extends StatelessWidget {
   final int lines;
   final TextInputType? keyboardType;
   final String? hintText;
+  final String? helperText;
   final Widget? suffixIcon;
   final FormFieldValidator<String>? validator;
 
@@ -33,6 +35,7 @@ class OrganizerDialogField extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           hintText: hintText,
+          helperText: helperText,
           suffixIcon: suffixIcon,
         ),
       ),

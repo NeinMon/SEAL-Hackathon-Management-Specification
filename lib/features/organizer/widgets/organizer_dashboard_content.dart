@@ -1,14 +1,13 @@
 import '../../../shared.dart';
 import '../../../core/constants/organizer_task_templates.dart';
 import '../helpers/organizer_dashboard_metrics.dart';
+import 'organizer_advanced_scaffold.dart';
 import 'organizer_mentor_assignment_dialog.dart';
-import 'organizer_demo_reset_dialog.dart';
 import 'organizer_announcement_dialog.dart';
 import 'organizer_event_dialog.dart';
 import 'organizer_events_section.dart';
 import 'organizer_operations_section.dart';
 import 'organizer_overview_section.dart';
-import 'organizer_section_picker.dart';
 import 'organizer_score_criteria_dialog.dart';
 import 'organizer_submission_details_dialog.dart';
 import 'organizer_submissions_section.dart';
@@ -27,15 +26,24 @@ class OrganizerDashboardContent extends StatefulWidget {
       OrganizerDashboardContentState();
 }
 
-class OrganizerDashboardContentState
-    extends State<OrganizerDashboardContent> {
+class OrganizerDashboardContentState extends State<OrganizerDashboardContent> {
   String section = 'overview';
   bool showAdvancedSections = false;
-  final _scrollController = ScrollController();
+  final _homeScrollController = ScrollController();
+  final _sectionScrollController = ScrollController();
+  OrganizerDashboardUiProvider? _uiProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _uiProvider ??= context.read<OrganizerDashboardUiProvider>();
+  }
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _uiProvider?.setAdvancedMode(false);
+    _homeScrollController.dispose();
+    _sectionScrollController.dispose();
     super.dispose();
   }
 
@@ -76,13 +84,146 @@ class OrganizerDashboardContentState
 
   void _changeSection(String value) {
     setState(() => section = value);
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
+    if (_sectionScrollController.hasClients) {
+      _sectionScrollController.animateTo(
         0,
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOut,
       );
     }
+  }
+
+  void _openAdvanced({String? initialSection}) {
+    _uiProvider?.setAdvancedMode(true);
+    setState(() {
+      showAdvancedSections = true;
+      if (initialSection != null) section = initialSection;
+    });
+  }
+
+  void _closeAdvanced() {
+    _uiProvider?.setAdvancedMode(false);
+    setState(() => showAdvancedSections = false);
+  }
+
+  String _combinedErrors(
+    String? eventsError,
+    String? teamsError,
+    String? submissionsError,
+    String? scoresError,
+  ) {
+    return [
+      ?eventsError,
+      ?teamsError,
+      ?submissionsError,
+      ?scoresError,
+    ].join('\n');
+  }
+
+  Widget _errorBanner(
+    EventProvider events,
+    TeamProvider teams,
+    SubmissionProvider submissions,
+    ScoreProvider scores,
+  ) {
+    final message = _combinedErrors(
+      events.error,
+      teams.error,
+      submissions.error,
+      scores.error,
+    );
+    if (message.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSizes.paddingCompact),
+      child: StatusBanner(message: message, isError: true),
+    );
+  }
+
+  Widget _buildSectionContent({
+    required BuildContext context,
+    required OrganizerDashboardMetrics metrics,
+    required EventProvider events,
+    required TeamProvider teams,
+    required SubmissionProvider submissions,
+    required ScoreProvider scores,
+    required String? focusEventId,
+  }) {
+    if (metrics.loading) {
+      return ListView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(AppSizes.paddingMedium),
+        children: const [DashboardMetricSkeleton()],
+      );
+    }
+
+    return ListView(
+      controller: _sectionScrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.all(AppSizes.paddingMedium),
+      children: [
+        switch (section) {
+          'operations' => OrganizerOperationsSection(
+            unscored: metrics.unscored,
+            onCreateEvent: () => _openEventDialog(context),
+            onSendAnnouncement: () =>
+                OrganizerAnnouncementDialog.show(context),
+            onExportLeaderboard: () => _copyLeaderboardCsv(
+              context,
+              metrics.scopedSubmissions,
+              scores,
+              metrics.scopedTeams,
+            ),
+            onOpenJudge: () => _openAdvanced(initialSection: 'submissions'),
+            onManageMentors: () => OrganizerMentorAssignmentDialog.show(
+              context,
+              events: events.events,
+              focusEvent: metrics.focusEvent,
+            ),
+            onManageRoles: () => OrganizerUserRolesDialog.show(context),
+            onManageCriteria: () =>
+                OrganizerScoreCriteriaDialog.show(context),
+          ),
+          'events' => OrganizerEventsSection(
+            events: events,
+            onCreateEvent: () => _openEventDialog(context),
+            onEditEvent: (event) =>
+                _openEventDialog(context, existing: event),
+            onCloseRegistration: (event) =>
+                _closeRegistration(context, event),
+          ),
+          'submissions' => OrganizerSubmissionsSection(
+            submissions: submissions,
+            scores: scores,
+            teams: teams,
+            focusEventId: focusEventId,
+            onTapSubmission: (submission) =>
+                OrganizerSubmissionDetailsDialog.show(
+                  context,
+                  submission: submission,
+                  scores: scores,
+                  teams: teams.teams,
+                ),
+          ),
+          'teams' => OrganizerTeamsSection(
+            teams: teams,
+            focusEventId: focusEventId,
+            onTapTeam: (team) =>
+                OrganizerTeamDetailsDialog.show(context, team),
+          ),
+          _ => OrganizerOverviewSection(
+            activeEvents: metrics.overviewActiveEvents,
+            unscored: metrics.unscored,
+            events: events,
+            teams: teams,
+            submissions: submissions,
+            scores: scores,
+            focusEvent: metrics.focusEvent,
+            teamCount: metrics.scopedTeams.length,
+            submissionCount: metrics.scopedSubmissions.length,
+          ),
+        },
+      ],
+    );
   }
 
   @override
@@ -100,45 +241,67 @@ class OrganizerDashboardContentState
       focusEventId: focusEventId,
     );
 
-    return ListView(
-      controller: _scrollController,
-      padding: const EdgeInsets.all(AppSizes.paddingMedium),
-      children: [
-        SealSectionHeader(
-          title: L10nService.strings.organizerTitle,
-          subtitle: metrics.focusEvent == null
-              ? L10nService.strings.organizerSubtitle
-              : L10nService.strings.organizerFocusEventSubtitle(
-                  metrics.focusEvent!.title,
-                ),
-          icon: Icons.dashboard_customize_outlined,
-          trailing: IconButton.filledTonal(
-            tooltip: context.l10n.reloadDashboardTooltip,
-            onPressed: metrics.loading ? null : widget.onRefresh,
-            icon: Icon(Icons.refresh),
+    if (showAdvancedSections) {
+      return OrganizerAdvancedScaffold(
+        section: section,
+        focusEventTitle: metrics.focusEvent?.title,
+        loading: metrics.loading,
+        onSectionChanged: _changeSection,
+        onBack: _closeAdvanced,
+        onRefresh: widget.onRefresh,
+        child: RefreshIndicator(
+          onRefresh: widget.onRefresh,
+          child: _buildSectionContent(
+            context: context,
+            metrics: metrics,
+            events: events,
+            teams: teams,
+            submissions: submissions,
+            scores: scores,
+            focusEventId: focusEventId,
           ),
         ),
-        if (events.error != null)
-          StatusBanner(message: events.error!, isError: true),
+      );
+    }
+
+    return ListView(
+      controller: _homeScrollController,
+      padding: const EdgeInsets.all(AppSizes.paddingMedium),
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                metrics.focusEvent == null
+                    ? L10nService.strings.organizerSubtitle
+                    : L10nService.strings.organizerFocusEventSubtitle(
+                        metrics.focusEvent!.title,
+                      ),
+                style: TextStyle(
+                  color: context.sealTheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                  height: 1.35,
+                ),
+              ),
+            ),
+            IconButton.filledTonal(
+              tooltip: context.l10n.reloadDashboardTooltip,
+              onPressed: metrics.loading ? null : widget.onRefresh,
+              icon: const Icon(Icons.refresh),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSizes.paddingCompact),
+        _errorBanner(events, teams, submissions, scores),
         if (events.message != null) StatusBanner(message: events.message!),
-        if (teams.error != null)
-          StatusBanner(message: teams.error!, isError: true),
-        if (submissions.error != null)
-          StatusBanner(message: submissions.error!, isError: true),
-        if (scores.error != null)
-          StatusBanner(message: scores.error!, isError: true),
-        if (!metrics.loading && !showAdvancedSections) ...[
+        if (!metrics.loading) ...[
           OrganizerTodayTasksPanel(
             metrics: metrics,
             events: events.events,
-            onOpenTeams: () => setState(() {
-              showAdvancedSections = true;
-              section = 'teams';
-            }),
-            onOpenEvents: () => setState(() {
-              showAdvancedSections = true;
-              section = 'events';
-            }),
+            onOpenTeams: () => _openAdvanced(initialSection: 'teams'),
+            onOpenEvents: () => _openAdvanced(initialSection: 'events'),
+            onOpenJudge: () => _openAdvanced(initialSection: 'submissions'),
             onSendAnnouncement: () => OrganizerAnnouncementDialog.show(context),
             onOpenTaskReminder: (template) => _openTaskReminder(
               context,
@@ -155,117 +318,13 @@ class OrganizerDashboardContentState
           Align(
             alignment: Alignment.centerRight,
             child: FilledButton.tonalIcon(
-              onPressed: () => setState(() => showAdvancedSections = true),
-              icon: Icon(Icons.unfold_more_outlined),
+              onPressed: () => _openAdvanced(),
+              icon: const Icon(Icons.unfold_more_outlined),
               label: Text(context.l10n.organizerShowDetailsButton),
             ),
           ),
-        ],
-        if (showAdvancedSections) ...[
-          OrganizerSectionPicker(
-            value: section,
-            onChanged: _changeSection,
-          ),
-          const SizedBox(height: AppSizes.sectionGap),
-          Align(
-            alignment: Alignment.centerRight,
-            child: TextButton.icon(
-              onPressed: () => setState(() => showAdvancedSections = false),
-              icon: Icon(Icons.unfold_less_outlined),
-              label: Text(context.l10n.organizerHideDetailsButton),
-            ),
-          ),
-          const SizedBox(height: AppSizes.paddingCompact),
-        ],
-        if (metrics.loading) const DashboardMetricSkeleton(),
-        if (showAdvancedSections && section == 'overview' && !metrics.loading) ...[
-          OrganizerTodayTasksPanel(
-            metrics: metrics,
-            events: events.events,
-            onOpenTeams: () => _changeSection('teams'),
-            onOpenEvents: () => _changeSection('events'),
-            onSendAnnouncement: () => OrganizerAnnouncementDialog.show(context),
-            onOpenTaskReminder: (template) => _openTaskReminder(
-              context,
-              eventId: metrics.reminderEventId,
-              template: template,
-            ),
-            onOpenMentorAssignment: () => _openMentorAssignment(
-              context,
-              events: events.events,
-              eventId: metrics.reminderEventId,
-            ),
-          ),
-          const SizedBox(height: AppSizes.paddingMedium),
-        ],
-        if (showAdvancedSections && section == 'overview')
-          OrganizerOverviewSection(
-            activeEvents: metrics.overviewActiveEvents,
-            unscored: metrics.unscored,
-            events: events,
-            teams: teams,
-            submissions: submissions,
-            scores: scores,
-            focusEvent: metrics.focusEvent,
-            teamCount: metrics.scopedTeams.length,
-            submissionCount: metrics.scopedSubmissions.length,
-          ),
-        if (showAdvancedSections && section == 'operations')
-          OrganizerOperationsSection(
-            unscored: metrics.unscored,
-            onCreateEvent: () => _openEventDialog(context),
-            onSendAnnouncement: () => OrganizerAnnouncementDialog.show(context),
-            onExportLeaderboard: () => _copyLeaderboardCsv(
-              context,
-              metrics.scopedSubmissions,
-              scores,
-              metrics.scopedTeams,
-            ),
-            onOpenJudge: () {
-              final route = focusEventId == null
-                  ? AppRoutes.judge
-                  : RouteQuery.judgeForEvent(focusEventId);
-              context.go(route);
-            },
-            onManageMentors: () => OrganizerMentorAssignmentDialog.show(
-              context,
-              events: events.events,
-              focusEvent: metrics.focusEvent,
-            ),
-            onManageRoles: () => OrganizerUserRolesDialog.show(context),
-            onResetDemo: () => OrganizerDemoResetDialog.show(
-              context,
-              onResetComplete: widget.onRefresh,
-            ),
-            onManageCriteria: () => OrganizerScoreCriteriaDialog.show(context),
-          ),
-        if (showAdvancedSections && section == 'events')
-          OrganizerEventsSection(
-            events: events,
-            onCreateEvent: () => _openEventDialog(context),
-            onEditEvent: (event) => _openEventDialog(context, existing: event),
-            onCloseRegistration: (event) => _closeRegistration(context, event),
-          ),
-        if (showAdvancedSections && section == 'submissions')
-          OrganizerSubmissionsSection(
-            submissions: submissions,
-            scores: scores,
-            teams: teams,
-            focusEventId: focusEventId,
-            onTapSubmission: (submission) =>
-                OrganizerSubmissionDetailsDialog.show(
-                  context,
-                  submission: submission,
-                  scores: scores,
-                  teams: teams.teams,
-                ),
-          ),
-        if (showAdvancedSections && section == 'teams')
-          OrganizerTeamsSection(
-            teams: teams,
-            focusEventId: focusEventId,
-            onTapTeam: (team) => OrganizerTeamDetailsDialog.show(context, team),
-          ),
+        ] else
+          const DashboardMetricSkeleton(),
       ],
     );
   }
@@ -361,4 +420,3 @@ class OrganizerDashboardContentState
     );
   }
 }
-

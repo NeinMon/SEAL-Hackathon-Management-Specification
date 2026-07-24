@@ -52,7 +52,8 @@ class OrganizerDashboardMetrics {
             teams: teams.teams,
             eventId: focusEventId,
           );
-    final scopedEvents = focusEvent == null ? events.events : [focusEvent];
+    final scopedEvents =
+        focusEvent == null ? events.sortedEvents : [focusEvent];
     final unscored = scopedSubmissions
         .where((submission) => scores.scoreCountFor(submission.id) == 0)
         .length;

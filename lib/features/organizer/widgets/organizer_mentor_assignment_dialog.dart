@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import '../../../shared.dart';
 
 class OrganizerMentorAssignmentDialog {
@@ -71,11 +73,12 @@ class OrganizerMentorAssignmentDialog {
           return AlertDialog(
             title: Text(context.l10n.manageEventMentorsTitle),
             content: SizedBox(
-              width: 420,
+              width: math.min(MediaQuery.sizeOf(dialogContext).width - 48, 420),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   DropdownButtonFormField<String>(
+                    isExpanded: true,
                     initialValue: selectedEvent.id,
                     decoration: InputDecoration(
                       labelText: L10nService.strings.eventLabel,
@@ -88,6 +91,7 @@ class OrganizerMentorAssignmentDialog {
                           child: Text(
                             event.title,
                             overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
                     ],

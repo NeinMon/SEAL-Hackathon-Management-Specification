@@ -41,9 +41,9 @@ class OrganizerEventsSection extends StatelessWidget {
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: events.events.take(4).length,
+            itemCount: events.sortedEvents.take(4).length,
             itemBuilder: (context, index) {
-              final event = events.events[index];
+              final event = events.sortedEvents[index];
               return OrganizerEventTile(
                 event: event,
                 dateRangeLabel: formatDateRange(event),

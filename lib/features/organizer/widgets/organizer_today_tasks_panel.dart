@@ -8,6 +8,7 @@ class OrganizerTodayTasksPanel extends StatelessWidget {
     super.key,
     required this.metrics,
     required this.events,
+    required this.onOpenJudge,
     required this.onOpenTeams,
     required this.onOpenEvents,
     required this.onSendAnnouncement,
@@ -17,6 +18,7 @@ class OrganizerTodayTasksPanel extends StatelessWidget {
 
   final OrganizerDashboardMetrics metrics;
   final List<HackathonEvent> events;
+  final VoidCallback onOpenJudge;
   final VoidCallback onOpenTeams;
   final VoidCallback onOpenEvents;
   final VoidCallback onSendAnnouncement;
@@ -32,12 +34,7 @@ class OrganizerTodayTasksPanel extends StatelessWidget {
       teamsNeedingMembers: metrics.teamsNeedingMembers,
       eventsClosingSoon: metrics.eventsClosingSoon,
       notificationSuggestions: metrics.notificationSuggestions,
-      onOpenJudge: () {
-        final route = metrics.focusEventId == null
-            ? AppRoutes.judge
-            : RouteQuery.judgeForEvent(metrics.focusEventId!);
-        context.go(route);
-      },
+      onOpenJudge: onOpenJudge,
       onOpenTeams: onOpenTeams,
       onOpenEvents: onOpenEvents,
       onSendAnnouncement: onSendAnnouncement,

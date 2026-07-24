@@ -20,7 +20,7 @@ class OrganizerAnnouncementDialog {
     String? selectedEventId = linkedEventId;
     final storedActionLabel = actionLabel;
     final storedDeepRoute = deepRoute;
-    final events = context.read<EventProvider>().events;
+    final events = context.read<EventProvider>().sortedEvents;
     final compact = MediaQuery.sizeOf(context).width < 640;
     final form = StatefulBuilder(
       builder: (dialogContext, setDialogState) => OrganizerAnnouncementForm(

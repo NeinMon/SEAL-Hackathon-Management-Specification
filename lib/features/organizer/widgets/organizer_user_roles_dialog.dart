@@ -57,6 +57,7 @@ class OrganizerUserRolesDialog {
                         ),
                         const SizedBox(height: 10),
                         DropdownButtonFormField<String>(
+                          isExpanded: true,
                           initialValue: roleFilter,
                           decoration: InputDecoration(
                             labelText: L10nService.strings.roleFilterLabel,

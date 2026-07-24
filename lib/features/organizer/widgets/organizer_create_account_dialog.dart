@@ -154,6 +154,7 @@ class _OrganizerCreateAccountFormState
             ),
             const SizedBox(height: 10),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               initialValue: role,
               decoration: InputDecoration(
                 labelText: L10nService.strings.roleLabel,

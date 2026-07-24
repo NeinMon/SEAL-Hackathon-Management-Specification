@@ -138,7 +138,10 @@ class _OrganizerEventDialogFormState extends State<OrganizerEventDialogForm> {
             ],
             bottom: _tabBar(),
           ),
-          body: SafeArea(child: _buildFormBody()),
+          body: SafeArea(
+            top: false,
+            child: _buildFormBody(),
+          ),
         ),
       );
     }
@@ -233,7 +236,7 @@ class _OrganizerEventDialogFormState extends State<OrganizerEventDialogForm> {
 
   Widget _tabList(List<Widget> children) {
     return ListView(
-      padding: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       children: children,
     );
   }

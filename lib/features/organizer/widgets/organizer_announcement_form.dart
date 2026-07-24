@@ -57,6 +57,7 @@ class OrganizerAnnouncementForm extends StatelessWidget {
             ),
             const SizedBox(height: AppSizes.paddingCompact),
             DropdownButtonFormField<String>(
+              isExpanded: true,
               initialValue: role,
               decoration: InputDecoration(
                 labelText: L10nService.strings.recipientLabel,
@@ -84,6 +85,7 @@ class OrganizerAnnouncementForm extends StatelessWidget {
             ),
             const SizedBox(height: AppSizes.paddingCompact),
             DropdownButtonFormField<String?>(
+              isExpanded: true,
               initialValue: linkedEventId,
               decoration: InputDecoration(
                 labelText: L10nService.strings.announcementEventLabel,
@@ -97,7 +99,7 @@ class OrganizerAnnouncementForm extends StatelessWidget {
                 for (final event in events)
                   DropdownMenuItem<String?>(
                     value: event.id,
-                    child: Text(event.title),
+                    child: Text(event.title, overflow: TextOverflow.ellipsis),
                   ),
               ],
               onChanged: onEventChanged,
