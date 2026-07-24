@@ -131,7 +131,11 @@ class JudgeQueueViewData {
       case 'project':
         filtered.sort((a, b) => a.projectName.compareTo(b.projectName));
       case 'team':
-        filtered.sort((a, b) => a.teamId.compareTo(b.teamId));
+        filtered.sort(
+          (a, b) => teamNameFor(a.teamId, teams).compareTo(
+            teamNameFor(b.teamId, teams),
+          ),
+        );
       case 'score':
         filtered.sort(
           (a, b) => scores.averageFor(b.id).compareTo(scores.averageFor(a.id)),
@@ -183,7 +187,6 @@ class JudgeQueueViewData {
     required List<ProjectSubmission> queueSource,
     required ScoreProvider scores,
     required List<Team> teams,
-    required String filter,
     required String sort,
     required TextEditingController search,
   }) {
@@ -191,7 +194,7 @@ class JudgeQueueViewData {
       all: queueSource,
       scores: scores,
       teams: teams,
-      filter: filter,
+      filter: 'all',
       sort: sort,
       search: search,
     );

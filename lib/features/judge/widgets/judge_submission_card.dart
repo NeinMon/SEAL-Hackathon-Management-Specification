@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../shared.dart';
 import 'judge_rubric_controls.dart';
+import 'judge_score_metric.dart';
 import 'judge_score_summary_card.dart';
 import 'judge_submission_header.dart';
 
@@ -17,6 +18,8 @@ class JudgeSubmissionCard extends StatefulWidget {
     required this.teams,
     required this.judge,
     required this.canSubmit,
+    this.onNextUnscored,
+    this.showBackNav = false,
   });
 
   final ProjectSubmission submission;
@@ -26,6 +29,8 @@ class JudgeSubmissionCard extends StatefulWidget {
   final List<Team> teams;
   final AppUser? judge;
   final bool canSubmit;
+  final VoidCallback? onNextUnscored;
+  final bool showBackNav;
 
   @override
   State<JudgeSubmissionCard> createState() => _JudgeSubmissionCardState();
@@ -49,7 +54,16 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
   @override
   void didUpdateWidget(covariant JudgeSubmissionCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!_hydratedExistingScore) _hydrateFromExistingScore();
+    if (oldWidget.submission.id != widget.submission.id) {
+      _hydratedExistingScore = false;
+      _hydratedDraft = false;
+      criterionScores.clear();
+      feedback.clear();
+      inlineError = null;
+      _hydrateFromExistingScore();
+    } else if (!_hydratedExistingScore) {
+      _hydrateFromExistingScore();
+    }
   }
 
   @override
@@ -68,6 +82,28 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
 
   @override
   Widget build(BuildContext context) {
+    final body = _buildScoringBody(context, includeSummary: false);
+    final footer = _buildStickyFooter(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSizes.paddingCompact,
+              AppSizes.paddingCompact,
+              AppSizes.paddingCompact,
+              AppSizes.paddingMedium,
+            ),
+            child: body,
+          ),
+        ),
+        footer,
+      ],
+    );
+  }
+
+  Widget _buildScoringBody(BuildContext context, {required bool includeSummary}) {
     final submission = widget.submission;
     final judgeId = widget.judge?.id;
     final existingScore = judgeId == null
@@ -89,53 +125,136 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
     _ensureCriterionScores(criteria);
     final currentAverage = _averageScore(criteria);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 14),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSizes.paddingMedium),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            JudgeSubmissionHeader(
-              submission: submission,
-              teamName: _teamName(submission.teamId),
-              eventTitle: eventTitle,
-              hasExistingScore: existingScore != null,
-              scoreCount: widget.scores.scoreCountFor(submission.id),
-              onOpenRepository: () => _openUrl(submission.githubUrl),
-              onOpenDemo: () => _openUrl(submission.videoUrl),
-            ),
-            const SizedBox(height: 14),
-            StatusBanner(message: L10nService.strings.judgeReviewReminder),
-            if (judgingBlockReason != null) ...[
-              const SizedBox(height: 8),
-              StatusBanner(message: judgingBlockReason, isError: true),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (widget.showBackNav)
+          EmbeddedScreenHeader(
+            title: submission.projectName,
+            onBack: () => Navigator.of(context).pop(),
+          ),
+        JudgeSubmissionHeader(
+          submission: submission,
+          teamName: _teamName(submission.teamId),
+          eventTitle: eventTitle,
+          hasExistingScore: existingScore != null,
+          scoreCount: widget.scores.scoreCountFor(submission.id),
+          onOpenRepository: () => _openUrl(submission.githubUrl),
+          onOpenDemo: () => _openUrl(submission.videoUrl),
+          compact: true,
+        ),
+        const SizedBox(height: 14),
+        if (judgingBlockReason != null) ...[
+          const SizedBox(height: 8),
+          StatusBanner(message: judgingBlockReason, isError: true),
+        ],
+        Text(
+          L10nService.strings.rubricEvaluationTitle,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+        ),
+        const SizedBox(height: 12),
+        JudgeRubricControls(
+          criteria: criteria,
+          values: criterionScores,
+          feedback: feedback,
+          inlineError: inlineError,
+          onChanged: (id, value) {
+            setState(() => criterionScores[id] = value);
+            _saveDraft();
+          },
+        ),
+        if (includeSummary) ...[
+          const SizedBox(height: 10),
+          JudgeScoreSummaryCard(
+            currentAverage: currentAverage,
+            feedbackReady: feedback.text.trim().isNotEmpty,
+            existingScore: existingScore,
+            isSubmitting: isSubmitting,
+            canSubmit: canSubmitScore,
+            onSubmit: _submitScore,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildStickyFooter(BuildContext context) {
+    final judgeId = widget.judge?.id;
+    final existingScore = judgeId == null
+        ? null
+        : widget.scores.scoreFor(widget.submission.id, judgeId);
+    final canSubmitScore =
+        widget.canSubmit &&
+        widget.event != null &&
+        widget.event!.judgingOpen();
+    final criteria = widget.scores.criteriaForEvent(widget.event?.id);
+    _ensureCriterionScores(criteria);
+    final currentAverage = _averageScore(criteria);
+
+    return Material(
+      elevation: 8,
+      color: Theme.of(context).colorScheme.surface,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSizes.paddingCompact,
+            8,
+            AppSizes.paddingCompact,
+            AppSizes.paddingCompact,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: JudgeScoreMetric(
+                      label: L10nService.strings.currentScoreLabel,
+                      value: currentAverage.toStringAsFixed(1),
+                      accent: context.sealTertiary,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: JudgeScoreMetric(
+                      label: L10nService.strings.feedbackLabel,
+                      value: feedback.text.trim().isNotEmpty
+                          ? L10nService.strings.feedbackReady
+                          : L10nService.strings.feedbackMissing,
+                      accent: feedback.text.trim().isNotEmpty
+                          ? context.sealSecondary
+                          : context.sealError,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              FilledButton.icon(
+                onPressed: !canSubmitScore || isSubmitting ? null : _submitScore,
+                icon: isSubmitting
+                    ? const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.check),
+                label: Text(
+                  existingScore == null
+                      ? L10nService.strings.submitScoreButton
+                      : L10nService.strings.updateScoreButton,
+                ),
+              ),
+              if (widget.onNextUnscored != null) ...[
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  onPressed: widget.onNextUnscored,
+                  icon: const Icon(Icons.skip_next_outlined),
+                  label: Text(context.l10n.nextUnscoredButton),
+                ),
+              ],
             ],
-            Text(
-              L10nService.strings.rubricEvaluationTitle,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-            ),
-            const SizedBox(height: 12),
-            JudgeRubricControls(
-              criteria: criteria,
-              values: criterionScores,
-              feedback: feedback,
-              inlineError: inlineError,
-              onChanged: (id, value) {
-                setState(() => criterionScores[id] = value);
-                _saveDraft();
-              },
-            ),
-            const SizedBox(height: 10),
-            JudgeScoreSummaryCard(
-              currentAverage: currentAverage,
-              feedbackReady: feedback.text.trim().isNotEmpty,
-              existingScore: existingScore,
-              isSubmitting: isSubmitting,
-              canSubmit: canSubmitScore,
-              onSubmit: _submitScore,
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -187,13 +306,26 @@ class _JudgeSubmissionCardState extends State<JudgeSubmissionCard> {
     await widget.scores.addScore(score, event: widget.event);
     if (!mounted) return;
     setState(() => isSubmitting = false);
-    if (widget.scores.error != null) return;
+    if (widget.scores.error != null) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(widget.scores.error!),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      return;
+    }
 
     await _clearDraft();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(context.l10n.scorePublishedWithHintSnackBar)),
-    );
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(context.l10n.scorePublishedWithHintSnackBar)),
+      );
+    Navigator.of(context).pop();
   }
 
   String? _scoreValidationError() {

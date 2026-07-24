@@ -127,7 +127,7 @@ class ScoreProvider extends ChangeNotifier {
     try {
       final criteriaList = criteriaForEvent(event.id);
       await _service.createScore(score.withPersistedAverage(criteriaList));
-      await loadScores();
+      await loadScores(eventId: event.id);
       message = L10nService.strings.scoreSavedSuccess;
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);

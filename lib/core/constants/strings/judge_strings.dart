@@ -6,7 +6,7 @@ abstract final class JudgeStrings {
       'Chỉ giám khảo mới truy cập được màn chấm điểm.';
   static const String judgeTitle = 'Chấm điểm';
   static const String judgeSubtitle =
-      'Chấm bài theo kỹ thuật, trải nghiệm và đổi mới.';
+      'Chấm bài theo chất lượng giải pháp, trải nghiệm và đổi mới.';
   static const String filterUnscored = 'Chưa chấm';
   static const String filterScored = 'Đã chấm';
   static const String judgeSearchLabel = 'Tìm bài nộp hoặc đội';
@@ -27,8 +27,8 @@ abstract final class JudgeStrings {
   static const String submitScoreButton = 'Gửi điểm';
   static const String updateScoreButton = 'Cập nhật điểm';
   static const String scoringProgressTitle = 'Tiến độ chấm';
-    static const String scorePublishedNotificationTitle = 'Điểm đã được công bố';
-    static const String scorePublishedSnackBar = 'Đã công bố điểm cho bài nộp.';
+  static const String scorePublishedNotificationTitle = 'Điểm đã được công bố';
+  static const String scorePublishedSnackBar = 'Đã công bố điểm cho bài nộp.';
   static const String scoreSavedSuccess = 'Đã lưu điểm.';
   static const String judgeScoreParticipantHint =
       'Thí sinh mở thông báo để xem điểm và nhận xét.';
