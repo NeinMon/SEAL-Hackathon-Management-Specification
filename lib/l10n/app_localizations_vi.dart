@@ -308,7 +308,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get registerRoleHint =>
-      'Tài khoản mới được tạo với vai trò Thí sinh. Sau đăng ký cần kích hoạt email bằng OTP hoặc link.';
+      'Tài khoản mới được tạo với vai trò Thí sinh. Sau đăng ký cần kích hoạt email bằng mã OTP.';
 
   @override
   String get roleManagedHint => 'Vai trò được quản lý theo hồ sơ tài khoản.';
@@ -1011,13 +1011,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get chatInputHint => 'Hỏi mentor...';
 
   @override
-  String get chatRealtimeConnected => 'Thời gian thực đang bật';
+  String get chatRealtimeConnected => 'Tin nhắn đang cập nhật';
 
   @override
-  String get chatRealtimeConnecting => 'Đang kết nối thời gian thực';
+  String get chatRealtimeConnecting => 'Đang mở trò chuyện';
 
   @override
-  String get chatRealtimeOffline => 'Đang đồng bộ thủ công';
+  String get chatRealtimeOffline => 'Cần tải lại tin nhắn';
 
   @override
   String get reloadChatTooltip => 'Tải lại cuộc trò chuyện';
@@ -1053,7 +1053,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get judgeTitle => 'Chấm điểm';
 
   @override
-  String get judgeSubtitle => 'Chấm bài theo kỹ thuật, trải nghiệm và đổi mới.';
+  String get judgeSubtitle =>
+      'Chấm bài theo chất lượng giải pháp, trải nghiệm và đổi mới.';
 
   @override
   String get filterUnscored => 'Chưa chấm';
@@ -1861,7 +1862,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Xem mã nguồn, chất lượng demo, độ sâu triển khai và tác động sản phẩm trước khi gửi điểm.';
 
   @override
-  String get rubricTechnicalLabel => 'Độ sâu kỹ thuật';
+  String get rubricTechnicalLabel => 'Chất lượng giải pháp';
 
   @override
   String get rubricTechnicalDescription =>
@@ -1912,7 +1913,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get systemStatusTitle => 'Trạng thái hệ thống';
 
   @override
-  String get systemStatusSubtitle => 'Theo dõi tải dữ liệu và đồng bộ.';
+  String get systemStatusSubtitle => 'Theo dõi trạng thái dữ liệu và cập nhật.';
 
   @override
   String get chatSuggestionSubmission => 'Hỏi về bài nộp';
@@ -1952,7 +1953,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get operationsDataLabel => 'Dữ liệu vận hành';
 
   @override
-  String get syncingLabel => 'Đang đồng bộ';
+  String get syncingLabel => 'Đang cập nhật';
 
   @override
   String get stateReadyLabel => 'Đã sẵn sàng';
@@ -2026,7 +2027,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String activationEmailSent(String email) {
-    return 'Đã gửi email kích hoạt tới $email. Mở link trong email hoặc nhập mã OTP 6 số bên dưới.';
+    return 'Đã gửi email kích hoạt tới $email. Nhập mã OTP 6 số trong email bên dưới.';
   }
 
   @override

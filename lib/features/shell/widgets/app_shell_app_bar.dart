@@ -20,20 +20,23 @@ class AppShellAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onLogout;
 
   @override
-  Size get preferredSize => const Size.fromHeight(AppSizes.appBarHeight);
+  Size get preferredSize => const Size.fromHeight(AppSizes.shellHeaderHeight);
 
   @override
   Widget build(BuildContext context) {
+    final compact = AppSizes.compactChrome(context);
     return AppBar(
-      toolbarHeight: AppSizes.appBarHeight,
+      toolbarHeight: AppSizes.shellHeaderHeight,
       titleSpacing: 0,
       automaticallyImplyLeading: false,
       title: HackCommandTopBar(
-        subtitle: roleLabel,
+        compact: compact,
+        subtitle: compact ? null : roleLabel,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             IconButton(
+              visualDensity: VisualDensity.compact,
               tooltip: context.l10n.profileNavLabel,
               onPressed: onProfile,
               icon: const Icon(Icons.person_outline),

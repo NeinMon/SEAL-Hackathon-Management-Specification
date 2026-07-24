@@ -81,7 +81,7 @@ ThemeData buildSealTheme({Brightness brightness = Brightness.dark}) {
           color: states.contains(WidgetState.selected)
               ? colors.primary
               : onSurfaceVariant,
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: FontWeight.w700,
         ),
       ),

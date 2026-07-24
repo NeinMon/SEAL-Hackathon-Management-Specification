@@ -17,20 +17,16 @@ class AppShellBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: NavigationBar(
-        height: 72,
-        selectedIndex: selectedIndex,
-        onDestinationSelected: onDestinationSelected,
-        destinations: [
-          for (final item in items)
-            NavigationDestination(
-              icon: AppShellNavigation.navIcon(item, pendingInvites),
-              label: item.label,
-            ),
-        ],
-      ),
+    return CompactShellNavBar(
+      selectedIndex: selectedIndex,
+      onDestinationSelected: onDestinationSelected,
+      destinations: [
+        for (final item in items)
+          NavigationDestination(
+            icon: AppShellNavigation.navIcon(item, pendingInvites),
+            label: item.label,
+          ),
+      ],
     );
   }
 }

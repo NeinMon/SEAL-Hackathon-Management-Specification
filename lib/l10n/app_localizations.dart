@@ -673,7 +673,7 @@ abstract class AppLocalizations {
   /// No description provided for @registerRoleHint.
   ///
   /// In en, this message translates to:
-  /// **'New accounts are created as Participant. Verify email with OTP or link after sign-up.'**
+  /// **'New accounts are created as Participant. Verify email with the OTP after sign-up.'**
   String get registerRoleHint;
 
   /// No description provided for @roleManagedHint.
@@ -2011,19 +2011,19 @@ abstract class AppLocalizations {
   /// No description provided for @chatRealtimeConnected.
   ///
   /// In en, this message translates to:
-  /// **'Realtime connected'**
+  /// **'Messages are updating'**
   String get chatRealtimeConnected;
 
   /// No description provided for @chatRealtimeConnecting.
   ///
   /// In en, this message translates to:
-  /// **'Connecting realtime'**
+  /// **'Opening chat'**
   String get chatRealtimeConnecting;
 
   /// No description provided for @chatRealtimeOffline.
   ///
   /// In en, this message translates to:
-  /// **'Manual sync'**
+  /// **'Reload messages'**
   String get chatRealtimeOffline;
 
   /// No description provided for @reloadChatTooltip.
@@ -2089,7 +2089,7 @@ abstract class AppLocalizations {
   /// No description provided for @judgeSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Score submissions on technical depth, UX and innovation.'**
+  /// **'Score submissions on solution quality, UX and innovation.'**
   String get judgeSubtitle;
 
   /// No description provided for @filterUnscored.
@@ -3625,7 +3625,7 @@ abstract class AppLocalizations {
   /// No description provided for @rubricTechnicalLabel.
   ///
   /// In en, this message translates to:
-  /// **'Technical depth'**
+  /// **'Solution quality'**
   String get rubricTechnicalLabel;
 
   /// No description provided for @rubricTechnicalDescription.
@@ -3721,7 +3721,7 @@ abstract class AppLocalizations {
   /// No description provided for @systemStatusSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Track data loading and sync.'**
+  /// **'Track data status and updates.'**
   String get systemStatusSubtitle;
 
   /// No description provided for @chatSuggestionSubmission.
@@ -3799,7 +3799,7 @@ abstract class AppLocalizations {
   /// No description provided for @syncingLabel.
   ///
   /// In en, this message translates to:
-  /// **'Syncing'**
+  /// **'Updating'**
   String get syncingLabel;
 
   /// No description provided for @stateReadyLabel.
@@ -3913,7 +3913,7 @@ abstract class AppLocalizations {
   /// No description provided for @activationEmailSent.
   ///
   /// In en, this message translates to:
-  /// **'Activation email sent to {email}. Open the link or enter the 6-digit OTP below.'**
+  /// **'Activation email sent to {email}. Enter the 6-digit OTP from the email below.'**
   String activationEmailSent(String email);
 
   /// No description provided for @emailActivatedWelcome.

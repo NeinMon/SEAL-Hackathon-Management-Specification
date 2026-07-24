@@ -1,12 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:seal_hackathon_app/main.dart';
+import 'package:seal_hackathon_app/features/events/widgets/participant_home_card.dart';
 import 'package:seal_hackathon_app/features/organizer/widgets/organizer_announcement_dialog.dart';
 import 'package:seal_hackathon_app/features/organizer/widgets/organizer_user_roles_dialog.dart';
-import 'package:seal_hackathon_app/features/teams/widgets/team_invite_flow.dart';
+import 'package:seal_hackathon_app/features/teams/widgets/team_card.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 ChangeNotifierProvider<ActiveEventProvider> _activeEventProvider() =>
     ChangeNotifierProvider<ActiveEventProvider>(
       create: (_) => ActiveEventProvider(),
+    );
+
+ChangeNotifierProvider<OrganizerDashboardUiProvider> _organizerUiProvider() =>
+    ChangeNotifierProvider<OrganizerDashboardUiProvider>(
+      create: (_) => OrganizerDashboardUiProvider(),
     );
 
 void main() {
@@ -20,10 +27,11 @@ void main() {
       ChangeNotifierProvider(
         create: (_) => AuthProvider(restoreSession: false),
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: LoginScreen()),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: LoginScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -43,10 +51,11 @@ void main() {
       ChangeNotifierProvider(
         create: (_) => AuthProvider(restoreSession: false),
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: LoginScreen()),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: LoginScreen(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -70,10 +79,11 @@ void main() {
       ChangeNotifierProvider(
         create: (_) => AuthProvider(restoreSession: false),
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: LoginScreen()),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: LoginScreen(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -102,10 +112,11 @@ void main() {
       ChangeNotifierProvider(
         create: (_) => AuthProvider(restoreSession: false),
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: LoginScreen()),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: LoginScreen(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -139,15 +150,14 @@ void main() {
           ChangeNotifierProvider<AuthProvider>.value(
             value: AuthProvider(restoreSession: false),
           ),
-          ChangeNotifierProvider<EventProvider>.value(
-            value: provider,
-          ),
+          ChangeNotifierProvider<EventProvider>.value(value: provider),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: EventListScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: EventListScreen()),
+        ),
       ),
     );
     await tester.pump();
@@ -170,15 +180,14 @@ void main() {
           ChangeNotifierProvider<AuthProvider>.value(
             value: AuthProvider(restoreSession: false),
           ),
-          ChangeNotifierProvider<EventProvider>.value(
-            value: provider,
-          ),
+          ChangeNotifierProvider<EventProvider>.value(value: provider),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: EventListScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: EventListScreen()),
+        ),
       ),
     );
     await tester.pump();
@@ -204,15 +213,14 @@ void main() {
           ChangeNotifierProvider<AuthProvider>.value(
             value: AuthProvider(restoreSession: false),
           ),
-          ChangeNotifierProvider<EventProvider>.value(
-            value: provider,
-          ),
+          ChangeNotifierProvider<EventProvider>.value(value: provider),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: EventListScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: EventListScreen()),
+        ),
       ),
     );
     await tester.pump();
@@ -221,6 +229,139 @@ void main() {
       find.bySemanticsLabel('Mở sự kiện Campus Innovation'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('Participant home card keeps event title readable on phone', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    const title = 'SEAL Innovation Hackathon 2026';
+    await tester.pumpWidget(
+      MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('vi'),
+        home: MediaQuery(
+          data: const MediaQueryData(
+            size: Size(390, 844),
+            textScaler: TextScaler.linear(1.35),
+          ),
+          child: Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.all(16),
+              child: ParticipantHomeCard(
+                journey: ParticipantJourney(
+                  step: ParticipantJourneyStep.awaitingScore,
+                  event: _event(id: 'event-id', title: title, location: 'HCMC'),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    final titleRect = tester.getRect(find.text(title));
+    expect(titleRect.width, greaterThan(180));
+    expect(titleRect.height, lessThanOrEqualTo(72));
+    expect(find.byTooltip('Chi tiết'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Participant shell tabs and event card are tappable on phone', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    SharedPreferences.setMockInitialValues({
+      'seal_onboarding_v2_participant': true,
+    });
+
+    final auth = AuthProvider(restoreSession: false)
+      ..user = const AppUser(
+        id: 'participant-id',
+        fullName: 'Participant',
+        email: 'participant@seal.test',
+        role: AppRoles.participant,
+        university: 'FPT University',
+      );
+    final events = TestEventProvider()
+      ..events = [
+        _event(
+          id: 'event-id',
+          title: 'SEAL Innovation Hackathon 2026',
+          location: 'HCMC',
+        ),
+      ];
+    final teams = TestTeamProvider();
+    final submissions = TestSubmissionProvider();
+    final scores = TestScoreProvider();
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<LocaleProvider>.value(value: LocaleProvider()),
+          ChangeNotifierProvider<ThemeProvider>.value(value: ThemeProvider()),
+          ChangeNotifierProvider<OnboardingProvider>.value(
+            value: OnboardingProvider(),
+          ),
+          _organizerUiProvider(),
+          _activeEventProvider(),
+          ChangeNotifierProvider<AuthProvider>.value(value: auth),
+          ChangeNotifierProvider<EventProvider>.value(value: events),
+          ChangeNotifierProvider<TeamProvider>.value(value: teams),
+          ChangeNotifierProvider<SubmissionProvider>.value(value: submissions),
+          ChangeNotifierProvider<ScoreProvider>.value(value: scores),
+          ChangeNotifierProvider<NotificationProvider>.value(
+            value: NotificationProvider(),
+          ),
+          ChangeNotifierProvider<ChatProvider>.value(value: TestChatProvider()),
+        ],
+        child: MaterialApp.router(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('vi'),
+          routerConfig: buildSealRouter(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.text(L10nService.strings.myHomeNavLabel), findsOneWidget);
+    expect(
+      find.text(L10nService.strings.notificationsNavLabel),
+      findsOneWidget,
+    );
+    expect(find.text(L10nService.strings.teamNavLabel), findsNothing);
+    expect(find.text(L10nService.strings.submitNavLabel), findsNothing);
+
+    await tester.tap(find.text(L10nService.strings.notificationsNavLabel));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text(L10nService.strings.inboxTitle), findsWidgets);
+
+    await tester.tap(find.text(L10nService.strings.myHomeNavLabel));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.text('SEAL Innovation Hackathon 2026').last);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(find.text(L10nService.strings.eventSubNavOverview), findsWidgets);
+    expect(find.text(L10nService.strings.teamNavLabel), findsWidgets);
+    expect(find.text(L10nService.strings.submitNavLabel), findsWidgets);
+    expect(find.text(L10nService.strings.chatNavLabel), findsWidgets);
+    expect(find.text(L10nService.strings.mapNavLabel), findsWidgets);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('RoleGate blocks users without allowed role', (tester) async {
@@ -237,10 +378,10 @@ void main() {
       ChangeNotifierProvider<AuthProvider>.value(
         value: auth,
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(
             body: RoleGate(
               allowedRoles: {AppRoles.judge},
               child: Text('Secret scoring'),
@@ -309,21 +450,18 @@ void main() {
           ),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: JudgeScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: JudgeScreen()),
+        ),
       ),
     );
     await tester.pump();
 
-    await tester.scrollUntilVisible(
-      find.text('Gửi điểm'),
-      500,
-      scrollable: find.byType(Scrollable).first,
-    );
-    await tester.drag(find.byType(ListView), const Offset(0, -180));
+    await tester.tap(find.text('Campus Copilot'));
     await tester.pumpAndSettle();
+
     await tester.tap(find.text('Gửi điểm'));
     await tester.pump();
 
@@ -408,10 +546,11 @@ void main() {
           ),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: SubmissionScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: SubmissionScreen()),
+        ),
       ),
     );
     await tester.pump();
@@ -420,11 +559,8 @@ void main() {
     expect(find.text('Save mode'), findsNothing);
     expect(find.text('Thông tin dự án'), findsWidgets);
     expect(find.text('Liên kết'), findsWidgets);
-    await tester.scrollUntilVisible(
-      find.text('Lịch sử cập nhật'),
-      260,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await tester.tap(find.byIcon(Icons.history_outlined));
+    await tester.pumpAndSettle();
     expect(find.text('Lịch sử cập nhật'), findsOneWidget);
   });
 
@@ -471,10 +607,11 @@ void main() {
           ChangeNotifierProvider<TeamProvider>.value(value: teams),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: TeamScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: TeamScreen()),
+        ),
       ),
     );
     await tester.pump();
@@ -482,6 +619,95 @@ void main() {
     expect(find.text('Đội của tôi'), findsOneWidget);
     expect(find.text('Mời'), findsOneWidget);
     expect(find.text('Mời thành viên'), findsNothing);
+  });
+
+  testWidgets('Team screen prefers open event and scopes teams and metrics', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final closedEvent = HackathonEvent(
+      id: 'event-closed',
+      title: 'Closed Event',
+      description: 'Build practical products.',
+      startDate: now.subtract(const Duration(days: 30)),
+      endDate: now.subtract(const Duration(days: 1)),
+      location: 'HCMC',
+      bannerUrl: 'https://example.com/banner.jpg',
+      registrationDeadline: now.subtract(const Duration(days: 10)),
+      maxTeamSize: 5,
+      rules: 'Rules',
+      prize: 'Prize',
+      latitude: 10,
+      longitude: 106,
+    );
+    final openEvent = HackathonEvent(
+      id: 'event-open',
+      title: 'Open Event',
+      description: 'Build practical products.',
+      startDate: now.subtract(const Duration(days: 1)),
+      endDate: now.add(const Duration(days: 30)),
+      location: 'HCM',
+      bannerUrl: 'https://example.com/banner.jpg',
+      registrationDeadline: now.add(const Duration(days: 20)),
+      maxTeamSize: 5,
+      rules: 'Rules',
+      prize: 'Prize',
+      latitude: 10,
+      longitude: 106,
+    );
+    final auth = AuthProvider(restoreSession: false)
+      ..user = const AppUser(
+        id: 'leader-id',
+        fullName: 'Leader',
+        email: 'leader@seal.test',
+        role: AppRoles.participant,
+        university: 'FPT University',
+      );
+    final events = TestEventProvider()..events = [closedEvent, openEvent];
+    final teams = TestTeamProvider()
+      ..teams = [
+        _team(
+          id: 'team-closed',
+          eventId: 'event-closed',
+          leaderId: 'other-leader',
+          name: 'Closed Team',
+        ),
+        _team(
+          id: 'team-open',
+          eventId: 'event-open',
+          leaderId: 'leader-id',
+          name: 'Open Team',
+        ),
+      ];
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          _activeEventProvider(),
+          ChangeNotifierProvider<AuthProvider>.value(value: auth),
+          ChangeNotifierProvider<EventProvider>.value(value: events),
+          ChangeNotifierProvider<TeamProvider>.value(value: teams),
+        ],
+        child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: TeamScreen()),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(
+      find.text(L10nService.strings.teamOverviewForEvent('Open Event')),
+      findsOneWidget,
+    );
+    expect(
+      find.text(L10nService.strings.scopedTeamsAvailable(1)),
+      findsOneWidget,
+    );
+    expect(find.text('Open Team'), findsOneWidget);
+    expect(find.text('Closed Team'), findsNothing);
   });
 
   testWidgets('Team screen shows pending invitations with response actions', (
@@ -546,17 +772,27 @@ void main() {
           ChangeNotifierProvider<TeamProvider>.value(value: teams),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: TeamScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: TeamScreen()),
+        ),
       ),
     );
     await tester.pump();
 
-    expect(find.text(L10nService.strings.pendingInvitationsTitle), findsOneWidget);
-    expect(find.text(L10nService.strings.acceptInvitationButton), findsOneWidget);
-    expect(find.text(L10nService.strings.declineInvitationButton), findsOneWidget);
+    expect(
+      find.text(L10nService.strings.pendingInvitationsTitle),
+      findsOneWidget,
+    );
+    expect(
+      find.text(L10nService.strings.acceptInvitationButton),
+      findsOneWidget,
+    );
+    expect(
+      find.text(L10nService.strings.declineInvitationButton),
+      findsOneWidget,
+    );
   });
 
   testWidgets('Chat screen renders empty conversation without overflow', (
@@ -595,10 +831,11 @@ void main() {
           ChangeNotifierProvider<ChatProvider>.value(value: chat),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: ChatScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: ChatScreen()),
+        ),
       ),
     );
     await tester.pump();
@@ -622,10 +859,11 @@ void main() {
           ChangeNotifierProvider<TeamProvider>.value(value: TestTeamProvider()),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: MapScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: MapScreen()),
+        ),
       ),
     );
     await tester.pump();
@@ -665,6 +903,7 @@ void main() {
       MultiProvider(
         providers: [
           _activeEventProvider(),
+          _organizerUiProvider(),
           ChangeNotifierProvider<AuthProvider>.value(value: auth),
           ChangeNotifierProvider<EventProvider>.value(value: events),
           ChangeNotifierProvider<TeamProvider>.value(value: teams),
@@ -676,10 +915,10 @@ void main() {
           ),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: OrganizerDashboardScreen()),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: OrganizerDashboardScreen()),
         ),
       ),
     );
@@ -769,21 +1008,132 @@ void main() {
           ),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: JudgeScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: JudgeScreen()),
+        ),
       ),
     );
     await tester.pump();
 
-    expect(find.text('Bài chưa chấm tiếp theo'), findsOneWidget);
-    await tester.enterText(find.byType(TextField).first, 'health');
-    await tester.pump();
+    await tester.tap(find.byTooltip(L10nService.strings.judgeSearchLabel));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'health');
+    await tester.tap(
+      find.widgetWithText(FilledButton, L10nService.strings.judgeSearchLabel),
+    );
+    await tester.pumpAndSettle();
 
-    expect(find.text('Health Desk'), findsWidgets);
+    expect(find.text('Health Desk'), findsOneWidget);
     expect(find.text('Campus Copilot'), findsNothing);
   });
+
+  testWidgets(
+    'Next unscored from scored filter switches to unscored submission',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final auth = AuthProvider(restoreSession: false)
+        ..user = const AppUser(
+          id: 'judge-id',
+          fullName: 'Judge',
+          email: 'judge@seal.test',
+          role: AppRoles.judge,
+          university: 'FPT University',
+        );
+      final submissions = TestSubmissionProvider()
+        ..submissions = [
+          ProjectSubmission(
+            id: 'campus-id',
+            teamId: 'team-a',
+            projectName: 'Campus Copilot',
+            githubUrl: 'https://github.com/seal-demo/campus',
+            videoUrl: 'https://example.com/demo-a',
+            description: 'Campus assistant',
+          ),
+          ProjectSubmission(
+            id: 'health-id',
+            teamId: 'team-b',
+            projectName: 'Health Desk',
+            githubUrl: 'https://github.com/seal-demo/health',
+            videoUrl: 'https://example.com/demo-b',
+            description: 'Health assistant',
+          ),
+        ];
+      final scores = TestScoreProvider()
+        ..scores = const [
+          ProjectScore(
+            submissionId: 'campus-id',
+            judgeId: 'other-judge',
+            technicalScore: 8,
+            uiScore: 8,
+            innovationScore: 8,
+            feedback: 'Good.',
+          ),
+        ];
+      final teams = TestTeamProvider()
+        ..teams = [
+          _team(
+            id: 'team-a',
+            eventId: 'event-id',
+            leaderId: 'leader-a',
+            name: 'Team A',
+          ),
+          _team(
+            id: 'team-b',
+            eventId: 'event-id',
+            leaderId: 'leader-b',
+            name: 'Team B',
+          ),
+        ];
+
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            _activeEventProvider(),
+            ChangeNotifierProvider<AuthProvider>.value(value: auth),
+            ChangeNotifierProvider<EventProvider>.value(
+              value: TestEventProvider(),
+            ),
+            ChangeNotifierProvider<SubmissionProvider>.value(
+              value: submissions,
+            ),
+            ChangeNotifierProvider<ScoreProvider>.value(value: scores),
+            ChangeNotifierProvider<TeamProvider>.value(value: teams),
+            ChangeNotifierProvider<NotificationProvider>.value(
+              value: NotificationProvider(),
+            ),
+          ],
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            locale: Locale('vi'),
+            home: Scaffold(body: JudgeScreen()),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      await tester.tap(find.text('${L10nService.strings.filterScored} (1)'));
+      await tester.pump();
+
+      expect(find.text('Campus Copilot'), findsOneWidget);
+      expect(find.text('Health Desk'), findsNothing);
+
+      await tester.tap(find.text('Campus Copilot'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text(L10nService.strings.nextUnscoredButton));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Team B'), findsWidgets);
+      expect(find.text('Team A'), findsNothing);
+    },
+  );
 
   testWidgets('Notifications show type-specific icons', (tester) async {
     final auth = AuthProvider(restoreSession: false)
@@ -830,10 +1180,11 @@ void main() {
           ChangeNotifierProvider<TeamProvider>.value(value: TestTeamProvider()),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: NotificationScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: NotificationScreen()),
+        ),
       ),
     );
     await tester.pump();
@@ -864,10 +1215,11 @@ void main() {
           ChangeNotifierProvider<LocaleProvider>.value(value: LocaleProvider()),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: ProfileScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: ProfileScreen()),
+        ),
       ),
     );
     await tester.pump();
@@ -925,10 +1277,11 @@ void main() {
           ),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: SubmissionScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: SubmissionScreen()),
+        ),
       ),
     );
     await tester.pump();
@@ -944,10 +1297,11 @@ void main() {
           ChangeNotifierProvider<LocaleProvider>.value(value: LocaleProvider()),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: ProfileScreen())),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: ProfileScreen()),
+        ),
       ),
     );
     await tester.pump();
@@ -971,10 +1325,10 @@ void main() {
       ChangeNotifierProvider<EventProvider>.value(
         value: events,
         child: MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(
             body: Builder(
               builder: (context) => FilledButton(
                 onPressed: () => OrganizerAnnouncementDialog.show(
@@ -999,22 +1353,37 @@ void main() {
     await tester.tap(find.text('open announcement'));
     await tester.pumpAndSettle();
 
-    expect(find.text(L10nService.strings.sendAnnouncementDialogTitle), findsOneWidget);
+    expect(
+      find.text(L10nService.strings.sendAnnouncementDialogTitle),
+      findsOneWidget,
+    );
     expect(find.byType(BottomSheet), findsOneWidget);
 
     await tester.enterText(
-      find.widgetWithText(TextFormField, L10nService.strings.notificationTitleLabel),
+      find.widgetWithText(
+        TextFormField,
+        L10nService.strings.notificationTitleLabel,
+      ),
       'Kickoff',
     );
     await tester.enterText(
-      find.widgetWithText(TextFormField, L10nService.strings.notificationContentLabel),
+      find.widgetWithText(
+        TextFormField,
+        L10nService.strings.notificationContentLabel,
+      ),
       'Welcome teams',
     );
     await tester.tap(find.text(L10nService.strings.sendButton));
     await tester.pumpAndSettle();
 
-    expect(find.text(L10nService.strings.announcementPreviewTitle), findsOneWidget);
-    expect(find.text(L10nService.strings.recipientCountValue(1)), findsOneWidget);
+    expect(
+      find.text(L10nService.strings.announcementPreviewTitle),
+      findsOneWidget,
+    );
+    expect(
+      find.text(L10nService.strings.recipientCountValue(1)),
+      findsOneWidget,
+    );
   });
 
   testWidgets('User roles dialog supports search and role filter', (
@@ -1032,10 +1401,10 @@ void main() {
       ChangeNotifierProvider<AuthProvider>.value(
         value: auth,
         child: MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(
             body: Builder(
               builder: (context) => FilledButton(
                 onPressed: () => OrganizerUserRolesDialog.show(
@@ -1079,7 +1448,7 @@ void main() {
     expect(find.text('Mentor Minh'), findsOneWidget);
   });
 
-  testWidgets('Invite member flow uses mobile bottom sheet', (tester) async {
+  testWidgets('Invite member action opens inline form', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -1098,27 +1467,40 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(
-          body: Builder(
-            builder: (context) => FilledButton(
-              onPressed: () =>
-                  TeamInviteFlow.show(context, team: team, event: event),
-              child: const Text('open invite'),
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<TeamProvider>.value(value: TestTeamProvider()),
+          ChangeNotifierProvider<NotificationProvider>.value(
+            value: NotificationProvider(),
+          ),
+        ],
+        child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(
+            body: TeamCard(
+              team: team,
+              currentUser: const AppUser(
+                id: 'leader-id',
+                fullName: 'Leader',
+                email: 'leader@seal.test',
+                role: AppRoles.participant,
+                university: 'FPT',
+              ),
+              event: event,
+              allTeams: [team],
             ),
           ),
         ),
       ),
     );
-    await tester.tap(find.text('open invite'));
+    await tester.tap(find.text(L10nService.strings.inviteButton));
     await tester.pumpAndSettle();
 
-    expect(find.byType(BottomSheet), findsOneWidget);
-    expect(find.text(L10nService.strings.inviteMemberTitle), findsOneWidget);
-    expect(find.text('SEAL Hackathon'), findsOneWidget);
+    expect(find.text(L10nService.strings.sendInvitationButton), findsOneWidget);
+    expect(find.text(L10nService.strings.memberEmailLabel), findsOneWidget);
+    expect(find.text('SEAL Hackathon'), findsWidgets);
   });
 
   testWidgets('Event detail hero shows quick action', (tester) async {
@@ -1150,17 +1532,17 @@ void main() {
           ),
         ],
         child: const MaterialApp(
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
-        locale: Locale('vi'),
-        home: Scaffold(body: EventDetailScreen(eventId: 'event-id')),
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('vi'),
+          home: Scaffold(body: EventDetailScreen(eventId: 'event-id')),
         ),
       ),
     );
     await tester.pump();
 
     expect(find.text('SEAL Hackathon'), findsOneWidget);
-    expect(find.text(L10nService.strings.eventQuickActionsTitle), findsOneWidget);
+    expect(find.text(L10nService.strings.journeyNextStepTitle), findsOneWidget);
     expect(find.text(L10nService.strings.joinOrCreateTeamButton), findsWidgets);
   });
 }

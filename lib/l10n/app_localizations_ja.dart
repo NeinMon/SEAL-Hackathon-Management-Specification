@@ -975,13 +975,13 @@ class AppLocalizationsJa extends AppLocalizations {
   String get chatInputHint => 'メンターに質問...';
 
   @override
-  String get chatRealtimeConnected => 'リアルタイム接続中';
+  String get chatRealtimeConnected => 'メッセージを更新中';
 
   @override
-  String get chatRealtimeConnecting => 'リアルタイム接続中...';
+  String get chatRealtimeConnecting => 'チャットを開いています';
 
   @override
-  String get chatRealtimeOffline => '手動同期';
+  String get chatRealtimeOffline => 'メッセージを再読み込み';
 
   @override
   String get reloadChatTooltip => 'チャットを再読み込み';

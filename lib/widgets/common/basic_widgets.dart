@@ -288,18 +288,28 @@ class SealSectionHeader extends StatelessWidget {
 }
 
 class HackCommandTopBar extends StatelessWidget {
-  const HackCommandTopBar({super.key, this.trailing, this.subtitle});
+  const HackCommandTopBar({
+    super.key,
+    this.trailing,
+    this.subtitle,
+    this.compact = false,
+  });
 
   final Widget? trailing;
   final String? subtitle;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final seal = context.sealTheme;
     final accent = context.sealPrimary;
+    final barHeight =
+        compact ? AppSizes.shellHeaderHeight : AppSizes.appBarHeight;
+    final logoSize = compact ? 28.0 : 34.0;
+    final titleSize = compact ? 15.0 : 18.0;
     return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      height: barHeight,
+      padding: EdgeInsets.symmetric(horizontal: compact ? 12 : 16),
       decoration: BoxDecoration(
         color: seal.surfaceContainerLow,
         border: Border(
@@ -309,11 +319,11 @@ class HackCommandTopBar extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 34,
-            height: 34,
+            width: logoSize,
+            height: logoSize,
             decoration: BoxDecoration(
               color: accent.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(compact ? 6 : 8),
               border: Border.all(
                 color: accent.withValues(alpha: 0.28),
               ),
@@ -321,10 +331,10 @@ class HackCommandTopBar extends StatelessWidget {
             child: Icon(
               Icons.shield_outlined,
               color: accent,
-              size: 20,
+              size: compact ? 16 : 20,
             ),
           ),
-          const SizedBox(width: AppSizes.paddingSmall + 2),
+          SizedBox(width: compact ? 8 : AppSizes.paddingSmall + 2),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -334,7 +344,7 @@ class HackCommandTopBar extends StatelessWidget {
                   L10nService.strings.appName,
                   style: TextStyle(
                     color: context.onSurfaceColor,
-                    fontSize: 18,
+                    fontSize: titleSize,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 0,
                   ),

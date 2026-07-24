@@ -41,22 +41,26 @@ class ChatScreenBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final eventScoped = RouteQuery.eventIdFrom(context) != null;
+
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
-          child: SealSectionHeader(
-            title: L10nService.strings.chatTitle,
-            subtitle: eventTitle == null
-                ? L10nService.strings.chatSubtitle
-                : L10nService.strings.chatEventScopedSubtitle(eventTitle!),
-            icon: Icons.chat_outlined,
+        if (!eventScoped)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
+            child: SealSectionHeader(
+              title: L10nService.strings.chatTitle,
+              subtitle: L10nService.strings.chatSubtitle,
+              icon: Icons.chat_outlined,
+            ),
           ),
-        ),
-        ChatContactPicker(
-          chat: chat,
-          user: user,
-          onContactSelected: onContactSelected,
+        Padding(
+          padding: EdgeInsets.fromLTRB(12, eventScoped ? 12 : 0, 12, 0),
+          child: ChatContactPicker(
+            chat: chat,
+            user: user,
+            onContactSelected: onContactSelected,
+          ),
         ),
         ChatRealtimeStatusBar(
           chat: chat,

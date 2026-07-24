@@ -20,12 +20,15 @@ class _AppShellState extends State<AppShell> {
   String? _lastShownScoreAlertId;
   String? _lastRefreshedEventId;
   bool _refreshing = false;
+  bool _shellSyncQueued = false;
   ActiveEventProvider? _activeEventProvider;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _bindActiveEventListener());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => _bindActiveEventListener(),
+    );
   }
 
   void _bindActiveEventListener() {
@@ -81,26 +84,47 @@ class _AppShellState extends State<AppShell> {
     final userId = user?.id;
     if (userId != null && userId != _watchedUserId) {
       _watchedUserId = userId;
-      context.read<NotificationProvider>().watchForUser(
-        userId,
-        role: user!.role,
-      );
-      context.read<ActiveEventProvider>().loadForUser(userId);
-      context.read<OnboardingProvider>().loadForRole(user.role);
       _onboardingPrompted = false;
       _roleLandingHandled = false;
       _lastRefreshedEventId = null;
-      unawaited(_refreshEventScopedData(user, null));
-    }
-    _syncActiveEvent();
-    final onboarding = context.read<OnboardingProvider>();
-    if (user != null && onboarding.shouldShow && !_onboardingPrompted) {
-      _onboardingPrompted = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
-        RoleOnboardingDialog.show(context, user.role);
+        final currentUser = context.read<AuthProvider>().user;
+        if (currentUser == null || currentUser.id != userId) return;
+        unawaited(_bootstrapUserSession(currentUser));
       });
     }
+    _queueShellSync();
+  }
+
+  Future<void> _bootstrapUserSession(AppUser user) async {
+    context.read<NotificationProvider>().watchForUser(user.id, role: user.role);
+    await Future.wait([
+      context.read<ActiveEventProvider>().loadForUser(user.id),
+      context.read<OnboardingProvider>().loadForRole(user.role),
+    ]);
+    if (!mounted) return;
+    _maybeShowOnboardingPrompt(user);
+    await _refreshEventScopedData(user, null);
+  }
+
+  void _queueShellSync() {
+    if (_shellSyncQueued) return;
+    _shellSyncQueued = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _shellSyncQueued = false;
+      if (!mounted) return;
+      _syncActiveEvent();
+      final user = context.read<AuthProvider>().user;
+      if (user != null) _maybeShowOnboardingPrompt(user);
+    });
+  }
+
+  void _maybeShowOnboardingPrompt(AppUser user) {
+    final onboarding = context.read<OnboardingProvider>();
+    if (!onboarding.shouldShow || _onboardingPrompted) return;
+    _onboardingPrompted = true;
+    RoleOnboardingDialog.show(context, user.role);
   }
 
   void _syncActiveEvent() {
@@ -153,15 +177,16 @@ class _AppShellState extends State<AppShell> {
     final items = AppShellNavigation.itemsFor(user.role);
     final path = GoRouterState.of(context).uri.path;
     final isEventScoped = RouteQuery.isEventScopedPath(path);
-    final selectedIndex = path.startsWith(AppRoutes.notifications)
-        ? _lastBottomNavIndex
-        : AppShellNavigation.selectedIndex(
-            path: path,
-            items: items,
-            lastBottomNavIndex: _lastBottomNavIndex,
-          );
+    final selectedIndex = AppShellNavigation.selectedIndex(
+      path: path,
+      items: items,
+      lastBottomNavIndex: _lastBottomNavIndex,
+    );
     final notifications = context.watch<NotificationProvider>();
     final teams = context.watch<TeamProvider>();
+    final suppressBottomNav = context
+        .watch<OrganizerDashboardUiProvider>()
+        .suppressAppShellBottomNav;
     _maybeShowScoreSnackBar(notifications);
 
     return Scaffold(
@@ -182,7 +207,7 @@ class _AppShellState extends State<AppShell> {
         decoration: BoxDecoration(gradient: context.sealBackgroundGradient),
         child: SafeArea(top: false, child: widget.child),
       ),
-      bottomNavigationBar: isEventScoped
+      bottomNavigationBar: isEventScoped || suppressBottomNav
           ? null
           : AppShellBottomNav(
               items: items,

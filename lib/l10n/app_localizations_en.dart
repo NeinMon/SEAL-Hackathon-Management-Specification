@@ -309,7 +309,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get registerRoleHint =>
-      'New accounts are created as Participant. Verify email with OTP or link after sign-up.';
+      'New accounts are created as Participant. Verify email with the OTP after sign-up.';
 
   @override
   String get roleManagedHint => 'Role is managed on your account profile.';
@@ -1007,13 +1007,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chatInputHint => 'Ask mentor...';
 
   @override
-  String get chatRealtimeConnected => 'Realtime connected';
+  String get chatRealtimeConnected => 'Messages are updating';
 
   @override
-  String get chatRealtimeConnecting => 'Connecting realtime';
+  String get chatRealtimeConnecting => 'Opening chat';
 
   @override
-  String get chatRealtimeOffline => 'Manual sync';
+  String get chatRealtimeOffline => 'Reload messages';
 
   @override
   String get reloadChatTooltip => 'Reload conversation';
@@ -1049,7 +1049,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get judgeSubtitle =>
-      'Score submissions on technical depth, UX and innovation.';
+      'Score submissions on solution quality, UX and innovation.';
 
   @override
   String get filterUnscored => 'Unscored';
@@ -1862,7 +1862,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Review source code, demo quality, implementation depth and product impact before submitting.';
 
   @override
-  String get rubricTechnicalLabel => 'Technical depth';
+  String get rubricTechnicalLabel => 'Solution quality';
 
   @override
   String get rubricTechnicalDescription =>
@@ -1913,7 +1913,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get systemStatusTitle => 'System status';
 
   @override
-  String get systemStatusSubtitle => 'Track data loading and sync.';
+  String get systemStatusSubtitle => 'Track data status and updates.';
 
   @override
   String get chatSuggestionSubmission => 'Ask about submission';
@@ -1953,7 +1953,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get operationsDataLabel => 'Operations data';
 
   @override
-  String get syncingLabel => 'Syncing';
+  String get syncingLabel => 'Updating';
 
   @override
   String get stateReadyLabel => 'Ready';
@@ -2027,7 +2027,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String activationEmailSent(String email) {
-    return 'Activation email sent to $email. Open the link or enter the 6-digit OTP below.';
+    return 'Activation email sent to $email. Enter the 6-digit OTP from the email below.';
   }
 
   @override

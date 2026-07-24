@@ -11,6 +11,8 @@ export 'package:latlong2/latlong.dart' hide Path;
 export 'package:provider/provider.dart';
 export 'package:supabase_flutter/supabase_flutter.dart';
 
+export 'core/helpers/event_catalog.dart';
+export 'core/helpers/event_sort.dart';
 export 'core/event_scope.dart';
 export 'core/helpers/active_event_resolver.dart';
 export 'core/helpers/participant_journey.dart';
@@ -48,6 +50,7 @@ export 'providers/submission_provider.dart';
 export 'providers/team_provider.dart';
 export 'providers/theme_provider.dart';
 export 'providers/onboarding_provider.dart';
+export 'providers/organizer_dashboard_ui_provider.dart';
 export 'services/demo_reset_service.dart';
 export 'services/supabase_services.dart';
 export 'widgets/common/event_scope_picker.dart';

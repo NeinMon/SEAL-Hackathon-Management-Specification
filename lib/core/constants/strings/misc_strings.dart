@@ -2,12 +2,12 @@
 abstract final class MiscStrings {
   MiscStrings._();
   // Misc UI
-    static const String reloadTeamsTooltip = 'Tải lại đội';
-    static const String reloadJudgeQueueTooltip = 'Tải lại bài chưa chấm';
-    static const String reloadDashboardTooltip = 'Tải lại tổng quan';
-    static const String judgePreviewOnlyMessage =
-            'Đăng nhập bằng tài khoản Giám khảo để gửi điểm chính thức.';
-    static const String judgeQueueSortLabel = 'Sắp xếp bài chưa chấm';
+  static const String reloadTeamsTooltip = 'Tải lại đội';
+  static const String reloadJudgeQueueTooltip = 'Tải lại bài chưa chấm';
+  static const String reloadDashboardTooltip = 'Tải lại tổng quan';
+  static const String judgePreviewOnlyMessage =
+      'Đăng nhập bằng tài khoản Giám khảo để gửi điểm chính thức.';
+  static const String judgeQueueSortLabel = 'Sắp xếp bài chưa chấm';
   static const String sortNewestFirst = 'Mới nhất trước';
   static const String sortProjectName = 'Tên project';
   static const String sortTeamName = 'Đội';
@@ -19,7 +19,7 @@ abstract final class MiscStrings {
   static const String averageScoreAbbrev = 'TB';
   static const String judgeReviewReminder =
       'Xem mã nguồn, chất lượng demo, độ sâu triển khai và tác động sản phẩm trước khi gửi điểm.';
-  static const String rubricTechnicalLabel = 'Độ sâu kỹ thuật';
+  static const String rubricTechnicalLabel = 'Chất lượng giải pháp';
   static const String rubricTechnicalDescription =
       'Kiến trúc, độ đúng, độ tin cậy và độ sâu triển khai.';
   static const String rubricUiLabel = 'Trải nghiệm người dùng';
@@ -33,20 +33,20 @@ abstract final class MiscStrings {
   static const String editEventMenuItem = 'Sửa sự kiện';
   static const String closeRegistrationMenuItem = 'Đóng đăng ký';
   static const String closeRegistrationConfirmButton = 'Đóng đăng ký';
-    static const String notificationActionsTooltip = 'Tùy chọn thông báo';
+  static const String notificationActionsTooltip = 'Tùy chọn thông báo';
   static const String eventActionsTooltip = 'Thao tác sự kiện';
   static const String submissionsMetricLabel = 'Bài nộp';
-    static const String scoresMetricLabel = 'Số lượt chấm';
-    static const String systemStatusTitle = 'Trạng thái hệ thống';
-    static const String systemStatusSubtitle =
-            'Theo dõi tải dữ liệu và đồng bộ.';
+  static const String scoresMetricLabel = 'Số lượt chấm';
+  static const String systemStatusTitle = 'Trạng thái hệ thống';
+  static const String systemStatusSubtitle =
+      'Theo dõi trạng thái dữ liệu và cập nhật.';
   static const String chatSuggestionSubmission = 'Hỏi về bài nộp';
   static const String chatSuggestionGithub = 'Xem giúp GitHub link';
   static const String chatSuggestionChecklist = 'Checklist nộp bài';
   static const String emailPrefix = 'Email:';
   static const String averageScoreTitle = 'Điểm trung bình';
-    static const String judgeQueueTitle = 'Theo dõi bài chưa chấm';
-    static const String judgeQueueWaitingSuffix = ' bài chưa chấm';
+  static const String judgeQueueTitle = 'Theo dõi bài chưa chấm';
+  static const String judgeQueueWaitingSuffix = ' bài chưa chấm';
   static const String exportLeaderboardDescription =
       'Copy dữ liệu xếp hạng vào clipboard';
   static const String userRolesDescription =
@@ -54,7 +54,7 @@ abstract final class MiscStrings {
   static const String databaseConnectedLabel = 'Dữ liệu sẵn sàng';
   static const String databaseMissingLabel = 'Chưa có dữ liệu';
   static const String operationsDataLabel = 'Dữ liệu vận hành';
-  static const String syncingLabel = 'Đang đồng bộ';
+  static const String syncingLabel = 'Đang cập nhật';
   static const String stateReadyLabel = 'Đã sẵn sàng';
   static const String notLoggedInShortLabel = 'Chưa đăng nhập';
   static const String noApiErrorsLabel = 'Không có lỗi tải dữ liệu';

@@ -52,16 +52,6 @@ class AppShellNavigation {
             AppRoutes.organizer,
           ),
           RoleNavigationItem(
-            L10nService.strings.teamNavLabel,
-            Icons.groups_outlined,
-            AppRoutes.teams,
-          ),
-          RoleNavigationItem(
-            L10nService.strings.judgeNavLabel,
-            Icons.rate_review_outlined,
-            AppRoutes.judge,
-          ),
-          RoleNavigationItem(
             L10nService.strings.notificationsNavLabel,
             Icons.notifications_outlined,
             AppRoutes.notifications,

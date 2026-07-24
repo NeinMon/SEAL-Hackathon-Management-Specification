@@ -39,13 +39,14 @@ class MapScreenBody extends StatelessWidget {
       );
     }
 
-    final event = activeEvent ?? eventProvider.events.first;
+    final sortedEvents = eventProvider.sortedEvents;
+    final event = activeEvent ?? sortedEvents.first;
     return _scaffold(
       context,
       children: [
-        if (eventProvider.events.length > 1) ...[
+        if (sortedEvents.length > 1) ...[
           EventScopePicker(
-            events: eventProvider.events,
+            events: sortedEvents,
             selectedEventId: event.id,
             onChanged: (value) {
               if (value == null) return;

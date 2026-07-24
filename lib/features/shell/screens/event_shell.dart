@@ -51,19 +51,9 @@ class _EventShellState extends State<EventShell> {
             L10nService.strings.eventSubNavOverview,
           ),
           _EventShellTab(
-            RouteQuery.teamsForEvent,
-            Icons.groups_outlined,
-            L10nService.strings.teamNavLabel,
-          ),
-          _EventShellTab(
             RouteQuery.chatForEvent,
             Icons.chat_outlined,
             L10nService.strings.chatNavLabel,
-          ),
-          _EventShellTab(
-            RouteQuery.mapForEvent,
-            Icons.map_outlined,
-            L10nService.strings.mapNavLabel,
           ),
         ];
       default:
@@ -104,6 +94,18 @@ class _EventShellState extends State<EventShell> {
     return 0;
   }
 
+  String _tabLabel(BuildContext context, _EventShellTab tab) {
+    final compact = MediaQuery.sizeOf(context).width < 380;
+    if (!compact) return tab.label;
+    if (tab.label == L10nService.strings.submitNavLabel) {
+      return 'Nộp';
+    }
+    if (tab.label == L10nService.strings.eventSubNavOverview) {
+      return 'Tổng quan';
+    }
+    return tab.label;
+  }
+
   @override
   Widget build(BuildContext context) {
     final events = context.watch<EventProvider>();
@@ -124,70 +126,46 @@ class _EventShellState extends State<EventShell> {
 
     return Column(
       children: [
-        Material(
-          color: context.sealTheme.surfaceContainerLow,
-          child: SafeArea(
-            bottom: false,
-            child: ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-              leading: IconButton(
-                tooltip: backLabel,
-                onPressed: () => context.go(AppRoutes.events),
-                icon: Icon(Icons.arrow_back),
-              ),
-              title: Text(
-                event?.title ?? L10nService.strings.eventsTitle,
-                style: const TextStyle(fontWeight: FontWeight.w900),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              subtitle: Text(
-                L10nService.strings.eventScopedSubtitle,
-                style: TextStyle(color: context.sealTheme.onSurfaceVariant),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  NotificationBellButton(
-                    unreadCount: unreadCount,
-                    highlight: notifications.bellHighlight,
-                    onPressed: () {
-                      context.read<NotificationProvider>().clearScoreAlert();
-                      context.go(AppRoutes.notifications);
-                    },
-                  ),
-                  IconButton(
-                    tooltip: context.l10n.profileNavLabel,
-                    onPressed: () => context.go(AppRoutes.profile),
-                    icon: Icon(Icons.person_outline),
-                  ),
-                ],
-              ),
+        CompactShellHeader(
+          onBack: () => context.go(AppRoutes.events),
+          backTooltip: backLabel,
+          title: event?.title ?? L10nService.strings.eventsTitle,
+          trailing: [
+            NotificationBellButton(
+              unreadCount: unreadCount,
+              highlight: notifications.bellHighlight,
+              onPressed: () {
+                context.read<NotificationProvider>().clearScoreAlert();
+                context.go(AppRoutes.notifications);
+              },
             ),
-          ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              tooltip: context.l10n.profileNavLabel,
+              onPressed: () => context.go(AppRoutes.profile),
+              icon: Icon(Icons.person_outline),
+            ),
+          ],
         ),
         Expanded(child: widget.child),
-        SafeArea(
-          top: false,
-          child: NavigationBar(
-            height: 72,
-            selectedIndex: selectedIndex,
-            onDestinationSelected: (index) =>
-                context.go(tabs[index].route(widget.eventId)),
-            destinations: [
-              for (final tab in tabs)
-                NavigationDestination(
-                  icon: tab.label == L10nService.strings.teamNavLabel && pendingInvites > 0
-                      ? Badge(
-                          label: Text('$pendingInvites'),
-                          isLabelVisible: true,
-                          child: Icon(tab.icon),
-                        )
-                      : Icon(tab.icon),
-                  label: tab.label,
-                ),
-            ],
-          ),
+        CompactShellNavBar(
+          selectedIndex: selectedIndex,
+          onDestinationSelected: (index) =>
+              context.go(tabs[index].route(widget.eventId)),
+          destinations: [
+            for (final tab in tabs)
+              NavigationDestination(
+                icon: tab.label == L10nService.strings.teamNavLabel &&
+                        pendingInvites > 0
+                    ? Badge(
+                        label: Text('$pendingInvites'),
+                        isLabelVisible: true,
+                        child: Icon(tab.icon),
+                      )
+                    : Icon(tab.icon),
+                label: _tabLabel(context, tab),
+              ),
+          ],
         ),
       ],
     );
