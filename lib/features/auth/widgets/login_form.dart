@@ -18,6 +18,7 @@ class LoginForm extends StatelessWidget {
     required this.university,
     required this.registerMode,
     required this.awaitingVerification,
+    required this.passwordRecoveryMode,
     required this.pendingVerificationEmail,
     required this.showPassword,
     required this.showConfirmPassword,
@@ -40,6 +41,7 @@ class LoginForm extends StatelessWidget {
   final TextEditingController university;
   final bool registerMode;
   final bool awaitingVerification;
+  final bool passwordRecoveryMode;
   final String? pendingVerificationEmail;
   final bool showPassword;
   final bool showConfirmPassword;
@@ -69,7 +71,26 @@ class LoginForm extends StatelessWidget {
                   registerMode: registerMode,
                 ),
                 const SizedBox(height: AppSizes.paddingMedium),
-                if (awaitingVerification) ...[
+                if (passwordRecoveryMode) ...[
+                  Text(
+                    'Nhập mật khẩu mới cho tài khoản của bạn.',
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: AppSizes.paddingCompact),
+                  PasswordInput(
+                    controller: password,
+                    showPassword: showPassword,
+                    onToggleVisibility: onTogglePassword,
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: AppSizes.paddingCompact),
+                  ConfirmPasswordInput(
+                    controller: confirmPassword,
+                    passwordController: password,
+                    showPassword: showConfirmPassword,
+                    onToggleVisibility: onToggleConfirmPassword,
+                  ),
+                ] else if (awaitingVerification) ...[
                   Text(
                     '${L10nService.strings.emailPrefix} $pendingVerificationEmail',
                     style: const TextStyle(fontWeight: FontWeight.w700),
@@ -176,10 +197,11 @@ class LoginForm extends StatelessWidget {
                 LoginButton(
                   awaitingVerification: awaitingVerification,
                   registerMode: registerMode,
+                  passwordRecoveryMode: passwordRecoveryMode,
                   isLoading: isLoading,
                   onPressed: isLoading ? null : onSubmit,
                 ),
-                if (awaitingVerification) ...[
+                if (awaitingVerification || passwordRecoveryMode) ...[
                   const SizedBox(height: AppSizes.paddingSmall),
                   TextButton(
                     onPressed: isLoading ? null : onCancelVerification,

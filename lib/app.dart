@@ -36,6 +36,7 @@ class SealApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => LocaleProvider()..load()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()..load()),
         ChangeNotifierProvider(create: (_) => OnboardingProvider()),
+        ChangeNotifierProvider(create: (_) => OrganizerDashboardUiProvider()),
         ChangeNotifierProvider(create: (_) => ActiveEventProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => EventProvider()),
@@ -87,9 +88,40 @@ class _AuthDeepLinkScopeState extends State<_AuthDeepLinkScope> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted || !SupabaseGateway.isReady) return;
       await AuthDeepLinkHandler.setup(
-        onAuthenticated: () async {
+        onAuthenticated: (event) async {
           if (!mounted) return;
-          await context.read<AuthProvider>().refreshFromDeepLink();
+          final auth = context.read<AuthProvider>();
+          if (event.flow == AuthDeepLinkFlow.recovery) {
+            if (event.error != null) {
+              auth.showPasswordRecoveryLinkError();
+              if (mounted) context.go(AppRoutes.login);
+              return;
+            }
+            await auth.startPasswordRecovery();
+            if (mounted) context.go(AppRoutes.login);
+          } else if (event.flow == AuthDeepLinkFlow.signup) {
+            auth.showSignupOtpRequiredMessage();
+            if (mounted) context.go(AppRoutes.login);
+          } else if (event.flow == AuthDeepLinkFlow.invite) {
+            if (event.error != null) {
+              auth.showInviteEmailMessage();
+              if (mounted) context.go(AppRoutes.login);
+              return;
+            }
+            final opened = await auth.refreshFromInviteDeepLink();
+            if (!mounted) return;
+            if (!opened || auth.user == null) {
+              context.go(AppRoutes.login);
+              return;
+            }
+            await context
+                .read<TeamProvider>()
+                .acceptLatestInvitationFromEmail(auth.user!);
+            if (mounted) context.go(AppRoutes.teams);
+          } else {
+            auth.showSignupOtpRequiredMessage();
+            if (mounted) context.go(AppRoutes.login);
+          }
         },
       );
     });
@@ -109,6 +141,10 @@ GoRouter buildSealRouter() {
   return GoRouter(
     initialLocation: AppRoutes.login,
     redirect: (context, state) {
+      if (state.uri.scheme == SupabaseConfig.authRedirectScheme &&
+          state.uri.host == SupabaseConfig.authRedirectHost) {
+        return AppRoutes.login;
+      }
       final path = state.uri.path;
       final eventId = state.uri.queryParameters[RouteQuery.eventKey];
       if (eventId != null && eventId.isNotEmpty) {

@@ -133,6 +133,7 @@ void main() {
         '20260706000500_p0_demo_reset_and_invitation_rls.sql',
         '20260706000600_p1_submission_judging_phases.sql',
         '20260706000700_d_venue_fields.sql',
+        '20260712000100_align_judging_with_active_event.sql',
       ];
       for (final name in required) {
         expect(File('${migrationDir.path}/$name').existsSync(), isTrue, reason: name);

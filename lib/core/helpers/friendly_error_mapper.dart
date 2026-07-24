@@ -19,6 +19,10 @@ class FriendlyErrorMapper {
 
   static String message(Object exception) {
     final l10n = L10nService.strings;
+    final directMessage = _plainExceptionMessage(exception);
+    if (directMessage == l10n.invitationNoLongerPending) {
+      return directMessage!;
+    }
     if (exception is AuthException) {
       final text = exception.message.toLowerCase();
       if (text.contains('invalid login credentials') ||
@@ -58,6 +62,13 @@ class FriendlyErrorMapper {
       if (text.contains('already on a team for this event')) {
         return l10n.alreadyOnEventTeamError;
       }
+      if (text.contains('judging is not open') ||
+          text.contains('judging is not open.')) {
+        return l10n.errorJudgingNotStarted;
+      }
+      if (!_isTechnicalError(exception.message)) {
+        return exception.message;
+      }
       return l10n.unknownError;
     }
     if (exception.toString().contains('PostgrestException')) {
@@ -67,6 +78,13 @@ class FriendlyErrorMapper {
       return l10n.networkOfflineMessage;
     }
     return l10n.unknownError;
+  }
+
+  static String? _plainExceptionMessage(Object exception) {
+    final text = exception.toString();
+    const prefix = 'Exception: ';
+    if (!text.startsWith(prefix)) return null;
+    return text.substring(prefix.length).trim();
   }
 
   static bool _isTechnicalError(String message) {

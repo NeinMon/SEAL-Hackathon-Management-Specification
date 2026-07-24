@@ -49,7 +49,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
 
-    if (auth.user != null) {
+    if (auth.user != null && !auth.passwordRecoveryMode) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         final router = GoRouter.of(context);
@@ -64,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     final awaitingVerification = auth.pendingVerificationEmail != null;
+    final passwordRecoveryMode = auth.passwordRecoveryMode;
 
     return LoginScaffold(
       child: Column(
@@ -94,6 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       university: university,
                       registerMode: registerMode,
                       awaitingVerification: awaitingVerification,
+                      passwordRecoveryMode: passwordRecoveryMode,
                       pendingVerificationEmail: auth.pendingVerificationEmail,
                       showPassword: showPassword,
                       showConfirmPassword: showConfirmPassword,
@@ -108,10 +110,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       onSubmit: () => _submit(context),
                       onForgotPassword: () => _forgotPassword(context),
                       onCancelVerification: () {
-                        auth.cancelEmailVerification();
+                        if (auth.passwordRecoveryMode) {
+                          auth.logout();
+                        } else {
+                          auth.cancelEmailVerification();
+                        }
                         setState(() {
                           registerMode = false;
                           otp.clear();
+                          password.clear();
+                          confirmPassword.clear();
                         });
                       },
                     ),
@@ -171,7 +179,13 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _submit(BuildContext context) async {
     if (!formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
-    if (auth.pendingVerificationEmail != null) {
+    if (auth.passwordRecoveryMode) {
+      final updated = await auth.updateRecoveredPassword(
+        password.text,
+        confirmPassword.text,
+      );
+      if (!updated) return;
+    } else if (auth.pendingVerificationEmail != null) {
       await auth.verifySignupOtp(otp.text);
     } else if (registerMode) {
       await auth.register(
@@ -185,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
       await auth.login(email.text, password.text);
     }
     TextInput.finishAutofillContext();
-    if (context.mounted && auth.user != null) {
+    if (context.mounted && auth.user != null && !auth.passwordRecoveryMode) {
       context.go(_homeForRole(auth.user!.role));
     }
   }

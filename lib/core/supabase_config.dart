@@ -21,6 +21,9 @@ class SupabaseConfig {
   static const authRedirectScheme = 'vn.seal.hackathon';
   static const authRedirectHost = 'auth-callback';
   static const authRedirectUrl = '$authRedirectScheme://$authRedirectHost';
+  static const signupRedirectUrl = '$authRedirectUrl/signup';
+  static const passwordRecoveryRedirectUrl = '$authRedirectUrl/recovery';
+  static const teamInviteRedirectUrl = '$authRedirectUrl/invite';
 
   /// Mailpit port is API port + 3 in local `supabase/config.toml`.
   static String get localMailpitUrl {
@@ -53,6 +56,10 @@ class SupabaseGateway {
     await Supabase.initialize(
       url: SupabaseConfig.url,
       publishableKey: SupabaseConfig.publishableKey,
+      authOptions: const FlutterAuthClientOptions(
+        authFlowType: AuthFlowType.implicit,
+        detectSessionInUri: false,
+      ),
     );
     _client = Supabase.instance.client;
   }

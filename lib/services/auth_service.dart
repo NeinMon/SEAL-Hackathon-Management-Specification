@@ -52,12 +52,15 @@ class AuthService {
       final response = await SupabaseGateway.client.auth.signUp(
         email: email,
         password: password,
-        emailRedirectTo: SupabaseConfig.authRedirectUrl,
+        emailRedirectTo: SupabaseConfig.signupRedirectUrl,
         data: {'full_name': fullName, 'university': university},
       );
       final authUser = response.user;
       if (authUser == null) {
         throw const AuthException('Unable to create an account.');
+      }
+      if (response.session != null) {
+        await SupabaseGateway.client.auth.signOut();
       }
       if (response.session == null) {
         final identities = authUser.identities;
@@ -66,8 +69,7 @@ class AuthService {
         }
         return RegisterResult(requiresEmailVerification: true, email: email);
       }
-      final profile = await _profileForAuthUser(authUser);
-      return RegisterResult(user: profile, email: email);
+      return RegisterResult(requiresEmailVerification: true, email: email);
     });
   }
 
@@ -93,8 +95,21 @@ class AuthService {
     return AppOperation.run('auth.reset_password', () async {
       await SupabaseGateway.client.auth.resetPasswordForEmail(
         email.trim(),
-        redirectTo: SupabaseConfig.authRedirectUrl,
+        redirectTo: SupabaseConfig.passwordRecoveryRedirectUrl,
       );
+    });
+  }
+
+  Future<AppUser> updatePassword(String password) {
+    return AppOperation.run('auth.update_password', () async {
+      final response = await SupabaseGateway.client.auth.updateUser(
+        UserAttributes(password: password),
+      );
+      final authUser = response.user;
+      if (authUser == null) {
+        throw const AuthException('Unable to update password.');
+      }
+      return _profileForAuthUser(authUser);
     });
   }
 

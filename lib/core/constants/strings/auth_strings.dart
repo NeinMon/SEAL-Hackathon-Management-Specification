@@ -16,7 +16,7 @@ abstract final class AuthStrings {
   static String get otpHelpText =>
       'Mã OTP nằm trong email kích hoạt. Kiểm tra hộp thư đến hoặc thư rác nếu chưa thấy email.';
   static const String registerRoleHint =
-      'Tài khoản mới được tạo với vai trò Thí sinh. Sau đăng ký cần kích hoạt email bằng OTP hoặc link.';
+      'Tài khoản mới được tạo với vai trò Thí sinh. Sau đăng ký cần kích hoạt email bằng mã OTP.';
   static const String roleManagedHint =
       'Vai trò được quản lý theo hồ sơ tài khoản.';
   static const String forgotPasswordButton = 'Quên mật khẩu?';
@@ -38,7 +38,7 @@ abstract final class AuthStrings {
 
   static String activationEmailSent(String email) =>
       'Đã gửi email kích hoạt tới $email. '
-      'Mở link trong email hoặc nhập mã OTP 6 số bên dưới.';
+      'Nhập mã OTP 6 số trong email bên dưới.';
 
   static String emailActivatedWelcome(String email) =>
       'Email đã được kích hoạt. Chào mừng $email!';
