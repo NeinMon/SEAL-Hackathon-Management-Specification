@@ -52,12 +52,18 @@ class SubmissionViewData {
     required TextEditingController description,
   }) {
     final loading = teams.isLoading || submissions.isLoading || scores.isLoading;
-    final myTeams = user == null
+    final routeEventId = RouteQuery.eventIdFrom(context);
+    final allMyTeams = user == null
         ? <Team>[]
         : teams.teams
               .where(
                 (team) => team.members.any((member) => member.id == user.id),
               )
+              .toList();
+    final myTeams = routeEventId == null
+        ? allMyTeams
+        : allMyTeams
+              .where((team) => team.eventId == routeEventId)
               .toList();
     final targetTeam = myTeams.isEmpty
         ? null
@@ -94,7 +100,12 @@ class SubmissionViewData {
         ? null
         : scores.averageFor(latestSubmission.id);
     final scoreView = RouteQuery.isScoreView(context);
-    final readOnly = scoreView || (scoreCount > 0 && submissionClosed);
+    final readOnly = isReadOnly(
+      scoreView: scoreView,
+      scoreCount: scoreCount,
+      hasSubmission: latestSubmission != null,
+      submissionClosed: submissionClosed,
+    );
     final compact = MediaQuery.sizeOf(context).width < 760;
     final hasDraft =
         draftTeamId == targetTeam?.id &&
@@ -118,6 +129,18 @@ class SubmissionViewData {
       hasDraft: hasDraft,
       scoreView: scoreView,
     );
+  }
+
+  static bool isReadOnly({
+    required bool scoreView,
+    required int scoreCount,
+    required bool hasSubmission,
+    required bool submissionClosed,
+  }) {
+    if (scoreView) return true;
+    if (scoreCount > 0) return true;
+    if (hasSubmission && submissionClosed) return true;
+    return false;
   }
 
   static bool formIsEmpty({

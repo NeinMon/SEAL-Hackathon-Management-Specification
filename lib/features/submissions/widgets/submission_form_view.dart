@@ -1,14 +1,13 @@
 import '../../../shared.dart';
 import '../helpers/submission_view_data.dart';
+import '../screens/submission_history_screen.dart';
 import 'submission_draft_banner.dart';
-import 'submission_history_card.dart';
 import 'submission_hydration_listener.dart';
-import 'submission_loading_view.dart';
 import 'submission_status_card.dart';
 import 'submission_submit_button.dart';
 import 'submission_wizard_form.dart';
 
-class SubmissionFormView extends StatelessWidget {
+class SubmissionFormView extends StatefulWidget {
   const SubmissionFormView({
     super.key,
     required this.viewData,
@@ -51,134 +50,202 @@ class SubmissionFormView extends StatelessWidget {
   final ValueChanged<ProjectSubmission> onHydrateSubmission;
 
   @override
+  State<SubmissionFormView> createState() => _SubmissionFormViewState();
+}
+
+class _SubmissionFormViewState extends State<SubmissionFormView> {
+  void _openHistory() {
+    final latest = widget.viewData.latestSubmission;
+    final targetTeam = widget.viewData.targetTeam;
+    Navigator.of(context, rootNavigator: true).push(
+      MaterialPageRoute(
+        builder: (_) => SubmissionHistoryScreen(
+          latest: latest,
+          targetTeam: targetTeam,
+          submissions: widget.submissions,
+          scores: widget.scores,
+          loading: widget.viewData.loading,
+          onRefresh: widget.onRefresh,
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _errorBanners() {
+    final banners = <Widget>[];
+    if (widget.error != null) {
+      banners.add(
+        Text(
+          widget.error!,
+          style: TextStyle(color: Theme.of(context).colorScheme.error),
+        ),
+      );
+    }
+    if (widget.submissions.error != null) {
+      banners.add(StatusBanner(message: widget.submissions.error!, isError: true));
+    }
+    if (widget.submissions.message != null) {
+      banners.add(StatusBanner(message: widget.submissions.message!));
+    }
+    if (widget.viewData.submissionBlockReason != null) {
+      banners.add(
+        StatusBanner(
+          message: widget.viewData.submissionBlockReason!,
+          isError: true,
+        ),
+      );
+    }
+    return banners;
+  }
+
+  Widget _buildStickyFooter() {
+    final viewData = widget.viewData;
+    return Material(
+      elevation: 8,
+      color: Theme.of(context).colorScheme.surface,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSizes.paddingMedium,
+            10,
+            AppSizes.paddingMedium,
+            AppSizes.paddingMedium,
+          ),
+          child: SubmissionSubmitButton(
+            formKey: widget.formKey,
+            team: viewData.targetTeam,
+            event: viewData.targetEvent,
+            latestSubmission: viewData.latestSubmission,
+            projectName: widget.projectName,
+            github: widget.github,
+            video: widget.video,
+            description: widget.description,
+            loading: viewData.loading,
+            submissionClosed: viewData.submissionClosed,
+            label: viewData.submitActionLabel,
+            onErrorChanged: widget.onErrorChanged,
+            onSubmissionSaved: widget.onSubmissionSaved,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final viewData = widget.viewData;
     final latest = viewData.latestSubmission;
     final targetTeam = viewData.targetTeam;
+    final compact = viewData.compact;
+    final showStickySubmit = compact && !viewData.readOnly;
+    final bottomPadding = showStickySubmit ? 96.0 : AppSizes.paddingMedium;
 
-    return RefreshIndicator(
-      onRefresh: onRefresh,
+    final children = <Widget>[
+      SubmissionHydrationListener(
+        latestSubmission: latest,
+        hydratedSubmissionId: widget.hydratedSubmissionId,
+        shouldHydrate: widget.formIsEmpty,
+        onHydrate: widget.onHydrateSubmission,
+      ),
+      SealSectionHeader(
+        title: L10nService.strings.submitScreenTitle,
+        subtitle: L10nService.strings.submitScreenSubtitle,
+        icon: Icons.upload_file_outlined,
+        trailing: IconButton.filledTonal(
+          tooltip: L10nService.strings.latestSubmissionTitle,
+          onPressed: _openHistory,
+          icon: const Icon(Icons.history_outlined),
+        ),
+      ),
+      SubmissionStatusCard(
+        submission: latest,
+        status: viewData.status,
+        scoreCount: viewData.scoreCount,
+        averageScore: viewData.scoreCount > 0 ? viewData.averageScore : null,
+        highlightScore: viewData.scoreView && viewData.scoreCount > 0,
+      ),
+      if (viewData.scoreView && viewData.scoreCount > 0) ...[
+        const SizedBox(height: 8),
+        StatusBanner(
+          message: L10nService.strings.submissionReadOnlyScoreTitle,
+        ),
+      ],
+      const SizedBox(height: 14),
+      if (viewData.hasDraft) ...[
+        SubmissionDraftBanner(
+          draftSavedAt: widget.draftSavedAt,
+          onClearDraft: widget.onClearDraft,
+        ),
+        const SizedBox(height: 12),
+      ],
+      if (_errorBanners().isNotEmpty) ...[
+        ..._errorBanners(),
+        const SizedBox(height: 12),
+      ],
+      Form(
+        key: widget.formKey,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        child: SubmissionWizardForm(
+          formKey: widget.formKey,
+          projectName: widget.projectName,
+          github: widget.github,
+          video: widget.video,
+          description: widget.description,
+          myTeams: viewData.myTeams,
+          targetTeam: targetTeam,
+          targetEvent: viewData.targetEvent,
+          latestSubmission: latest,
+          loading: viewData.loading,
+          submissionClosed: viewData.submissionClosed,
+          submitActionLabel: viewData.submitActionLabel,
+          readOnly: viewData.readOnly,
+          onTeamChanged: widget.onTeamChanged,
+          onErrorChanged: widget.onErrorChanged,
+          onSubmissionSaved: widget.onSubmissionSaved,
+        ),
+      ),
+      if (!compact && !viewData.readOnly) ...[
+        const SizedBox(height: AppSizes.paddingMedium),
+        SubmissionSubmitButton(
+          formKey: widget.formKey,
+          team: targetTeam,
+          event: viewData.targetEvent,
+          latestSubmission: latest,
+          projectName: widget.projectName,
+          github: widget.github,
+          video: widget.video,
+          description: widget.description,
+          loading: viewData.loading,
+          submissionClosed: viewData.submissionClosed,
+          label: viewData.submitActionLabel,
+          onErrorChanged: widget.onErrorChanged,
+          onSubmissionSaved: widget.onSubmissionSaved,
+        ),
+      ],
+    ];
+
+    final scrollView = RefreshIndicator(
+      onRefresh: widget.onRefresh,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(AppSizes.paddingMedium),
-        children: [
-          SubmissionHydrationListener(
-            latestSubmission: latest,
-            hydratedSubmissionId: hydratedSubmissionId,
-            shouldHydrate: formIsEmpty,
-            onHydrate: onHydrateSubmission,
-          ),
-          const SubmissionScreenHeader(),
-          SubmissionStatusCard(
-            submission: latest,
-            status: viewData.status,
-            scoreCount: viewData.scoreCount,
-            averageScore: viewData.scoreCount > 0 ? viewData.averageScore : null,
-            highlightScore: viewData.scoreView && viewData.scoreCount > 0,
-          ),
-          if (viewData.scoreView && viewData.scoreCount > 0) ...[
-            const SizedBox(height: 8),
-            StatusBanner(
-              message: L10nService.strings.submissionReadOnlyScoreTitle,
-            ),
-          ],
-          const SizedBox(height: 14),
-          if (viewData.hasDraft) ...[
-            SubmissionDraftBanner(
-              draftSavedAt: draftSavedAt,
-              onClearDraft: onClearDraft,
-            ),
-            const SizedBox(height: 12),
-          ],
-          Form(
-            key: formKey,
-            autovalidateMode: AutovalidateMode.onUserInteraction,
-            child: SubmissionWizardForm(
-              formKey: formKey,
-              projectName: projectName,
-              github: github,
-              video: video,
-              description: description,
-              myTeams: viewData.myTeams,
-              targetTeam: targetTeam,
-              targetEvent: viewData.targetEvent,
-              latestSubmission: latest,
-              loading: viewData.loading,
-              submissionClosed: viewData.submissionClosed,
-              submitActionLabel: viewData.submitActionLabel,
-              readOnly: viewData.readOnly,
-              onTeamChanged: onTeamChanged,
-              onErrorChanged: onErrorChanged,
-              onSubmissionSaved: onSubmissionSaved,
-            ),
-          ),
-          const SizedBox(height: 12),
-          StatusBanner(message: L10nService.strings.submissionDescriptionTip),
-          if (error != null) ...[
-            const SizedBox(height: 12),
-            Text(
-              error!,
-              style: TextStyle(color: Theme.of(context).colorScheme.error),
-            ),
-          ],
-          if (submissions.error != null)
-            StatusBanner(message: submissions.error!, isError: true),
-          if (submissions.message != null)
-            StatusBanner(message: submissions.message!),
-          if (viewData.submissionBlockReason != null)
-            StatusBanner(
-              message: viewData.submissionBlockReason!,
-              isError: true,
-            ),
-          if (!viewData.compact && !viewData.readOnly) ...[
-            const SizedBox(height: AppSizes.paddingMedium),
-            SubmissionSubmitButton(
-              formKey: formKey,
-              team: targetTeam,
-              event: viewData.targetEvent,
-              latestSubmission: latest,
-              projectName: projectName,
-              github: github,
-              video: video,
-              description: description,
-              loading: viewData.loading,
-              submissionClosed: viewData.submissionClosed,
-              label: viewData.submitActionLabel,
-              onErrorChanged: onErrorChanged,
-              onSubmissionSaved: onSubmissionSaved,
-            ),
-          ],
-          const SizedBox(height: 20),
-          Text(
-            L10nService.strings.latestSubmissionTitle,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
-          const SizedBox(height: 8),
-          if (viewData.loading)
-            const LoadingCardList(itemCount: 1)
-          else if (targetTeam == null)
-            EmptyState(
-              message: L10nService.strings.selectTeamToSubmit,
-              actionLabel: L10nService.strings.createTeamNowAction,
-              onAction: () {
-                final eventId =
-                    context.read<ActiveEventProvider>().selectedEventId;
-                context.go(
-                  eventId == null
-                      ? AppRoutes.teams
-                      : RouteQuery.teamsForEvent(eventId),
-                );
-              },
-            )
-          else if (latest == null)
-            EmptyState(message: context.l10n.teamHasNoSubmission)
-          else
-            SubmissionHistoryCard(
-              submission: latest,
-              history: submissions.historyFor(latest.id),
-              scores: scores.scoresFor(latest.id),
-            ),
-        ],
+        padding: EdgeInsets.fromLTRB(
+          AppSizes.paddingMedium,
+          AppSizes.paddingMedium,
+          AppSizes.paddingMedium,
+          bottomPadding,
+        ),
+        children: children,
       ),
+    );
+
+    if (!showStickySubmit) return scrollView;
+
+    return Column(
+      children: [
+        Expanded(child: scrollView),
+        _buildStickyFooter(),
+      ],
     );
   }
 }

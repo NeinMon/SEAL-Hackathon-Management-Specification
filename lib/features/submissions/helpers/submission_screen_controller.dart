@@ -37,6 +37,19 @@ class SubmissionScreenController {
   }
 
   Future<void> bootstrap(BuildContext context) async {
+    final user = context.read<AuthProvider>().user;
+    final eventId = RouteQuery.eventIdFrom(context);
+    if (user != null) {
+      await Future.wait([
+        context.read<TeamProvider>().loadTeamWorkspace(user),
+        if (eventId != null) ...[
+          context.read<SubmissionProvider>().loadSubmissions(eventId: eventId),
+          context.read<ScoreProvider>().loadScores(eventId: eventId),
+        ],
+      ]);
+    }
+    if (!context.mounted) return;
+
     final teamId = RouteQuery.teamIdFrom(context);
     if (teamId != null && teamId.isNotEmpty) {
       selectedTeamId = teamId;
