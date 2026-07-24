@@ -6,11 +6,13 @@ class EventRoleActions extends StatelessWidget {
     required this.role,
     required this.event,
     this.myTeam,
+    this.showVenueButton = true,
   });
 
   final String? role;
   final HackathonEvent event;
   final Team? myTeam;
+  final bool showVenueButton;
 
   @override
   Widget build(BuildContext context) {
@@ -18,12 +20,14 @@ class EventRoleActions extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         ..._roleActions(context),
-        const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: () => context.go(RouteQuery.mapForEvent(event.id)),
-          icon: Icon(Icons.map_outlined),
-          label: Text(context.l10n.viewVenueButton),
-        ),
+        if (showVenueButton) ...[
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => context.go(RouteQuery.mapForEvent(event.id)),
+            icon: Icon(Icons.map_outlined),
+            label: Text(context.l10n.viewVenueButton),
+          ),
+        ],
       ],
     );
   }

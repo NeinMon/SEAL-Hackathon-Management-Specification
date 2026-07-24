@@ -1,5 +1,6 @@
 import '../../models/hackathon_event.dart';
 import '../../models/team.dart';
+import '../helpers/event_sort.dart';
 import '../team_membership.dart';
 
 class ActiveEventResolver {
@@ -30,7 +31,28 @@ class ActiveEventResolver {
         if (team != null) return event.id;
       }
     }
-    return null;
+    return preferDefaultEventId(events);
+  }
+
+  /// Picks a sensible default when route, stored preference, and team
+  /// membership do not resolve an event: open registration first, then any
+  /// event that has not ended, then the first event in the list.
+  static String? preferDefaultEventId(List<HackathonEvent> events) {
+    final event = preferDefaultEvent(events);
+    return event?.id;
+  }
+
+  static HackathonEvent? preferDefaultEvent(List<HackathonEvent> events) {
+    if (events.isEmpty) return null;
+    final sorted = EventSort.sorted(events);
+    for (final event in sorted) {
+      if (event.registrationOpen()) return event;
+    }
+    final now = DateTime.now();
+    for (final event in sorted) {
+      if (!event.endDate.isBefore(now)) return event;
+    }
+    return sorted.first;
   }
 
   static HackathonEvent? resolveEvent({

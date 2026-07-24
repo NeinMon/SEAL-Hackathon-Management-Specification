@@ -5,7 +5,6 @@ import 'event_detail_stats.dart';
 import 'event_journey_banner.dart';
 import 'event_leaderboard.dart';
 import 'event_my_team_card.dart';
-import 'event_role_actions.dart';
 import 'event_quick_actions.dart';
 import 'event_timeline.dart';
 
@@ -25,24 +24,97 @@ class EventDetailBody extends StatelessWidget {
   final String? role;
   final Future<void> Function() onRefresh;
 
-  @override
-  Widget build(BuildContext context) {
-    final overview = Column(
+  bool get _isParticipant => role == null || role == AppRoles.participant;
+
+  Widget? _primaryCta(BuildContext context) {
+    if (_isParticipant) {
+      if (viewData.journey != null) {
+        return EventJourneyBanner(journey: viewData.journey!);
+      }
+      return EventQuickActions(
+        event: event,
+        role: role,
+        myTeam: viewData.myTeam,
+      );
+    }
+    if (role == AppRoles.organizer) {
+      return EventQuickActions(
+        event: event,
+        role: role,
+        myTeam: viewData.myTeam,
+      );
+    }
+    return null;
+  }
+
+  Widget _detailSections(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 760;
+    final rules = DetailTile(
+      title: L10nService.strings.rulesTitle,
+      value: event.rules,
+    );
+    final prize = DetailTile(
+      title: L10nService.strings.prizeTitle,
+      value: event.prize,
+    );
+
+    if (!compact) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [rules, prize],
+      );
+    }
+
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        EventDetailHeader(
-          event: event,
-          onBack: () => context.go(AppRoutes.events),
+        ExpansionTile(
+          leading: const Icon(Icons.rule_outlined),
+          title: Text(
+            L10nService.strings.rulesTitle,
+            style: const TextStyle(fontWeight: FontWeight.w800),
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(event.rules),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: AppSizes.paddingMedium),
-        EventQuickActions(
-          event: event,
-          role: role,
-          myTeam: viewData.myTeam,
+        ExpansionTile(
+          leading: const Icon(Icons.emoji_events_outlined),
+          title: Text(
+            L10nService.strings.prizeTitle,
+            style: const TextStyle(fontWeight: FontWeight.w800),
+          ),
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(event.prize),
+              ),
+            ),
+          ],
         ),
-        if (viewData.journey != null) ...[
+      ],
+    );
+  }
+
+  Widget _overviewContent(BuildContext context) {
+    final primaryCta = _primaryCta(context);
+    final dateFormatter = DateFormat('dd/MM/yyyy HH:mm');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        EventDetailHeader(event: event),
+        if (primaryCta != null) ...[
           const SizedBox(height: AppSizes.paddingMedium),
-          EventJourneyBanner(journey: viewData.journey!),
+          primaryCta,
         ],
         const SizedBox(height: AppSizes.paddingMedium),
         EventDetailStats(
@@ -62,33 +134,91 @@ class EventDetailBody extends StatelessWidget {
               text:
                   '${DateFormat('dd/MM/yyyy').format(event.startDate)} - ${DateFormat('dd/MM/yyyy').format(event.endDate)}',
             ),
+            InfoChip(
+              icon: Icons.how_to_reg_outlined,
+              text: 'Mở đăng ký: đang mở',
+            ),
+            InfoChip(
+              icon: Icons.event_busy_outlined,
+              text:
+                  'Đóng đăng ký: ${dateFormatter.format(event.registrationDeadline)}',
+            ),
+            InfoChip(
+              icon: Icons.upload_file_outlined,
+              text:
+                  'Hạn nộp bài: ${dateFormatter.format(event.effectiveSubmissionDeadline)}',
+            ),
             InfoChip(icon: Icons.place_outlined, text: event.location),
             InfoChip(
               icon: Icons.groups_outlined,
               text: L10nService.strings.maxMembersChip(event.maxTeamSize),
             ),
-            ActionChip(
-              avatar: const Icon(Icons.map_outlined, size: 18),
-              label: Text(context.l10n.journeyActionOpenMap),
-              onPressed: () => context.go(RouteQuery.mapForEvent(event.id)),
-            ),
           ],
         ),
         const SizedBox(height: AppSizes.paddingMedium),
-        DetailTile(title: L10nService.strings.rulesTitle, value: event.rules),
-        DetailTile(title: L10nService.strings.prizeTitle, value: event.prize),
+        _detailSections(context),
         if (viewData.myTeam != null) ...[
           const SizedBox(height: AppSizes.paddingCompact),
           EventMyTeamCard(team: viewData.myTeam!, event: event),
         ],
-        const SizedBox(height: AppSizes.paddingCompact),
-        EventRoleActions(
-          role: role,
-          event: event,
-          myTeam: viewData.myTeam,
-        ),
       ],
     );
+  }
+
+  Widget _leaderboardContent(BuildContext context) {
+    return EventLeaderboard(
+      scoredSubmissions: viewData.scoredSubmissions,
+      pendingSubmissions: viewData.pendingSubmissions,
+      hasSubmissions: viewData.eventSubmissions.isNotEmpty,
+      teams: viewData.eventTeams,
+      scores: scores,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final compact = MediaQuery.sizeOf(context).width < 760;
+
+    if (compact) {
+      return DefaultTabController(
+        length: 2,
+        child: Column(
+          children: [
+            Material(
+              color: context.sealTheme.surfaceContainerLow,
+              child: TabBar(
+                tabs: [
+                  Tab(text: context.l10n.eventSubNavOverview),
+                  Tab(text: context.l10n.leaderboardTitle),
+                ],
+              ),
+            ),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  RefreshIndicator(
+                    onRefresh: onRefresh,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(AppSizes.paddingMedium),
+                      children: [_overviewContent(context)],
+                    ),
+                  ),
+                  RefreshIndicator(
+                    onRefresh: onRefresh,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(AppSizes.paddingMedium),
+                      children: [_leaderboardContent(context)],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return RefreshIndicator(
       onRefresh: onRefresh,
@@ -97,14 +227,8 @@ class EventDetailBody extends StatelessWidget {
         padding: const EdgeInsets.all(AppSizes.paddingMedium),
         children: [
           AdaptiveTwoPane(
-            leading: overview,
-            trailing: EventLeaderboard(
-              scoredSubmissions: viewData.scoredSubmissions,
-              pendingSubmissions: viewData.pendingSubmissions,
-              hasSubmissions: viewData.eventSubmissions.isNotEmpty,
-              teams: viewData.eventTeams,
-              scores: scores,
-            ),
+            leading: _overviewContent(context),
+            trailing: _leaderboardContent(context),
           ),
         ],
       ),

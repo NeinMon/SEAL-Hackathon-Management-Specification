@@ -19,25 +19,33 @@ class ParticipantHomeCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(
-                  Icons.flag_outlined,
-                  color: Theme.of(context).colorScheme.primary,
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Icon(
+                    Icons.flag_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     event.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
                     ),
                   ),
                 ),
-                TextButton(
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  tooltip: context.l10n.detailsButton,
                   onPressed: () =>
                       context.go(RouteQuery.overviewForEvent(event.id)),
-                  child: Text(context.l10n.detailsButton),
+                  icon: const Icon(Icons.arrow_forward),
                 ),
               ],
             ),
@@ -46,7 +54,9 @@ class ParticipantHomeCard extends StatelessWidget {
             if (journey.averageScore != null) ...[
               const SizedBox(height: 10),
               Text(
-                context.l10n.journeyScoreSummaryFormatted(journey.averageScore!),
+                context.l10n.journeyScoreSummaryFormatted(
+                  journey.averageScore!,
+                ),
                 style: TextStyle(
                   color: seal.onSurfaceVariant,
                   fontWeight: FontWeight.w700,
@@ -63,12 +73,6 @@ class ParticipantHomeCard extends StatelessWidget {
                 ),
               ),
             ],
-            const SizedBox(height: 14),
-            FilledButton.icon(
-              onPressed: () => journey.navigatePrimary(context),
-              icon: Icon(journey.primaryActionIcon),
-              label: Text(journey.primaryActionLabel),
-            ),
           ],
         ),
       ),

@@ -9,7 +9,6 @@ class EventMyTeamCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final canSubmit = event.submissionOpen();
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSizes.paddingMedium),
@@ -69,16 +68,6 @@ class EventMyTeamCard extends StatelessWidget {
               icon: Icon(Icons.groups_outlined),
               label: Text(context.l10n.viewMyTeamButton),
             ),
-            if (canSubmit) ...[
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: () => context.go(
-                  RouteQuery.submitForTeam(team.id, eventId: event.id),
-                ),
-                icon: Icon(Icons.upload_file_outlined),
-                label: Text(context.l10n.submitForEventButton),
-              ),
-            ],
           ],
         ),
       ),

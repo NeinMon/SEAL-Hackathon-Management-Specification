@@ -42,7 +42,7 @@ class JourneyStepper extends StatelessWidget {
                 ),
               ),
             _JourneyStepDot(
-              label: _steps[index].label,
+              label: journey.trackStepLabel(_steps[index]),
               active: journey.isTrackStepActive(_steps[index]),
               done: journey.isTrackStepDone(_steps[index]),
               failed: journey.step == ParticipantJourneyStep.missedSubmission &&

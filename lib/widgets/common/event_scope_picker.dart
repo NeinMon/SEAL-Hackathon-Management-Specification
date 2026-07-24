@@ -19,11 +19,12 @@ class EventScopePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (events.isEmpty) return const SizedBox.shrink();
-    if (events.length == 1 && !showAllOption) {
+    final sortedEvents = EventSort.sorted(events);
+    if (sortedEvents.length == 1 && !showAllOption) {
       return Align(
         alignment: Alignment.centerLeft,
         child: StatusPill(
-          label: events.first.title,
+          label: sortedEvents.first.title,
           color: context.sealPrimary,
           icon: Icons.event_outlined,
         ),
@@ -31,7 +32,7 @@ class EventScopePicker extends StatelessWidget {
     }
     return DropdownButtonFormField<String?>(
       isExpanded: true,
-      initialValue: selectedEventId ?? (showAllOption ? null : events.first.id),
+      initialValue: selectedEventId ?? (showAllOption ? null : sortedEvents.first.id),
       decoration: InputDecoration(
         labelText: label ?? context.l10n.eventLabel,
         prefixIcon: const Icon(Icons.event_outlined),
@@ -42,7 +43,7 @@ class EventScopePicker extends StatelessWidget {
             value: null,
             child: Text(context.l10n.allEventsFilter),
           ),
-        for (final event in events)
+        for (final event in sortedEvents)
           DropdownMenuItem<String?>(
             value: event.id,
             child: Text(event.title, overflow: TextOverflow.ellipsis),

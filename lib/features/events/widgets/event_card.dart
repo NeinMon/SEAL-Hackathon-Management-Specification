@@ -11,6 +11,7 @@ class EventCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = DateFormat('dd/MM/yyyy');
+    final dateTimeFormatter = DateFormat('dd/MM/yyyy HH:mm');
     final phase = eventPhaseFor(event, null, EventPhaseColors.from(context));
     final registrationOpen = eventRegistrationOpen(event);
     return Semantics(
@@ -80,10 +81,13 @@ class EventCard extends StatelessWidget {
                               '${formatter.format(event.startDate)} - ${formatter.format(event.endDate)}',
                         ),
                         EventMetaPill(
-                          icon: Icons.schedule_outlined,
-                          value: L10nService.strings.registerBeforeDate(
-                            formatter.format(event.registrationDeadline),
-                          ),
+                          icon: Icons.how_to_reg_outlined,
+                          value: 'Mở đăng ký: đang mở',
+                        ),
+                        EventMetaPill(
+                          icon: Icons.event_busy_outlined,
+                          value:
+                              'Đóng đăng ký: ${dateTimeFormatter.format(event.registrationDeadline)}',
                         ),
                         EventMetaPill(
                           icon: Icons.place_outlined,

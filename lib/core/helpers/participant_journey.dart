@@ -105,4 +105,17 @@ extension ParticipantJourneyLabels on ParticipantJourneyStep {
     ParticipantJourneyStep.registrationClosed =>
       L10nService.strings.journeyStepRegistrationClosed,
   };
+
+  String get completedLabel => switch (this) {
+    ParticipantJourneyStep.needsTeam => L10nService.strings.myTeamReadyBadge,
+    ParticipantJourneyStep.needsSubmission =>
+      L10nService.strings.submissionStatusSubmitted,
+    ParticipantJourneyStep.awaitingScore =>
+      L10nService.strings.submissionStatusReviewed,
+    ParticipantJourneyStep.hasScore => L10nService.strings.journeyStepHasScore,
+    ParticipantJourneyStep.missedSubmission =>
+      L10nService.strings.journeyStepMissedSubmission,
+    ParticipantJourneyStep.registrationClosed =>
+      L10nService.strings.journeyStepRegistrationClosed,
+  };
 }

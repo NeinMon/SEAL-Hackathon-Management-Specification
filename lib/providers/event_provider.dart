@@ -2,6 +2,7 @@ import '../core/l10n/l10n_service.dart';
 import 'package:flutter/foundation.dart';
 
 import '../core/app_helpers.dart';
+import '../core/helpers/event_sort.dart';
 import '../models/hackathon_event.dart';
 import '../services/supabase_services.dart';
 
@@ -24,6 +25,9 @@ class EventProvider extends ChangeNotifier {
       filter != EventCatalog.filterAll ||
       sort != EventCatalog.sortStartAsc;
 
+  List<HackathonEvent> get sortedEvents =>
+      EventSort.sorted(events, sort: sort);
+
   List<HackathonEvent> get filteredEvents {
     final keyword = search.toLowerCase();
     final now = DateTime.now();
@@ -45,25 +49,7 @@ class EventProvider extends ChangeNotifier {
       return matchesSearch && matchesFilter;
     }).toList();
 
-    filtered.sort((a, b) {
-      return switch (sort) {
-        EventCatalog.sortStartDesc => b.startDate.compareTo(a.startDate),
-        EventCatalog.sortTitleAsc => a.title.toLowerCase().compareTo(
-          b.title.toLowerCase(),
-        ),
-        EventCatalog.sortTitleDesc => b.title.toLowerCase().compareTo(
-          a.title.toLowerCase(),
-        ),
-        EventCatalog.sortDeadlineAsc => a.registrationDeadline.compareTo(
-          b.registrationDeadline,
-        ),
-        EventCatalog.sortDeadlineDesc => b.registrationDeadline.compareTo(
-          a.registrationDeadline,
-        ),
-        EventCatalog.sortStartAsc || _ => a.startDate.compareTo(b.startDate),
-      };
-    });
-    return filtered;
+    return EventSort.sorted(filtered, sort: sort, at: now);
   }
 
   List<HackathonEvent> get visibleFilteredEvents =>
@@ -102,7 +88,10 @@ class EventProvider extends ChangeNotifier {
     error = null;
     notifyListeners();
     try {
-      events = await _service.fetchEvents();
+      events = EventSort.sorted(
+        await _service.fetchEvents(),
+        sort: sort,
+      );
       _resetVisibleCount();
     } catch (exception) {
       error = FriendlyErrorMapper.message(exception);
@@ -129,6 +118,7 @@ class EventProvider extends ChangeNotifier {
       maxTeamSize: event.maxTeamSize,
       latitude: event.latitude,
       longitude: event.longitude,
+      submissionDeadline: event.submissionDeadline,
     );
     if (validationError != null) {
       error = validationError;
@@ -174,6 +164,7 @@ class EventProvider extends ChangeNotifier {
 
   void updateSort(String value) {
     sort = value;
+    events = EventSort.sorted(events, sort: sort);
     _resetVisibleCount();
     notifyListeners();
   }

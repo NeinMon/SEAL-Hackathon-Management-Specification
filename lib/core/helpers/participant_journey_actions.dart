@@ -80,6 +80,13 @@ extension ParticipantJourneyActions on ParticipantJourney {
     return step == trackStep;
   }
 
+  String trackStepLabel(ParticipantJourneyStep trackStep) {
+    if (isTrackStepDone(trackStep)) {
+      return trackStep.completedLabel;
+    }
+    return trackStep.label;
+  }
+
   void navigatePrimary(BuildContext context) {
     context.read<ActiveEventProvider>().setFromUserPick(event.id);
     switch (step) {

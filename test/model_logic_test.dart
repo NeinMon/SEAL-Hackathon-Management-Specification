@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:seal_hackathon_app/features/judge/helpers/judge_queue_view_data.dart';
+import 'package:seal_hackathon_app/features/submissions/helpers/submission_view_data.dart';
 import 'package:seal_hackathon_app/main.dart';
 
 void main() {
@@ -113,11 +115,7 @@ void main() {
       uiScore: 10,
       innovationScore: 10,
       feedback: 'Weighted rubric.',
-      criteriaScores: {
-        'technical': 10,
-        'ui': 4,
-        'innovation': 7,
-      },
+      criteriaScores: {'technical': 10, 'ui': 4, 'innovation': 7},
     );
 
     const weightedCriteria = [
@@ -274,6 +272,91 @@ void main() {
     expect(provider.filteredEvents.first.id, 'a');
   });
 
+  test('EventProvider lists open events before closed events', () {
+    final now = DateTime.now();
+    final provider = EventProvider()
+      ..events = [
+        HackathonEvent(
+          id: 'closed',
+          title: 'Closed Event',
+          description: 'Ended',
+          startDate: now.subtract(const Duration(days: 60)),
+          endDate: now.subtract(const Duration(days: 10)),
+          location: 'HN',
+          bannerUrl: 'https://example.com/closed.jpg',
+          registrationDeadline: now.subtract(const Duration(days: 70)),
+          maxTeamSize: 4,
+          rules: 'Rules',
+          prize: 'Prize',
+          latitude: 10,
+          longitude: 106,
+        ),
+        HackathonEvent(
+          id: 'open',
+          title: 'Open Event',
+          description: 'Active',
+          startDate: now.subtract(const Duration(days: 1)),
+          endDate: now.add(const Duration(days: 30)),
+          location: 'HCM',
+          bannerUrl: 'https://example.com/open.jpg',
+          registrationDeadline: now.add(const Duration(days: 14)),
+          maxTeamSize: 4,
+          rules: 'Rules',
+          prize: 'Prize',
+          latitude: 10,
+          longitude: 106,
+        ),
+      ];
+
+    expect(provider.filteredEvents.first.id, 'open');
+    expect(provider.sortedEvents.first.id, 'open');
+  });
+
+  test(
+    'EventSort lists registration-open events before active closed-registration',
+    () {
+      final now = DateTime.now();
+      final activeRegClosed = HackathonEvent(
+        id: 'active-reg-closed',
+        title: 'Campus Challenge',
+        description: 'Submission open, registration closed',
+        startDate: now.subtract(const Duration(days: 3)),
+        endDate: now.add(const Duration(days: 10)),
+        location: 'DN',
+        bannerUrl: 'https://example.com/campus.jpg',
+        registrationDeadline: now.subtract(const Duration(days: 7)),
+        maxTeamSize: 4,
+        rules: 'Rules',
+        prize: 'Prize',
+        latitude: 16,
+        longitude: 108,
+      );
+      final registrationOpen = HackathonEvent(
+        id: 'registration-open',
+        title: 'Innovation Hackathon',
+        description: 'Registration still open',
+        startDate: now.subtract(const Duration(days: 1)),
+        endDate: now.add(const Duration(days: 30)),
+        location: 'HCM',
+        bannerUrl: 'https://example.com/open.jpg',
+        registrationDeadline: now.add(const Duration(days: 14)),
+        maxTeamSize: 5,
+        rules: 'Rules',
+        prize: 'Prize',
+        latitude: 10,
+        longitude: 106,
+      );
+
+      final sorted = EventSort.sorted([
+        activeRegClosed,
+        registrationOpen,
+      ]);
+
+      expect(sorted.first.id, 'registration-open');
+      expect(sorted.last.id, 'active-reg-closed');
+    },
+  );
+
   test('EventProvider validates long search queries', () {
     final provider = EventProvider()..updateSearch('a' * 81);
 
@@ -305,13 +388,16 @@ void main() {
     expect(message, isNot(contains('PostgrestException')));
   });
 
-  test('FriendlyErrorMapper does not show OTP copy for generic auth tokens', () {
-    final message = FriendlyErrorMapper.message(
-      const AuthException('Auth session token is missing.'),
-    );
+  test(
+    'FriendlyErrorMapper does not show OTP copy for generic auth tokens',
+    () {
+      final message = FriendlyErrorMapper.message(
+        const AuthException('Auth session token is missing.'),
+      );
 
-    expect(message, isNot(L10nService.strings.errorInvalidOtp));
-  });
+      expect(message, isNot(L10nService.strings.errorInvalidOtp));
+    },
+  );
 
   test('TeamProvider blocks direct join without invitation', () async {
     const user = AppUser(
@@ -343,70 +429,39 @@ void main() {
     expect(provider.error, L10nService.strings.teamInviteOnlyError);
   });
 
-  test('TeamProvider blocks accepting invitation for second team on same event', () async {
-    const user = AppUser(
-      id: 'user-id',
-      fullName: 'Member',
-      email: 'member@example.com',
-      role: AppRoles.participant,
-      university: 'FPT University',
-    );
-    final event = HackathonEvent(
-      id: 'event-id',
-      title: 'SEAL Hackathon',
-      description: 'Build useful products.',
-      startDate: DateTime(2027, 6, 12),
-      endDate: DateTime(2027, 6, 14),
-      location: 'HCMC',
-      bannerUrl: 'https://example.com/banner.jpg',
-      registrationDeadline: DateTime(2027, 6, 5),
-      maxTeamSize: 5,
-      rules: 'Rules',
-      prize: 'Prize',
-      latitude: 10,
-      longitude: 106,
-    );
-    final invitation = TeamInvitation(
-      id: 'invitation-id',
-      teamId: 'team-b',
-      inviterId: 'leader-2',
-      inviteeId: 'user-id',
-      status: 'pending',
-      createdAt: DateTime(2026, 6, 1),
-      team: const Team(
-        id: 'team-b',
-        name: 'Other Team',
-        leaderId: 'leader-2',
-        eventId: 'event-id',
-        members: [
-          AppUser(
-            id: 'leader-2',
-            fullName: 'Leader 2',
-            email: 'leader2@example.com',
-            role: AppRoles.participant,
-            university: 'FPT University',
-          ),
-        ],
-      ),
-    );
-    final provider = TeamProvider()
-      ..teams = const [
-        Team(
-          id: 'team-a',
-          name: 'Seal Builders',
-          leaderId: 'leader-id',
-          eventId: 'event-id',
-          members: [
-            AppUser(
-              id: 'user-id',
-              fullName: 'Member',
-              email: 'member@example.com',
-              role: AppRoles.participant,
-              university: 'FPT University',
-            ),
-          ],
-        ),
-        Team(
+  test(
+    'TeamProvider blocks accepting invitation for second team on same event',
+    () async {
+      const user = AppUser(
+        id: 'user-id',
+        fullName: 'Member',
+        email: 'member@example.com',
+        role: AppRoles.participant,
+        university: 'FPT University',
+      );
+      final event = HackathonEvent(
+        id: 'event-id',
+        title: 'SEAL Hackathon',
+        description: 'Build useful products.',
+        startDate: DateTime(2027, 6, 12),
+        endDate: DateTime(2027, 6, 14),
+        location: 'HCMC',
+        bannerUrl: 'https://example.com/banner.jpg',
+        registrationDeadline: DateTime(2027, 6, 5),
+        maxTeamSize: 5,
+        rules: 'Rules',
+        prize: 'Prize',
+        latitude: 10,
+        longitude: 106,
+      );
+      final invitation = TeamInvitation(
+        id: 'invitation-id',
+        teamId: 'team-b',
+        inviterId: 'leader-2',
+        inviteeId: 'user-id',
+        status: 'pending',
+        createdAt: DateTime(2026, 6, 1),
+        team: const Team(
           id: 'team-b',
           name: 'Other Team',
           leaderId: 'leader-2',
@@ -421,15 +476,49 @@ void main() {
             ),
           ],
         ),
-      ];
+      );
+      final provider = TeamProvider()
+        ..teams = const [
+          Team(
+            id: 'team-a',
+            name: 'Seal Builders',
+            leaderId: 'leader-id',
+            eventId: 'event-id',
+            members: [
+              AppUser(
+                id: 'user-id',
+                fullName: 'Member',
+                email: 'member@example.com',
+                role: AppRoles.participant,
+                university: 'FPT University',
+              ),
+            ],
+          ),
+          Team(
+            id: 'team-b',
+            name: 'Other Team',
+            leaderId: 'leader-2',
+            eventId: 'event-id',
+            members: [
+              AppUser(
+                id: 'leader-2',
+                fullName: 'Leader 2',
+                email: 'leader2@example.com',
+                role: AppRoles.participant,
+                university: 'FPT University',
+              ),
+            ],
+          ),
+        ];
 
-    await provider.acceptInvitation(invitation, user, event: event);
+      await provider.acceptInvitation(invitation, user, event: event);
 
-    expect(
-      provider.error,
-      L10nService.strings.alreadyOnEventTeamNamedError('Seal Builders'),
-    );
-  });
+      expect(
+        provider.error,
+        L10nService.strings.alreadyOnEventTeamNamedError('Seal Builders'),
+      );
+    },
+  );
 
   test('TeamProvider blocks creating second team on same event', () async {
     const user = AppUser(
@@ -539,7 +628,10 @@ void main() {
       final at = DateTime(2026, 6, 20);
 
       expect(event.registrationOpen(at), isFalse);
-      expect(event.registrationBlockReason(at), L10nService.strings.errorEventEnded);
+      expect(
+        event.registrationBlockReason(at),
+        L10nService.strings.errorEventEnded,
+      );
 
       await provider.createTeam('Late Team', event, user);
 
@@ -743,18 +835,9 @@ void main() {
   });
 
   test('RouteQuery builds event-scoped navigation paths', () {
-    expect(
-      RouteQuery.teamsForEvent('event-1'),
-      '/events/event-1/team',
-    );
-    expect(
-      RouteQuery.overviewForEvent('event-1'),
-      '/events/event-1/overview',
-    );
-    expect(
-      RouteQuery.judgeForEvent('event-1'),
-      '/events/event-1/judge',
-    );
+    expect(RouteQuery.teamsForEvent('event-1'), '/events/event-1/team');
+    expect(RouteQuery.overviewForEvent('event-1'), '/events/event-1/overview');
+    expect(RouteQuery.judgeForEvent('event-1'), '/events/event-1/judge');
     expect(
       RouteQuery.submitForTeam('team-1', eventId: 'event-1'),
       '/events/event-1/submit?team=team-1',
@@ -836,9 +919,96 @@ void main() {
     expect(journey?.step, ParticipantJourneyStep.registrationClosed);
   });
 
+  test('ParticipantJourney shows completed labels for finished track steps', () {
+    final now = DateTime.now();
+    final event = HackathonEvent(
+      id: 'event-1',
+      title: 'Hackathon',
+      description: 'Demo',
+      location: 'HCM',
+      bannerUrl: 'https://example.com/banner.jpg',
+      latitude: 10.0,
+      longitude: 106.0,
+      startDate: now.subtract(const Duration(days: 2)),
+      endDate: now.add(const Duration(days: 2)),
+      registrationDeadline: now.add(const Duration(days: 1)),
+      submissionDeadline: now.add(const Duration(days: 1)),
+      maxTeamSize: 4,
+      rules: 'Rules',
+      prize: 'Prize',
+    );
+    final team = Team(
+      id: 'team-1',
+      name: 'Seal Builders',
+      leaderId: 'user-1',
+      eventId: 'event-1',
+      members: const [
+        AppUser(
+          id: 'user-1',
+          fullName: 'Leader',
+          email: 'leader@example.com',
+          role: 'participant',
+          university: 'SEAL',
+        ),
+      ],
+    );
+    final submission = ProjectSubmission(
+      id: 'submission-1',
+      teamId: 'team-1',
+      projectName: 'Campus Copilot',
+      githubUrl: 'https://github.com/demo/repo',
+      videoUrl: 'https://example.com/demo',
+      description: 'Demo',
+      status: 'reviewed',
+      submittedAt: now.subtract(const Duration(days: 1)),
+    );
+    final scores = ScoreProvider()
+      ..scores = [
+        const ProjectScore(
+          submissionId: 'submission-1',
+          judgeId: 'judge-1',
+          technicalScore: 8,
+          uiScore: 8,
+          innovationScore: 9,
+          feedback: 'Good',
+          averageScore: 8.3,
+        ),
+      ];
+
+    final journey = ParticipantJourney.forUser(
+      event: event,
+      userId: 'user-1',
+      teams: [team],
+      submissions: [submission],
+      scores: scores,
+    );
+
+    expect(journey?.step, ParticipantJourneyStep.hasScore);
+    expect(
+      journey!.trackStepLabel(ParticipantJourneyStep.needsTeam),
+      L10nService.strings.myTeamReadyBadge,
+    );
+    expect(
+      journey.trackStepLabel(ParticipantJourneyStep.needsSubmission),
+      L10nService.strings.submissionStatusSubmitted,
+    );
+    expect(
+      journey.trackStepLabel(ParticipantJourneyStep.awaitingScore),
+      L10nService.strings.submissionStatusReviewed,
+    );
+    expect(
+      journey.trackStepLabel(ParticipantJourneyStep.hasScore),
+      L10nService.strings.journeyStepHasScore,
+    );
+  });
+
   test('RouteQuery score view builds query param', () {
     expect(
-      RouteQuery.submitForEvent('event-1', teamId: 'team-1', view: RouteQuery.viewScore),
+      RouteQuery.submitForEvent(
+        'event-1',
+        teamId: 'team-1',
+        view: RouteQuery.viewScore,
+      ),
       '/events/event-1/submit?team=team-1&view=score',
     );
   });
@@ -863,18 +1033,35 @@ void main() {
     );
 
     expect(event.submissionOpen(now), isTrue);
-    expect(event.judgingOpen(now), isFalse);
+    expect(event.judgingOpen(now), isTrue);
 
-    final afterSubmission = event.submissionDeadline!.add(const Duration(hours: 1));
+    final afterSubmission = event.submissionDeadline!.add(
+      const Duration(hours: 1),
+    );
     expect(event.submissionOpen(afterSubmission), isFalse);
     expect(event.judgingOpen(afterSubmission), isTrue);
   });
 
-  test('ActiveEventResolver skips events without team membership', () {
+  test('ActiveEventResolver prefers open registration when unresolved', () {
     final now = DateTime.now();
     final events = [
       HackathonEvent(
-        id: 'event-1',
+        id: 'event-closed',
+        title: 'Closed Event',
+        description: 'Demo',
+        location: 'HCM',
+        bannerUrl: 'https://example.com/banner.jpg',
+        latitude: 10.0,
+        longitude: 106.0,
+        startDate: now.subtract(const Duration(days: 30)),
+        endDate: now.subtract(const Duration(days: 1)),
+        registrationDeadline: now.subtract(const Duration(days: 10)),
+        maxTeamSize: 4,
+        rules: 'Rules',
+        prize: 'Prize',
+      ),
+      HackathonEvent(
+        id: 'event-open',
         title: 'Open Event',
         description: 'Demo',
         location: 'HCM',
@@ -896,9 +1083,94 @@ void main() {
         userId: 'user-1',
         teams: const [],
       ),
-      isNull,
+      'event-open',
     );
+    expect(ActiveEventResolver.preferDefaultEvent(events)?.id, 'event-open');
   });
+
+  test(
+    'ActiveEventResolver falls back to preferDefault without team membership',
+    () {
+      final now = DateTime.now();
+      final events = [
+        HackathonEvent(
+          id: 'event-1',
+          title: 'Open Event',
+          description: 'Demo',
+          location: 'HCM',
+          bannerUrl: 'https://example.com/banner.jpg',
+          latitude: 10.0,
+          longitude: 106.0,
+          startDate: now.subtract(const Duration(days: 1)),
+          endDate: now.add(const Duration(days: 3)),
+          registrationDeadline: now.add(const Duration(days: 1)),
+          maxTeamSize: 4,
+          rules: 'Rules',
+          prize: 'Prize',
+        ),
+      ];
+
+      expect(
+        ActiveEventResolver.resolveId(
+          events: events,
+          userId: 'user-1',
+          teams: const [],
+        ),
+        'event-1',
+      );
+    },
+  );
+
+  test(
+    'TeamProvider blocks inviting an email already on the same team',
+    () async {
+      final now = DateTime.now();
+      final event = HackathonEvent(
+        id: 'event-id',
+        title: 'SEAL Hackathon',
+        description: 'Build useful products.',
+        startDate: now.subtract(const Duration(days: 1)),
+        endDate: now.add(const Duration(days: 3)),
+        location: 'HCMC',
+        bannerUrl: 'https://example.com/banner.jpg',
+        registrationDeadline: now.add(const Duration(days: 1)),
+        maxTeamSize: 5,
+        rules: 'Rules',
+        prize: 'Prize',
+        latitude: 10,
+        longitude: 106,
+      );
+      final provider = TeamProvider()
+        ..teams = [
+          Team(
+            id: 'team-a',
+            name: 'Seal Builders',
+            leaderId: 'leader-id',
+            eventId: 'event-id',
+            members: const [
+              AppUser(
+                id: 'leader-id',
+                fullName: 'Leader',
+                email: 'leader@example.com',
+                role: AppRoles.participant,
+                university: 'FPT University',
+              ),
+              AppUser(
+                id: 'member-id',
+                fullName: 'Member',
+                email: 'member@example.com',
+                role: AppRoles.participant,
+                university: 'FPT University',
+              ),
+            ],
+          ),
+        ];
+
+      await provider.inviteMember('team-a', 'MEMBER@example.com', event: event);
+
+      expect(provider.error, L10nService.strings.alreadyTeamMemberError);
+    },
+  );
 
   test('eventPhaseFor shows active while submissions are open', () {
     final now = DateTime.now();
@@ -920,7 +1192,7 @@ void main() {
     );
 
     expect(event.submissionOpen(now), isTrue);
-    expect(event.judgingOpen(now), isFalse);
+    expect(event.judgingOpen(now), isTrue);
   });
 
   test('AppNotification parses action metadata from database rows', () {
@@ -1106,20 +1378,175 @@ void main() {
     expect(provider.error, contains('tiêu đề'));
   });
 
-  test('AppLocalizations supports Japanese locale', () {
-  L10nService.setLocale(const Locale('ja'));
-  addTearDown(() => L10nService.setLocale(const Locale('vi')));
+  test('Judge queue sorts by team display name', () {
+    const teams = [
+      Team(
+        id: 'team-z',
+        name: 'Zulu Team',
+        leaderId: 'leader-z',
+        eventId: 'event-id',
+        members: [
+          AppUser(
+            id: 'leader-z',
+            fullName: 'Leader Z',
+            email: 'z@example.com',
+            role: AppRoles.participant,
+            university: 'FPT University',
+          ),
+        ],
+      ),
+      Team(
+        id: 'team-a',
+        name: 'Alpha Team',
+        leaderId: 'leader-a',
+        eventId: 'event-id',
+        members: [
+          AppUser(
+            id: 'leader-a',
+            fullName: 'Leader A',
+            email: 'a@example.com',
+            role: AppRoles.participant,
+            university: 'FPT University',
+          ),
+        ],
+      ),
+    ];
+    final submissions = [
+      ProjectSubmission(
+        id: 'submission-z',
+        teamId: 'team-z',
+        projectName: 'Zulu App',
+        githubUrl: 'https://github.com/seal/zulu',
+        videoUrl: 'https://example.com/zulu',
+        description: 'Zulu project',
+      ),
+      ProjectSubmission(
+        id: 'submission-a',
+        teamId: 'team-a',
+        projectName: 'Alpha App',
+        githubUrl: 'https://github.com/seal/alpha',
+        videoUrl: 'https://example.com/alpha',
+        description: 'Alpha project',
+      ),
+    ];
 
-  expect(AppLocalizations.supportedLocales, contains(const Locale('ja')));
-  expect(L10nService.strings.loginTitle, 'ログイン');
-  expect(L10nService.strings.languageJa, '日本語');
-  expect(
-    L10nService.strings.scorePublishedNotificationBody(
-      'Team Alpha',
-      average: 8.5,
-      feedback: 'Good work',
-    ),
-    'Team Alphaに新しいスコアがあります：8.5点。フィードバック：Good work。',
-  );
+    final sorted = JudgeQueueViewData.visibleSubmissions(
+      all: submissions,
+      scores: ScoreProvider(),
+      teams: teams,
+      filter: 'all',
+      sort: 'team',
+      search: TextEditingController(),
+    );
+
+    expect(sorted.map((submission) => submission.id).toList(), [
+      'submission-a',
+      'submission-z',
+    ]);
+  });
+
+  test('nextUnscoredId ignores scored filter', () {
+    final scores = ScoreProvider()
+      ..scores = const [
+        ProjectScore(
+          submissionId: 'scored-id',
+          judgeId: 'judge-id',
+          technicalScore: 8,
+          uiScore: 8,
+          innovationScore: 8,
+          feedback: 'Done',
+        ),
+      ];
+    final submissions = [
+      ProjectSubmission(
+        id: 'scored-id',
+        teamId: 'team-a',
+        projectName: 'Scored App',
+        githubUrl: 'https://github.com/seal/scored',
+        videoUrl: 'https://example.com/scored',
+        description: 'Already scored',
+      ),
+      ProjectSubmission(
+        id: 'unscored-id',
+        teamId: 'team-b',
+        projectName: 'Unscored App',
+        githubUrl: 'https://github.com/seal/unscored',
+        videoUrl: 'https://example.com/unscored',
+        description: 'Still waiting',
+      ),
+    ];
+
+    expect(
+      JudgeQueueViewData.nextUnscoredId(
+        queueSource: submissions,
+        scores: scores,
+        teams: const [],
+        sort: 'queue',
+        search: TextEditingController(),
+      ),
+      'unscored-id',
+    );
+  });
+
+  test('FriendlyErrorMapper preserves invitation no longer pending copy', () {
+    expect(
+      FriendlyErrorMapper.message(
+        Exception(L10nService.strings.invitationNoLongerPending),
+      ),
+      L10nService.strings.invitationNoLongerPending,
+    );
+  });
+
+  test('SubmissionViewData locks form after submission has scores', () {
+    expect(
+      SubmissionViewData.isReadOnly(
+        scoreView: false,
+        scoreCount: 1,
+        hasSubmission: true,
+        submissionClosed: false,
+      ),
+      isTrue,
+    );
+  });
+
+  test('SubmissionViewData locks existing submission after deadline', () {
+    expect(
+      SubmissionViewData.isReadOnly(
+        scoreView: false,
+        scoreCount: 0,
+        hasSubmission: true,
+        submissionClosed: true,
+      ),
+      isTrue,
+    );
+  });
+
+  test('SubmissionViewData allows draft when no submission exists', () {
+    expect(
+      SubmissionViewData.isReadOnly(
+        scoreView: false,
+        scoreCount: 0,
+        hasSubmission: false,
+        submissionClosed: true,
+      ),
+      isFalse,
+    );
+  });
+
+  test('AppLocalizations supports Japanese locale', () {
+    L10nService.setLocale(const Locale('ja'));
+    addTearDown(() => L10nService.setLocale(const Locale('vi')));
+
+    expect(AppLocalizations.supportedLocales, contains(const Locale('ja')));
+    expect(L10nService.strings.loginTitle, 'ログイン');
+    expect(L10nService.strings.languageJa, '日本語');
+    expect(
+      L10nService.strings.scorePublishedNotificationBody(
+        'Team Alpha',
+        average: 8.5,
+        feedback: 'Good work',
+      ),
+      'Team Alphaに新しいスコアがあります：8.5点。フィードバック：Good work。',
+    );
   });
 }

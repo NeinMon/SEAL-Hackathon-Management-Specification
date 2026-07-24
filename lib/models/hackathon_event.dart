@@ -146,16 +146,12 @@ class HackathonEvent {
 
   bool judgingOpen([DateTime? at]) {
     final now = at ?? DateTime.now();
-    return !effectiveSubmissionDeadline.isAfter(now) &&
-        !endDate.isBefore(now);
+    return !startDate.isAfter(now) && !endDate.isBefore(now);
   }
 
   String? judgingBlockReason([DateTime? at]) {
     final now = at ?? DateTime.now();
     if (startDate.isAfter(now)) {
-      return L10nService.strings.errorJudgingNotStarted;
-    }
-    if (effectiveSubmissionDeadline.isAfter(now)) {
       return L10nService.strings.errorJudgingNotStarted;
     }
     if (endDate.isBefore(now)) {

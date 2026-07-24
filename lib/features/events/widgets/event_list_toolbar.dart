@@ -88,6 +88,7 @@ class EventSortDropdown extends StatelessWidget {
         Expanded(
           child: DropdownButtonFormField<String>(
             key: const Key('event_sort_dropdown'),
+            isExpanded: true,
             initialValue: value,
             decoration: InputDecoration(
               labelText: L10nService.strings.sortLabel,
@@ -99,7 +100,10 @@ class EventSortDropdown extends StatelessWidget {
             ),
             items: [
               for (final entry in EventCatalog.sortLabels.entries)
-                DropdownMenuItem(value: entry.key, child: Text(entry.value)),
+                DropdownMenuItem(
+                  value: entry.key,
+                  child: Text(entry.value, overflow: TextOverflow.ellipsis),
+                ),
             ],
             onChanged: isLoading
                 ? null
